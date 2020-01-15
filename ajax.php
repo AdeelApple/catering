@@ -51,14 +51,11 @@ $funs = array(
 	}
 
 	$ending_date = date("Y-m-d", strtotime($date));
-	
 
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
+
 	$rsps = "'Khoya Kheer','Fruit Trifle','Lab-e-Shireen'";
 	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
-	$qry = "select sum(persons) from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
@@ -84,15 +81,9 @@ $funs = array(
 	$ending_date = date("Y-m-d", strtotime($date));
 	
 
-
-
-
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 	$rsps = "'Khoya Kheer'";
 	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
-	$qry = "select sum(persons) from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;

@@ -201,27 +201,17 @@ function is_ctm_pp($it){
  }
 function get_item_from_all_orders($nm,$dt){
 
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "{$t1}.order_id,{$t1}.persons, {$t1}.pp, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty";
-
-	$qry = "select {$clms} from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and date(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clms} from {$t1} LEFT JOIN {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and date(delivery_time) = '{$dt}'";
+	$qry = "select * from order_items where name like '{$nm}' and item != 0 and date(delivery_time) = '{$dt}'";
 	// $qry .= " union select {$clms}{$clm2} from {$t1} where {$t1}.custom like '{$nm}' and type=3 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
 
  }
 function oit_of_date($list,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 
 	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.category, {$t1}.package, {$t1}.main, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.list, {$t1}.delivery_time,name,pp,meat_limit,rice_limit";
 
-	$qry = "select {$clms} from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where item!=0 and type=1 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clms} from {$t1} LEFT JOIN {$t3} on {$t1}.item = {$t3}.id where item!=0 and type=2 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
-	return q($qry." order by delivery_time");
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where item!=0 and list={$list} and DATE(delivery_time) = '{$dt}' order by delivery_time";
+	return q($qry);
 
  }
 function is_pp($it){
