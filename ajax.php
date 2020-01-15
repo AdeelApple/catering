@@ -686,10 +686,10 @@ $funs = array(
 		$sella = array();
 		foreach ($pots_list as $key => $val) {
 			if(isset($val['pot'])){
-				if($val['potitems'][0]['name']=="Chicken Pulao" or $val['potitems'][0]['name']=="Veal Pulao"){
+				if($val['potitems'][0]['rice_type']==1){
 					array_push($basmati, array('name' => $val['potitems'][0]['name'],'val'=>$val['pot']['rice']));
 				}
-				if($val['potitems'][0]['name']=="Chicken Biryani" or $val['potitems'][0]['name']=="Veal Biryani" or $val['potitems'][0]['name']=="Zarda"){
+				if($val['potitems'][0]['rice_type']==2){
 					array_push($sella, array('name' => $val['potitems'][0]['name'],'val'=>$val['pot']['rice']));
 				}
 			}

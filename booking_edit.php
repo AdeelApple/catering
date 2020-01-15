@@ -425,20 +425,21 @@
 			<table id="t1" class="table table-hover small table-responsive table-bordered text-center w-100">
 				<thead>
 					<tr>
-						<th width="4%"><i class="fa fa-plus btn btn-success btn-sm" data-rows="<?=$fullctm_rows+1;?>" onclick="create_fullctm(this)"></i></th>
+						<th width="3%"><i class="fa fa-plus btn btn-success btn-sm" data-rows="<?=$fullctm_rows+1;?>" onclick="create_fullctm(this)"></i></th>
 						<th width="14%">Recipe</th>
-						<th width="8%">Type</th>
+						<th width="6%">Type</th>
 						<th width="8%">List</th>
-						<th width="4%">V.Mild</th>
-						<th width="4%">Mild</th>
-						<th width="4%">Spicy</th>
-						<th width="5%">L</th>
-						<th width="5%">M</th>
-						<th width="5%">S</th>
-						<th width="16%" colspan="3">Prices(L-M-S)</th>
-						<!-- <th width="11%">Total</th> -->
+						<th width="6%">Meat</th>
+						<th width="6%">Rice</th>
+						<th width="3%">V.Mild</th>
+						<th width="3%">Mild</th>
+						<th width="3%">Spicy</th>
+						<th width="4%">L</th>
+						<th width="4%">M</th>
+						<th width="4%">S</th>
+						<th width="14%" colspan="3">Prices(L-M-S)</th>
 						<th width="6%">Total</th>
-						<th width="16%">Comment</th>
+						<th width="12%">Comment</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -462,7 +463,7 @@
 							<input type="hidden" name="fullctmiid<?=$id?>[]" class="fullctmiid" value="<?=$iid?>" <?=$dis?>>
 						</td>
 						<td class="text-left">
-							<input type="text" name="fullctm_name<?=$id.$iid?>" class="fullctm_name addiid emp form-control form-control-sm" oninput="fullctm_named(this)" value="<?=$fci['custom']?>" placeholder="New Recipe..." required="required" <?=$dis?>>
+							<input type="text" name="fullctm_name<?=$id.$iid?>" class="fullctm_name addiid emp form-control form-control-sm" oninput="fullctm_named(this)" value="<?=$fci['name']?>" placeholder="New Recipe..." required="required" <?=$dis?>>
 						</td>
 						<td>
 							<select name="fullctm_pp<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
@@ -473,6 +474,19 @@
 						<td>
 							<select name="fullctm_list<?=$id.$iid?>" class="list addiid form-control form-control-sm" <?=$dis?>>
 								<?php options("select list,name from kitchen_list where custom=1 order by rank",$fci['list']); ?>
+							</select>
+						</td>
+						<td>
+							<select name="fullctm_meat<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
+								<option value="none">none</option>
+								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank",$fci['mr_cal']); ?>
+							</select>
+						</td>
+						<td>
+							<select name="fullctm_rice<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
+								<option value="none" <?php if($fci['rice_type']==null) 'selected'; ?> >none</option>
+								<option value="1" <?php if($fci['rice_type']==1) 'selected'; ?> >Basmati</option>
+								<option value="2" <?php if($fci['rice_type']==2) 'selected'; ?> >Sella</option>
 							</select>
 						</td>
 						<td>

@@ -183,10 +183,10 @@ function mark_edit($oid,$tp,$item){
 	return bit("select count(id) from order_items where order_id=$oid and item=$item and type=$tp");
  }
 function default_edit_row(){
-	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'custom' => '', 'pp' => 0, 'list' => 1);
+	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
  }
 function fullctm_default_arr(){
-	return array('spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'custom' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
+	return array('spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
 
  }
 function del_pkg_order($oid,$tp,$pkg,$main){
@@ -243,21 +243,21 @@ function pkgcmt($oid,$main){
 
 // Quries Functoins
 
-function update_pkg_item($item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$pkgprice,$pkg_total,$delivery_time,$order_items_id){
-	$qry = "update order_items set item=$item_id, category=$category,  package=$package,  main=$main, persons=$persons, spice=$spice, tray_lg=$tray_lg, tray_md=$tray_md, tray_sm=$tray_sm, description='$comment', qty=$total_qty, pkgprice=$pkgprice, total=$pkg_total, delivery_time='$delivery_time' where id=$order_items_id";
+function update_pkg_item($item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$pkgprice,$pkg_total,$delivery_time,$order_items_id,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$qry = "update order_items set item=$item_id, category=$category,  package=$package,  main=$main, persons=$persons, spice=$spice, tray_lg=$tray_lg, tray_md=$tray_md, tray_sm=$tray_sm, description='$comment', qty=$total_qty, pkgprice=$pkgprice, total=$pkg_total, delivery_time='$delivery_time' where id=$order_items_id,mr_cal = $meatrice,rice_type = $rice_type,is_meat_cal = $is_meat_cal, is_rice_cal = $is_rice_cal";
 	q($qry);
  }
-function insert_pkg_item($order_id,$item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$pp,$list,$delivery_time){
-	$qry = "insert into order_items(order_id,item,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time) values($order_id,$item_id,$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time')";
+function insert_pkg_item($order_id,$item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$pp,$list,$delivery_time,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$qry = "insert into order_items(order_id,item,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time',$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
  }
-function insert_ctm_item($order_id,$item_id,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time){
-	$qry = "insert into order_items(order_id,item,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time) values($order_id,$item_id,$main,2,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,'$delivery_time')";
+function insert_ctm_item($order_id,$item_id,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$qry = "insert into order_items(order_id,item,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,$main,2,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,'$delivery_time',$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
  }
 
-function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time){
-	$items3_qry = "insert into order_items(order_id,item,custom,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time')";
+function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_meat,$fullctm_rice,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$items3_qry = "insert into order_items(order_id,item,custom,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_meat,$fullctm_rice,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($items3_qry);
  }
 
@@ -283,7 +283,7 @@ function pkg_nm($id){	return getbit("select name from food_packages where id=$id
 function item_nm($id,$tp=1,$r=NULL){	
 	if($tp==1) $nm=getbit("select name from food_package_items where id=$id");	else 
 	if($tp==2) $nm=getbit("select name from food_custom_items where id=$id"); else
-	if($tp==3) $nm=$r['custom'];
+	if($tp==3) $nm=$r['name'];
 	else $nm = "Unknown type";
 	return $nm;
  }
@@ -376,12 +376,7 @@ function total_raita($dt){
 	return is_null($v)? 0 : $v; 
  }
 function pot_items_of_day($list,$dt){
- 	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "name, {$t1}.item, {$t1}.type, {$t1}.pp, {$t1}.list, {$t1}.delivery_time";
-	$qry = "select * from (select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where type=1 and item != 0 and mr_cal is not null and {$t1}.list={$list} and date(delivery_time)='{$dt}' ";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where type=2 and item != 0 and mr_cal is not null and {$t1}.list={$list} and date(delivery_time)='{$dt}') as itemlist group by itemlist.name order by TIMESTAMP(itemlist.delivery_time)";
+	$qry = "select * from order_items where item != 0 and mr_cal is not null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
 	while($r = mysqli_fetch_array($rs)){ 
@@ -393,24 +388,13 @@ function pot_item_of_day($val){
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.category, {$t1}.package, {$t1}.main, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.delivery_time,{$t1}.pp,{$t1}.list,name,meat_limit,rice_limit,mr_cal,meat_lg,meat_md,meat_sm,rice_lg,rice_md,rice_sm, is_meat_cal,is_rice_cal,tspan,rank";
 
-	$qry = "select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}' ";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and type=1 and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return qry_arr($qry);
  }
 function non_mr_items_of_day($list,$dt){
- 	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "name, {$t1}.item, {$t1}.type, {$t1}.pp, {$t1}.list, {$t1}.delivery_time";
-	$clms2 = "custom as name, {$t1}.item, {$t1}.type, {$t1}.pp, {$t1}.list, {$t1}.delivery_time";
-	$qry = "select * from (select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where type=1 and item != 0 and mr_cal is null and {$t1}.list={$list} and date(delivery_time)='{$dt}' ";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where type=2 and mr_cal is null and {$t1}.list={$list} and date(delivery_time)='{$dt}'";
-	$qry .= " union select {$clms2} from {$t1} where type=3 and {$t1}.list={$list} and date(delivery_time)='{$dt}') as itemlist group by itemlist.name order by TIMESTAMP(itemlist.delivery_time)";
+
+	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
 	while($r = mysqli_fetch_array($rs)){ 
@@ -442,16 +426,8 @@ function item_in_day($val){
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.delivery_time,{$t1}.pp,{$t1}.list";
-	$clm1 = ",name,rank,tspan";
-	$clm2 = ",custom as name, '10000' as rank, '4' as tspan";
 
-	$qry = "select {$clms}{$clm1} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and {$t1}.list={$list} and date(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clms}{$clm1} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' ";
-	$qry .= " union select {$clms}{$clm2} from {$t1} where {$t1}.custom like '{$nm}' and type=3 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
  }
 
