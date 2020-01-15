@@ -58,7 +58,7 @@ $funs = array(
 	$t3 = "food_custom_items";
 	$rsps = "'Khoya Kheer','Fruit Trifle','Lab-e-Shireen'";
 	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
-	$qry = "select sum(persons) from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry = "select sum(persons) from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
@@ -92,7 +92,7 @@ $funs = array(
 	$t3 = "food_custom_items";
 	$rsps = "'Khoya Kheer'";
 	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
-	$qry = "select sum(persons) from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry = "select sum(persons) from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name in({$rsps}) and item != 0 and type=1 and {$t1}.list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
@@ -332,6 +332,7 @@ $funs = array(
 },
 5000 => function(){ 
 	// Table Ingredients
+	// Meat Report
 
 	$d = $_POST['delivery_time'];
 	$qry = "select * from food_ingredients";
@@ -555,6 +556,7 @@ $funs = array(
 	// Table Kitchen Naan Orders
 	$d = isset($_POST['delivery_time'])? $_POST['delivery_time']:"0000-00-00";	
 	$pots_list = get_naan_pots(5,$d);
+	// die(print_r($pots_list));
 	if(count($pots_list)>0){ ?>
 	<div class="col p-0">
 		<!-- <div id="k-1" class="row m-0"> -->		

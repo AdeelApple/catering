@@ -206,8 +206,8 @@ function get_item_from_all_orders($nm,$dt){
 	$t3 = "food_custom_items";
 	$clms = "{$t1}.order_id,{$t1}.persons, {$t1}.pp, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty";
 
-	$qry = "select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and date(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and date(delivery_time) = '{$dt}'";
+	$qry = "select {$clms} from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and date(delivery_time) = '{$dt}'";
+	$qry .= " union select {$clms} from {$t1} LEFT JOIN {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and date(delivery_time) = '{$dt}'";
 	// $qry .= " union select {$clms}{$clm2} from {$t1} where {$t1}.custom like '{$nm}' and type=3 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
 
@@ -219,8 +219,8 @@ function oit_of_date($list,$dt){
 
 	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.category, {$t1}.package, {$t1}.main, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.list, {$t1}.delivery_time,name,pp,meat_limit,rice_limit";
 
-	$qry = "select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where item!=0 and type=1 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where item!=0 and type=2 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
+	$qry = "select {$clms} from {$t1} LEFT JOIN {$t2} on {$t1}.item = {$t2}.id where item!=0 and type=1 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
+	$qry .= " union select {$clms} from {$t1} LEFT JOIN {$t3} on {$t1}.item = {$t3}.id where item!=0 and type=2 and {$t1}.list={$list} and DATE(delivery_time) = '{$dt}'";
 	return q($qry." order by delivery_time");
 
  }
@@ -337,12 +337,8 @@ function cat_items_options($cat,$id=""){
 	echo "<option value='0' data-pp='0' data-list='1' data-reduce='{$nnval}' data-increase='0.00' {$sl}>None</option>";
  }
 function bbq_items_list_by_name($dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "order_id, name, item, type, spice, qty, description, delivery_time";
-	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
-	$qry = "select * from (select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where item != 0 and type=1 and {$t1}.list=2 and date(delivery_time)='{$dt}' union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where item != 0 and type=2 and {$t1}.list=2 and date(delivery_time)='{$dt}' union select {$clms2} from {$t1} where type=3 and {$t1}.list=2 and date(delivery_time) = '{$dt}') as itemlist order by TIMESTAMP(itemlist.delivery_time)";
+
+	$qry = "select * from order_items where item != 0 and list=2 and date(delivery_time)='{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
  }
 function bbq_pcs($r){
@@ -358,14 +354,8 @@ function salads($val){
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clm1 = "sum(md), sum(sm)";
-	$clm2 = "sum({$t1}.tray_md) as md,sum({$t1}.tray_sm) as sm";
 
-	$qry = "select {$clm1} from (select {$clm2} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name like '{$nm}' and type=1 and item != 0 and {$t1}.list={$list} and date(delivery_time) = '{$dt}'";
-	$qry .= " union select {$clm2} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name like '{$nm}' and type=2 and item != 0 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' ) as salads";
+	$qry = "select sum(md), sum(sm) from (select sum(tray_md) as md,sum(tray_sm) as sm from order_items where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}') as salads";
 	return frow($qry);
  }
 
@@ -389,12 +379,12 @@ function pot_item_of_day($val){
 	$list = $val['list'];
 	$dt = $val['dt'];
 
-	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and type=1 and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and type=1 and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return qry_arr($qry);
  }
 function non_mr_items_of_day($list,$dt){
 
-	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
 	while($r = mysqli_fetch_array($rs)){ 
@@ -426,8 +416,7 @@ function item_in_day($val){
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
-
-	$qry = "select * from order_items inner join mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
  }
 
@@ -590,14 +579,7 @@ function get_all_pots($list,$d){
 }
 
 function misc_items_of_day($list,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$clms = "name, {$t1}.item, {$t1}.type, {$t1}.pp, {$t1}.list, {$t1}.delivery_time";
-	$clms2 = "custom as name, {$t1}.item, {$t1}.type, {$t1}.pp, {$t1}.list, {$t1}.delivery_time";
-	$qry = "select * from (select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where type=1 and item != 0 and {$t1}.list={$list} and date(delivery_time)='{$dt}' ";
-	$qry .= " union select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where type=2 and {$t1}.list={$list} and date(delivery_time)='{$dt}'";
-	$qry .= " union select {$clms2} from {$t1} where type=3 and {$t1}.list={$list} and date(delivery_time)='{$dt}') as itemlist group by itemlist.name order by TIMESTAMP(itemlist.delivery_time)";
+	$qry = "select * from order_items where item !=0 and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
 	while($r = mysqli_fetch_array($rs)){ 
@@ -609,14 +591,17 @@ function get_naan_pots($list,$d){
 	$pots_list  = array();
 
 	$day_list = misc_items_of_day($list,$d);
+	// die(print_r($day_list));
 	foreach ($day_list as $key => $val)
 	{
 		$potitems = array();
 		$rs = item_in_day($val);
+		// die(print_r($rs));
 
 		while($r = mysqli_fetch_assoc($rs)){	array_push($potitems, $r);	}
 		if (count($potitems)>0){ array_push($pots_list, array('potitems' => $potitems));	}
 	}
+	// die(print_r($pots_list));
 	if(count($pots_list)>0){
 
 		foreach ($pots_list as $key => $value) {
@@ -628,6 +613,7 @@ function get_naan_pots($list,$d){
 		}
 		array_multisort($sort_dt, SORT_ASC, $pots_list);
 		
+		// die(print_r($pots_list));
 		return $pots_list;
 	}
 	return array();
@@ -1001,74 +987,67 @@ function rsp_nms_string($rsp){
 	return "'".implode("','", $arr)."'";
  }
 function pkg_meat($rsp,$dt,$div){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$qry = "select sum(persons) from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}' ";
+	$qry = "select sum(persons) from order_items where name in($rsp) and type=1 and date(delivery_time)='{$dt}' ";
 	return round(getbit($qry)/$div,2);
  }
 function ctm_meat($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
-	$qry = "select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$row = frow($qry);
+	return round($row[0]+$row[1]+$row[2],2);
+ }
+function fullctm_meat($rsp,$dt){
+	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=3 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
 function pkg_rice($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
-	$qry = "select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
 function ctm_rice($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
-	$qry = "select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$row = frow($qry);
+	return round($row[0]+$row[1]+$row[2],2);
+ }
+function fullctm_rice($rsp,$dt){
+	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
 function ctm_meat_for_all($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm)";
-	$qry1 = "select {$clms} from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}'";
-	$qry2 = "select {$clms} from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry1 = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and date(delivery_time)='{$dt}'";
 	$row1 = frow($qry1);
-	$row2 = frow($qry2);
-	return round($row1[0]+$row1[1]+$row1[2]+$row2[0]+$row2[1]+$row2[2],2);
+	return round($row1[0]+$row1[1]+$row1[2],2);
  }
 function all_qty($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}' union select sum(qty) as qtysum from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}') as allqty";
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
  function qty_pkg($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from {$t1} inner join {$t2} on {$t1}.item = {$t2}.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}') as allqty";
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
   function qty_ctm($rsp,$dt){
-	$t1 = "order_items";
-	$t2 = "food_package_items";
-	$t3 = "food_custom_items";
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from {$t1} inner join {$t3} on {$t1}.item = {$t3}.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}') as allqty";
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where name in($rsp) and type=2 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
+  function qty_fullctm($rsp,$dt){
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where name in($rsp) and type=3 and date(delivery_time)='{$dt}') as allqty";
+	$qty = getbit($qry);
+	return is_null($qty)? 0:$qty;
+ }
+
+ // Get weight
 function getweight($rsp,$cal){
 	$wt = array('inkg' => 0.0,'inlb' => 0.0,'per' => 0, 'qty' => NULL);
 	$rsp = is_null($rsp)? 'NULL': rsp_nms_string($rsp);
@@ -1076,30 +1055,30 @@ function getweight($rsp,$cal){
 
 	$meat_funs = array(
 		1 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt);
+			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'>KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'>LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
 		},2 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt);
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
 		},3 => function($rsp,$dt){
 			$pcs =  qty_ctm($rsp,$dt) * 3;
-
-			$pcs = qty_pkg($rsp,$dt) + $pcs;
+			$pcs +=  qty_fullctm($rsp,$dt) * 3;
+			$pcs += qty_pkg($rsp,$dt);
 			$legs = round($pcs / 3, 2);
 			$vkg = "<span class='kgval'>".$pcs."</span><span class='unit'> PC</span>";
 			$vlb = "<span class='lbval'>".$legs."</span><span class='unit'> Full Legs</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => $pcs);
 		},4 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt);
+			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
 		},5 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt);
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
@@ -1109,7 +1088,7 @@ function getweight($rsp,$cal){
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
 		},7 => function($rsp,$dt){
-			$kg = ctm_meat($rsp,$dt);
+			$kg = ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
@@ -1119,7 +1098,7 @@ function getweight($rsp,$cal){
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
 		},9 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt);
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
@@ -1131,6 +1110,7 @@ function getweight($rsp,$cal){
 		},11 => function($rsp,$dt){
 			$kg = pkg_meat($rsp,$dt,8);
 			$kg += round(ctm_meat($rsp,$dt),2);
+			$kg += round(fullctm_meat($rsp,$dt),2);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
@@ -1150,7 +1130,7 @@ function getweight($rsp,$cal){
 			$vlb = "<span class='lbval'>".$pcs."</span><span class='unit'> PC</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => $pcs);
 		},15 => function($rsp,$dt){
-			$kg = pkg_rice($rsp,$dt)+ctm_rice($rsp,$dt);
+			$kg = pkg_rice($rsp,$dt)+ctm_rice($rsp,$dt)+fullctm_rice($rsp,$dt);
 			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
 			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'> LB</span>";
 			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
