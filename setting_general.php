@@ -23,7 +23,7 @@
 								</div>
 								<input type="number" min="0" step="any" id="value1<?=$r['id']?>" value="<?=$r['value1']?>" data-id="<?=$r['id']?>" data-clm="value1" data-old="<?=$r['value1']?>" class="value form-control">
 								<div class="input-group-append">
-								    <span class="input-group-text">Sec</span>
+								    <span class="input-group-text">Min</span>
 								</div>
 							</div>
 						</div>

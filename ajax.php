@@ -182,9 +182,9 @@ $funs = array(
 	echo "success";
 },
 320 => function(){
-	// Update item Tray Meat and Rice
+	// Update Package item Tray Meat and Rice
 	$arr = json_decode($_POST['arr']);
-	$tbl = "food_package_items";
+	$tbl = "mr_limits";
 	foreach ($arr as $key => $val) {
 		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
 		q($qry);
@@ -192,9 +192,9 @@ $funs = array(
 	echo "success";
 },
 321 => function(){
-	// Update item Meat and Rice Limits
+		// Update Package item Meat and Rice Limits
 	$arr = json_decode($_POST['arr']);
-	$tbl = "food_package_items";
+	$tbl = "mr_limits";
 	foreach ($arr as $key => $val) {
 		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
 		q($qry);
@@ -202,9 +202,10 @@ $funs = array(
 	echo "success";
 },
 322 => function(){
-	// Update item Tray Meat and Rice
+		// Update Custom item Tray Meat and Rice
+
 	$arr = json_decode($_POST['arr']);
-	$tbl = "food_custom_items";
+	$tbl = "mr_limits";
 	foreach ($arr as $key => $val) {
 		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
 		q($qry);
@@ -212,9 +213,19 @@ $funs = array(
 	echo "success";
 },
 323 => function(){
-	// Update item Meat and Rice Limits
+	// Update Custom item Meat and Rice Limits
 	$arr = json_decode($_POST['arr']);
-	$tbl = "food_custom_items";
+	$tbl = "mr_limits";
+	foreach ($arr as $key => $val) {
+		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
+		q($qry);
+	}
+	echo "success";
+},
+325 => function(){
+	// Update Pakage and  Custom item Meat and Rice Limits and Refresh kitchen
+	$arr = json_decode($_POST['arr']);
+	$tbl = "mr_limits";
 	foreach ($arr as $key => $val) {
 		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
 		q($qry);

@@ -91,7 +91,7 @@ function ingredients(){
 function order_list_kitchen(){
 	var flt = {};
 	var refresh_rate = $('#refresh_rate').val();
-	refresh_rate = Number(refresh_rate)*1000;
+	refresh_rate = Number(refresh_rate)*1000*60;
 	font = $('#font').val();
 	
 	$('.filter').each(function(index, el) {
@@ -588,6 +588,37 @@ function fetch_pkg(obj) {
 			$(btn).html(oldtxt);
 			if(d=="success")
             	msg("Changes saved.");
+        	else
+            	msg("Changes failed: "+d,2);
+		});
+	}
+
+
+	// Update Pakage and  Custom item Meat and Rice Limits and Refresh kitchen
+	function update_and_refresh_mr_limits(btn){
+		var oldtxt = $(btn).html();
+		$(btn).html("<i class='fas fa-spinner fa-pulse'></i> Updating...");
+		var obj = {};
+		$(".mr_limit[data-changed='1']").each(function(index, el) {
+			var id = $(el).attr('data-id');
+			var val = $(el).val();	if(val=="") val = 0.00;
+			var clm = $(el).attr('data-clm');
+			oldval = $(el).attr('data-old');
+			newval = $(el).val();
+			if(oldval!=newval){
+				obj[index] = [clm,val,id];
+			}
+			$(el).css('backgroundColor' , '#FFF');
+			$(el).removeAttr('data-changed');
+		});
+
+		var json = JSON.stringify(obj);
+		$.post('ajax.php',{arr:json,fun:325}, function(d) {
+			$(btn).html(oldtxt);
+			if(d=="success"){
+				order_list_kitchen()
+            	msg("Changes saved Kitchen List Refreshed.");
+			}
         	else
             	msg("Changes failed: "+d,2);
 		});

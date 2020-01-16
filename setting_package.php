@@ -175,7 +175,7 @@
 			<h4 class="mt-1"><i class="fa fa-hockey-puck"></i> Package Pot Meat And Rice Limits</h4>
 		</div>
 		<div class="card-body">
-			<?php $rs = q("select * from food_package_items where is_meat_cal=1 or is_rice_cal=1;");
+			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
 			while($r = mysqli_fetch_array($rs)){ ?>
 			<div class="row">
 				<div class="col-md-4 border rounded p-2 m-0">
@@ -214,13 +214,13 @@
 		</div>
 	</div>
 
-	<!-- Pot Meat Rice Limits -->
+	<!-- Pot Meat Rice -->
 	<div class="card mt-2">
 		<div class="card-header bg-success text-light">
 			<h4 class="mt-1"><i class="fa fa-bone"></i> Package Tray Meat And Rice</h4>
 		</div>
 		<div class="card-body">
-			<?php $rs = q("select * from food_package_items where is_meat_cal=1 or is_rice_cal=1 order by is_meat_cal desc;");
+			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1 order by is_meat_cal desc;");
 			while($r = mysqli_fetch_array($rs)){ ?>
 			<div class="row">
 				<div class="col-md-2 border rounded p-2 m-0">
@@ -233,11 +233,12 @@
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-success text-light">lg</span>
 								</div>
+								<?php if($r['is_meat_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-primary text-light">meat</span>
 								</div>
 								<input type="number" min="0" step="any" id="meat_lg<?=$r['id']?>" value="<?=$r['meat_lg']?>" data-id="<?=$r['id']?>" data-clm="meat_lg" data-old="<?=$r['meat_lg']?>" class="mr form-control">
-								<?php if($r['is_rice_cal']){ ?>
+								<?php } if($r['is_rice_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-info text-light">rice</span>
 								</div>
@@ -250,11 +251,12 @@
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-success text-light">md</span>
 								</div>
+								<?php if($r['is_meat_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-primary text-light">meat</span>
 								</div>
 								<input type="number" min="0" step="any" id="meat_md<?=$r['id']?>" value="<?=$r['meat_md']?>" data-id="<?=$r['id']?>" data-clm="meat_md" data-old="<?=$r['meat_md']?>" class="mr form-control">
-								<?php if($r['is_rice_cal']){ ?>
+								<?php } if($r['is_rice_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-info text-light">rice</span>
 								</div>
@@ -267,11 +269,12 @@
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-success text-light">sm</span>
 								</div>
+								<?php if($r['is_meat_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-primary text-light">meat</span>
 								</div>
 								<input type="number" min="0" step="any" id="meat_sm<?=$r['id']?>" value="<?=$r['meat_sm']?>" data-id="<?=$r['id']?>" data-clm="meat_sm" data-old="<?=$r['meat_sm']?>" class="mr form-control">
-								<?php if($r['is_rice_cal']){ ?>
+								<?php } if($r['is_rice_cal']){ ?>
 								<div class="input-group-prepend">
 								    <span class="input-group-text bg-info text-light">rice</span>
 								</div>
