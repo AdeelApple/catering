@@ -81,7 +81,7 @@ function ingredients(){
 	$.post('ajax.php', flt, function(d) {
 		$("#tbl").html(d);
 		$("#scr").remove();
-		cal_sum_ingredients();
+
 	});
 }
 
@@ -197,6 +197,34 @@ function fetch_pkg(obj) {
 
 
 // UPDATATION
+
+
+	// Update Purchased Items
+	function savePurchasedQty(obj){
+
+		var date = $('#date').val();
+		var old_content = $(obj).attr('data-old');
+		var new_content = $(obj).val();
+		var ingredient_id = $(obj).attr('data-id');
+
+		if(old_content != new_content){
+			
+			$.post('ajax.php', {ingredient_id:ingredient_id,value:new_content,date:date,fun:355}, function(d) {
+				
+				if(d=="success")
+					msg("Saved");
+				else
+					msg("Failed to Save changes."+d);
+			});
+		}
+	}
+
+	// Update Purchased Items
+	function calRemainingQty(obj){
+
+		var tr = $(obj).closest('tr');
+		$(tr).find('.remaining').html(sub($(tr).find('.total').html(),$(tr).find('.purchased').val()));
+	}
 
 	// Update Admin Settings
 	function save_settings(){

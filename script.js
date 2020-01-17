@@ -34,6 +34,11 @@
 	function div(a,b){	return Number(Number(a) / Number(b)).toFixed(2);	}
 
 
+	function checkDigitOnly(obj){
+
+		if (/^[0-9]+$/.test(obj.innerHTML)) obj.innerHTML = obj.innerHTML.replace(/\D/g,'');
+	}
+
 	// function sub(a,b){	
 
 	// 	var a1 = Number(a);
@@ -406,25 +411,6 @@
 
 	}
 
-	function cal_sum_ingredients(){
-		$('#tbl>table>tbody>tr').each(function(i, el) {
-
-			var rspan = parseInt($(el).children(':nth-child(7)').attr('rowspan'));
-			if(rspan==2)
-			{
-				var val1 = Number($(el).children(':nth-child(5)').children('.lbval').html());
-				var val2 = Number($(el).next().children(':nth-child(5)').children('.lbval').html());
-				var unit = $(el).next().children(':nth-child(5)').children('.unit').html();
-				var sum1 = sum(val1,val2);
-				$(el).children('td:nth-child(7)').html(sum1+unit);
-			}
-			if(rspan==1)
-			{
-				var val1 = $(el).children('td:nth-child(5)').html();
-				$(el).children('td:nth-child(7)').html(val1);
-			}
-		});
-	}
 
 
 

@@ -41,7 +41,7 @@
 					</div>
 				</div>
 			</div>
-			<table id="tbl" data-fun="5001" class="table table-hover small table-bordered text-center table-responsive w-100 d-block d-md-table"></table>
+			<table id="tbl" data-fun="5100" class="table table-hover small table-bordered text-center table-responsive w-100 d-block d-md-table"></table>
 		</div>
 	</div>
 </div>

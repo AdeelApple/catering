@@ -1038,11 +1038,9 @@ function all_qty($rsp,$dt){
  }
 
  // Get weight
-function getweight($rsp,$cal){
+function getweight($rsp,$cal,$dt){
 	$wt = array('inkg' => 0.0,'inlb' => 0.0,'per' => 0, 'qty' => NULL);
 	$rsp = is_null($rsp)? 'NULL': rsp_nms_string($rsp);
-	$dt = $_POST['delivery_time'];
-
 	$meat_funs = array(
 		1 => function($rsp,$dt){
 			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
@@ -1129,7 +1127,129 @@ function getweight($rsp,$cal){
 	return $meat_funs[$cal]($rsp,$dt);
  }
 
+ // Get values
+function getIngVal($rsp,$cal,$dt){
+	$wt = array('inkg' => 0.0,'inlb' => 0.0,'per' => 0, 'qty' => NULL);
+	$rsp = is_null($rsp)? 'NULL': rsp_nms_string($rsp);
+	$meat_funs = array(
+		1 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*3,2));
+		},2 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*3,2));
+		},3 => function($rsp,$dt){
+			$pcs =  qty_ctm($rsp,$dt) * 3;
+			$pcs +=  qty_fullctm($rsp,$dt) * 3;
+			$pcs += qty_pkg($rsp,$dt);
+			$legs = round($pcs / 3, 2);
+			return array('val1' => $pcs,'val2' => $legs);
+		},4 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},5 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},6 => function($rsp,$dt){
+			$kg = round(all_qty($rsp,$dt)*0.08,2);
+			return array('val1' => $kg,'val2' =>round($kg*2.2,2));
+		},7 => function($rsp,$dt){
+			$kg = ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},8 => function($rsp,$dt){
+			$kg = round(all_qty($rsp,$dt)*0.08,2);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},9 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},10 => function($rsp,$dt){
+			$lb = round(all_qty($rsp,$dt)*0.70,2);
+			return array('val1' => 0, 'val2' => $lb);
+		},11 => function($rsp,$dt){
+			$kg = pkg_meat($rsp,$dt,8);
+			$kg += round(ctm_meat($rsp,$dt),2);
+			$kg += round(fullctm_meat($rsp,$dt),2);
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},12 => function($rsp,$dt){
+			$lb = round(all_qty($rsp,$dt)*0.70,2);
+			return array('val1' => 0,'val2' => $lb);
+		},13 => function($rsp,$dt){
+			$lb = round(all_qty($rsp,$dt)*0.50,2);
+			return array('val1' => 0,'val2' => $lb);
+		},14 => function($rsp,$dt){
+			$pcs = all_qty($rsp,$dt);
+			return array('val1' => $pcs,'val2' => 0);
+		},15 => function($rsp,$dt){
+			$kg = pkg_rice($rsp,$dt)+ctm_rice($rsp,$dt)+fullctm_rice($rsp,$dt);
+			return array('val1' => $kg,'val2' => round($kg*3,2));
+		}
+	);
+	return $meat_funs[$cal]($rsp,$dt);
+ }
 
+	// Ingredients Daily RS
+	function ingredientRs($qry,$dt)
+	{
+		$rs = q($qry); $arr = array();
+		while($r = mysqli_fetch_assoc($rs)){
+			$res = getIngVal($r['recipes'],$r['cal'],$dt);
+			$r['val1'] = $res['val1'];
+			$r['val2'] = $res['val2'];
+			$r['total'] = 0.0;
+			array_push($arr,$r);
+		}
+
+		foreach ($arr as $key => $val) {
+			$limit = $val['rowspan'];
+			if($limit==1) $arr[$key]['total'] = $val['val2'];
+			elseif ($limit>1) for ($i=0; $i < $limit; $i++) $arr[$key]['total'] += $arr[$key+$i]['val2'];
+		}
+		return $arr;
+	}
+
+	// Ingredients Weekly RS
+	function ingredientWeeklyRs($qry,$dt)
+	{
+		$rs = q($qry); $arr = array();
+		while($r = mysqli_fetch_assoc($rs)){
+			// $r['val1'] = weeklyIngVals($r,$dt,'val1');
+			$r['val2'] = weeklyIngVals($r,$dt);
+			$r['wtotal'] = arrTotal($r['val2']);
+			$r['purchased'] = getPurchasedItems($r['id'],$dt);
+			$r['remaining'] = 0;
+			$r['total'] = 0;
+			array_push($arr,$r);
+		}
+
+		foreach ($arr as $key => $val) {
+			$limit = $val['rowspan'];
+			if($limit==1){
+
+				$arr[$key]['total'] = $val['wtotal'];
+				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
+
+			}elseif ($limit>1) {
+				for ($i=0; $i < $limit; $i++)	$arr[$key]['total'] += $arr[$key+$i]['wtotal'];
+				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
+			}
+		}
+		return $arr;
+	}
+
+
+function weeklyIngVals($r,$dt,$val="val2"){
+	$monday = firstDayOfWeek($dt);
+	$arr = array();
+	for ($i=0; $i < 7; $i++) { 
+		array_push($arr, getIngVal($r['recipes'],$r['cal'],incDay($monday,$i))[$val]);
+	}
+	return $arr;
+}
+
+function getPurchasedItems($id,$dt){
+	$dt = firstDayOfWeek($dt);
+	return getbit("select value from purchased_items where ingredient_id = {$id} and DATE(date) = '$dt' ") ?? 0;
+}
 
 
 function p($qry,$lim=26){
@@ -1144,6 +1264,13 @@ function p($qry,$lim=26){
  }
 function norecord($rs,$num){
 	if(mysqli_num_rows($rs)<1){
+		echo "<tr><td colspan='$num'>";
+		echo "<span class='text-danger font-weight-bold'>No record found!</span>";
+		echo "</td></tr>";
+	}
+ }
+function norecord_arr($rs,$num){
+	if(count($rs)<1){
 		echo "<tr><td colspan='$num'>";
 		echo "<span class='text-danger font-weight-bold'>No record found!</span>";
 		echo "</td></tr>";
@@ -1220,6 +1347,32 @@ function fnum($tbl,$ex=""){
 	return getbit($qry." ".$ex);
  }
 
-
+function firstDayOfWeek($date){
+	$weekday = date("l",strtotime($date));
+	while($weekday!="Monday"){
+		$date = date("Y-m-d",strtotime($date."-1 day"));
+		$weekday = date("l",strtotime($date));
+	}
+	return $date;
+}
+function lastDayOfWeek($date){
+	$weekday = date("l",strtotime($date));
+	while($weekday!="Sunday"){
+		$date = date("Y-m-d",strtotime($date."+1 day"));
+		$weekday = date("l",strtotime($date));
+	}
+	return $date;
+}
+function showWeek($date){
+	return "Monday(".firstDayOfWeek($date).") - Sunday(".lastDayOfWeek($date).")";
+}
+function incDay($date,$i=1){
+	return date("Y-m-d",strtotime($date."+".$i." day"));
+}
+function arrTotal($arr){
+	$sum = 0;
+	foreach ($arr as $key => $val) $sum += $val;
+	return $sum;
+}
 
 ?>

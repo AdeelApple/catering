@@ -14,44 +14,13 @@ $funs = array(
 5 => function(){
 	// Report Date title
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
-	$weekday = date("l",strtotime($date));
-	while($weekday!="Monday"){
-		$date = strtotime("-1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-
-	$starting_date = date("d-M-Y", strtotime($date));
-	while($weekday!="Sunday"){
-		$date = strtotime("+1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-	$ending_date = date("d-M-Y", strtotime($date));
-
-	echo "Monday($starting_date) -- Sunday($ending_date)";
+	echo showWeek($date);
 },
 6 => function(){
 	// Milk Bags
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
-
-	$weekday = date("l",strtotime($date));
-	while($weekday!="Monday"){
-		$date = strtotime("-1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-
-	$starting_date = date("Y-m-d", strtotime($date));
-	while($weekday!="Sunday"){
-
-		$date = strtotime("+1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-
-	$ending_date = date("Y-m-d", strtotime($date));
-
+	$starting_date = firstDayOfWeek($date);
+	$ending_date = lasttDayOfWeek($date);
 
 	$rsps = "'Khoya Kheer','Fruit Trifle','Lab-e-Shireen'";
 	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
@@ -65,20 +34,8 @@ $funs = array(
 	// Milk Bags For Khoya Kheer
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
 
-	$weekday = date("l",strtotime($date));
-	while($weekday!="Monday"){
-		$date = strtotime("-1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-
-	$starting_date = date("Y-m-d", strtotime($date));
-	while($weekday!="Sunday"){
-		$date = strtotime("+1 day",strtotime($date));
-		$date = date("Y-m-d",$date);
-		$weekday = date("l",strtotime($date));
-	}
-	$ending_date = date("Y-m-d", strtotime($date));
+	$starting_date = firstDayOfWeek($date);
+	$ending_date = lasttDayOfWeek($date);
 	
 
 	$rsps = "'Khoya Kheer'";
@@ -251,6 +208,19 @@ $funs = array(
 	}
 	echo "success";
 },
+355 => function(){
+	// Update Purchased Items
+	$id = $_POST['ingredient_id'];
+	$val = $_POST['value'];
+	$date = firstDayOfWeek($_POST['date']);
+	$tbl = "purchased_items";
+	if(bit("select count(*) from {$tbl} where ingredient_id = {$id} AND DATE(date) = '{$date}'"))
+		$qry = "update {$tbl} set value = {$val} where ingredient_id = {$id} AND DATE(date) = '{$date}';";
+	else
+		$qry = "insert into {$tbl}(ingredient_id,value,date) values({$id},{$val},'{$date}');";
+	q($qry);
+	echo "success";
+},
 // DELETE QUERIES
 400 => function(){
 	// Delete User
@@ -336,7 +306,7 @@ $funs = array(
 	// Table Ingredients
 	// Meat Report
 
-	$d = $_POST['delivery_time'];
+	$d = $_POST['date'];
 	$qry = "select * from food_ingredients";
 	$rs = q($qry);
 	$cols = 6;
@@ -356,7 +326,7 @@ $funs = array(
 		<tbody>
 			<?php $n=1;
 			while($r = mysqli_fetch_array($rs)){
-				$wt = getweight($r['recipes'],$r['cal']); ?>
+				$wt = getweight($r['recipes'],$r['cal'],$d); ?>
 				<tr>
 					<td><?=$n++?></td>
 					<td class="text-left" contenteditable="true"><?=$r['name'];?></td>
@@ -375,7 +345,98 @@ $funs = array(
 
 	<?php 
 },
-5001 => function(){
+5005 => function(){ 
+	// Weekly Meat Report
+
+	$d = $_POST['date'];
+	$qry = "select * from food_ingredients";
+	$rs = ingredientRs($qry,$d);
+	$cols = 8;
+	?>
+	<table class="table table-hover small table-responsive w-100 d-block d-md-table table-bordered text-center">
+		<thead>
+			<tr>
+				<th width="5%">No.</th>
+				<th width="30%" class="text-left">Ingredients</th>
+				<th width="10%">Req Qty</th>
+				<th width="10%">Req Qty</th>
+				<th width="10%">Unit</th>
+				<th width="10%">Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php $n=1;
+			foreach ($rs as $key => $val) { ?>
+				<tr>
+					<td><?=$n++?></td>
+					<td class="text-left" contenteditable="true"><?=$val['name'];?></td>
+					<td contenteditable="true"><?=$val['val1'].$val['unit1']?></td>
+					<td contenteditable="true"><?=$val['val2'].$val['unit2'];?></td>
+					<?php if($val['rowspan']){ ?>
+					<td rowspan="<?=$val['rowspan']?>" class="align-middle font-weight-bold" contenteditable="true"><?=$val['description'];?></td>
+					<td rowspan="<?=$val['rowspan']?>" class="align-middle font-weight-bold" contenteditable="true"><?=$val['total'].$val['unit2'];?></td>
+					<?php } ?>
+				</tr>
+			<?php }  norecord_arr($rs,$cols); ?>
+		</tbody>
+	</table>
+	<script>$("#date-selected").html("<?=date('l -d-M-y',strtotime($d));?>");</script>
+
+	<?php 
+
+},
+5010 => function(){ 
+	// Weekly Meat Report
+
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	$qry = "select * from food_ingredients";
+	$wrs = ingredientWeeklyRs($qry,$date);
+	$cols = 6;
+	$firstday = firstDayOfWeek($date);
+
+	?>
+	<table class="table table-hover small table-responsive w-100 d-block d-md-table table-bordered text-center">
+		<thead>
+			<tr>
+				<th width="5%">No.</th>
+				<th width="10%" class="text-left">Ingredients</th>
+				<th width="5%">Mon</th>
+				<th width="5%">Tue</th>
+				<th width="5%">Wed</th>
+				<th width="5%">Thu</th>
+				<th width="5%">Fri</th>
+				<th width="5%">Sat</th>
+				<th width="5%">Sun</th>
+				<th width="10%">WTotal</th>
+				<th width="10%">Total</th>
+				<th width="10%">Ordered</th>
+				<th width="10%">Remaining</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php
+			foreach ($wrs as $wkey => $wval) { $date1 = $firstday; ?>
+				<tr>
+					<td><?=(++$wkey)?></td>
+					<td class="text-left" contenteditable="true"><?=$wval['name'];?></td>
+					<?php foreach ($wval['val2'] as $key => $val) { ?>
+					<td contenteditable="true"><?=$val?></td>
+					<?php } ?>
+					<td class="align-middle font-weight-bold" contenteditable="true"><?=$wval['wtotal'].$wval['unit2'];?></td>
+					<?php if($wval['rowspan']){ ?>
+					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><span contenteditable="true" class="total"><?=intval($wval['total'])?></span> <?=$wval['unit2'];?></td>
+					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=$wval['purchased'];?>"></td>
+					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=intval($wval['remaining'])?></span> <?=$wval['unit2'];?></td>
+					<?php } ?>
+				</tr>
+			<?php }  norecord_arr($wrs,$cols); ?>
+		</tbody>
+	</table>
+	<script>$("#date-selected").html("<?=showWeek($date)?>");$('.purchased').keydown(function(e){if(e.keyCode===13)$(this).blur()})</script>
+
+	<?php 
+},
+5100 => function(){
 	// Orders list table
 
 	$qry = "select * from orders";

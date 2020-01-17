@@ -154,17 +154,36 @@ UPDATE `order_items` SET `rice_type` = (SELECT rice_type FROM food_custom_items 
 
 
 
+INSERT INTO `sub_sidebar` (`id`, `main`, `name`, `admin`, `operator`, `chef`, `tandoor`, `manager`, `allow`, `link`, `icon`) VALUES ('410', '500', 'Meat Report', '1', '0', '0', '0', '1', '1', 'report_meat.php', 'fas fa-chart-pie');
+
+
+ALTER TABLE `food_ingredients` ADD `unit1` VARCHAR(50) NULL DEFAULT NULL AFTER `recipes`, ADD `unit2` VARCHAR(50) NULL DEFAULT NULL AFTER `unit1`;
+
+
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 1;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 2;
+UPDATE `food_ingredients` SET unit1 = 'PC' , unit2 = 'Full Legs' WHERE id = 3;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 4;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 5;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 6;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 7;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 8;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 9;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 10;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 11;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 12;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 13;
+UPDATE `food_ingredients` SET unit1 = 'PC' , unit2 = 'PC' WHERE id = 14;
+UPDATE `food_ingredients` SET unit1 = 'KG' , unit2 = 'LB' WHERE id = 15;
 
 
 
 
+CREATE TABLE `am_catering`.`purchased_items` ( `id` INT NOT NULL AUTO_INCREMENT , `ingredient_id` INT NULL DEFAULT NULL , `value` DECIMAL(10,2) UNSIGNED NULL DEFAULT NULL , `date` DATE NULL DEFAULT NULL , PRIMARY KEY (`id`), INDEX `purchased_ingredient_id` (`ingredient_id`)) ENGINE = InnoDB;
 
 
 
-
-
-
-
+ALTER TABLE `food_ingredients` DROP `sum1`, DROP `sum2`;
 
 
 

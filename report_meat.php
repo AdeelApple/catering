@@ -4,7 +4,7 @@
 		<div class="col-md-12 p-0">
 			<div class="row bg-light border m-0 p-2">
 				<div class="col-md-6">
-					<h5 class="text-success">Meat Report (<span id="date-selected"></span>)</h5>
+					<h5 class="text-success">Weekly Meat Report (<span id="date-selected"></span>)</h5>
 				</div>
 				<div class="col-md-4">
 					<div class="input-group input-group-sm d-print-none">
@@ -28,7 +28,7 @@
 					</div>
 				</div>
 			</div>
-			<div id="tbl" data-fun="5005" >
+			<div id="tbl" data-fun="5010" >
 				
 			</div>
 		</div>
