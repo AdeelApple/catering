@@ -380,16 +380,9 @@
 							</select>
 						</td>
 						<td>
-							<select name="fullctm_meat<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
+							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
 								<option value="none">none</option>
 								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank"); ?>
-							</select>
-						</td>
-						<td>
-							<select name="fullctm_rice<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
-								<option value="none">none</option>
-								<option value="0">Basmati</option>
-								<option value="1">Sella</option>
 							</select>
 						</td>
 						<td>

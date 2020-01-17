@@ -43,22 +43,25 @@ include '../inc/build.php';
 			{
 
 				$item_id = $_POST['item'.$value.$value1];
-				$it = frow('select * from food_package_items where id = '.$item_id);
 				$comment = pr($_POST['comment'.$value.$value1]);
 
 				$category = $_POST['category'.$value.$value1];
 				$package = $_POST['pkg_selected'.$value];
 				$pkg_name = food_pkg_name($package);
 				$spice = nullifunset('spice'.$value.$value1);
-				$main = $value;
 				$list = $_POST['list'.$value.$value1];
 				$is_pp = $_POST['is_pp'.$value.$value1];
-				$meatrice = $it['mr_cal'];
-				$rice_type = $it['rice_type'];
-				$is_meat_cal = $it['is_meat_cal'];
-				$is_rice_cal = $it['is_rice_cal'];
-				$tspan = $it['tspan'];
-				$rank = $it['rank'];
+				$main = $value;
+
+
+				$it = frow('select * from food_package_items where id = '.$item_id);
+				$item_name = $it['name']??'NULL';
+				$mr_cal = $it['mr_cal']??'NULL';
+				$rice_type = $it['rice_type']??'NULL';
+				$is_meat_cal = $it['is_meat_cal']??'NULL';
+				$is_rice_cal = $it['is_rice_cal']??'NULL';
+				$tspan = $it['tspan']?? 4;
+				$rank = $it['rank']?? 10000;
 
 				if($is_pp){
 					
@@ -80,7 +83,7 @@ include '../inc/build.php';
 					$extra_price = "NULL";
 				}
 
-				insert_pkg_item($order_id,$item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$is_pp,$list,$delivery_time,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);
+				insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$is_pp,$list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);
 			}
 		}
 	}
@@ -104,33 +107,20 @@ include '../inc/build.php';
 				if (isset($_POST['mark'.$value][$key1]))
 				{
 					$item_id = $_POST['ctm_item'.$value.$value1];
-					$it = frow('select * from food_custom_items where id = '.$item_id);
 					$ctm_pp = 	$_POST['ctm_pp'.$value.$value1];
 					$ctm_list = 	$_POST['ctm_list'.$value.$value1];
 					$main = $value;
-					$meatrice = $it['mr_cal'];
-					$rice_type = $it['rice_type'];
-					$is_meat_cal = $it['is_meat_cal'];
-					$is_rice_cal = $it['is_rice_cal'];
-					$tspan = $it['tspan'];
-					$rank = $it['rank'];
 
-					if(!is_null($it['mr_cal'])){
 
-						$mr_cal = $it['mr_cal'];
-						$rice_type = $mt['rice_type'];
-						$is_meat_cal = $mt['is_meat_cal'];
-						$is_rice_cal = $mt['is_rice_cal'];
 
-					}else{
-
-						$fullctm_meat = "NULL";
-						$fullctm_rice = "NULL";
-						$is_meat_cal = "NULL";
-						$is_rice_cal = "NULL";
-
-					}
-
+					$it = frow('select * from food_custom_items where id = '.$item_id);
+					$item_name = $it['name']??'NULL';
+					$mr_cal = $it['mr_cal']??'NULL';
+					$rice_type = $it['rice_type']??'NULL';
+					$is_meat_cal = $it['is_meat_cal']??'NULL';
+					$is_rice_cal = $it['is_rice_cal']??'NULL';
+					$tspan = $it['tspan']?? 4;
+					$rank = $it['rank']?? 10000;
 
 					if($ctm_pp){
 
@@ -162,7 +152,7 @@ include '../inc/build.php';
 					$comment = 	pr($_POST['comment_ctm'.$value.$value1]);
 					
 
-					insert_ctm_item($order_id,$item_id,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);	
+					insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);	
 					// echo $items2_qry."<br>";
 				}
 			}
@@ -196,21 +186,21 @@ include '../inc/build.php';
 				{						
 					$fullctm_pp   = $_POST['fullctm_pp'.$value.$value1];
 					$fullctm_list = $_POST['fullctm_list'.$value.$value1];
-					$fullctm_mr_cal = $_POST['fullctm_meat'.$value.$value1];
 					$main = $value;
+
+					$fullctm_mr_cal = $_POST['fullctm_mr_cal'.$value.$value1];
 
 					if($fullctm_mr_cal!="none"){
 
-						$mt = frow("select * from food_custom_items where mr_cal = {$fullctm_mr_cal} limit 1"); 
-						$fullctm_meat = $_POST['fullctm_meat'.$value.$value1];
-						$fullctm_rice = $mt['rice_type'];
-						$is_meat_cal = $mt['is_meat_cal'];
-						$is_rice_cal = $mt['is_rice_cal'];
+						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} limit 1"); 
+						$rice_type = $it['rice_type']??'NULL';
+						$is_meat_cal = $it['is_meat_cal']??'NULL';
+						$is_rice_cal = $it['is_rice_cal']??'NULL';
 
 					}else{
 
-						$fullctm_meat = "NULL";
-						$fullctm_rice = "NULL";
+						$fullctm_mr_cal = "NULL";
+						$rice_type = "NULL";
 						$is_meat_cal = "NULL";
 						$is_rice_cal = "NULL";
 
@@ -245,7 +235,7 @@ include '../inc/build.php';
 					$comment = 	pr($_POST['comment_fullctm'.$value.$value1]);
 					
 					
-					insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_meat,$fullctm_rice,$is_meat_cal,$is_rice_cal,4,10000);
+					insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,4,10000);
 				}
 			}
 		}

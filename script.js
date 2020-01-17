@@ -447,6 +447,7 @@ function create_fullctm(obj){
 	// Reset select
 	$(row).find('.pp').val(0);
 	$(row).find('.list').val(1);
+	$(row).find('.mrcal').val('none');
 
 	// Empty Input
 	$(row).find('.emp').each(function(index, el) {	$(el).val(''); });

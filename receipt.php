@@ -77,7 +77,7 @@
               $pkg = $it['package']; $trays =  array(); ?>
             <tr class="bg-light">
               <td class="align-middle"><?=$n++?></td>
-              <td class="align-middle"><b><?=pkgitem_nm($it['item'],$it['type'],$it['package'],$it['custom'])?></b></td>
+              <td class="align-middle"><b><?=pkgitem_nm($it['item'],$it['type'],$it['package'],$it['name'])?></b></td>
               <td class="align-middle"><?=order_type($it['type'])?></td>
 
               <?php if($it['type']==1){ ?>
