@@ -53,6 +53,7 @@
 
 
 	function amount_cal(){
+
 		var totalprice = 0;
 		var per = $('#persons').val();
 		$('.pkg').each(function(index, el) {
@@ -77,6 +78,7 @@
 		totalprice = sum(totalprice,$('#extra').val());
 		$('#total').val(totalprice);
 		$('#balance').val(sub(totalprice,adv));
+
 	}
 
 
@@ -529,7 +531,6 @@ function fullctm_total(obj){
 		var md = $(tr).find('.md_qty').val();
 		var sm = $(tr).find('.sm_qty').val();
 
-
 		var lg_price = $(tr).find('.lg_price').val();
 		var md_price = $(tr).find('.md_price').val();
 		var sm_price = $(tr).find('.sm_price').val();
@@ -539,13 +540,13 @@ function fullctm_total(obj){
 		ttl_tray = sum(ttl_tray,mul(sm,sm_price));
 
 		$(ttl).val(ttl_tray);
-	}
-	else{
+
+	}else{
 
 		var ps_qty = $(tr).find('.ps_qty').val();
 		var ps_price = $(tr).find('.ps_price').val();
-
 		$(ttl).val(mul(ps_qty,ps_price));
+
 	}
 
 	amount_cal();

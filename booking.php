@@ -345,18 +345,17 @@
 						<th width="3%"><i class="fa fa-plus btn btn-success btn-sm" data-rows="2" onclick="create_fullctm(this)"></i></th>
 						<th width="14%">Recipe</th>
 						<th width="6%">Type</th>
-						<th width="8%">List</th>
-						<th width="6%">Meat</th>
-						<th width="6%">Rice</th>
-						<th width="3%">V.Mild</th>
-						<th width="3%">Mild</th>
-						<th width="3%">Spicy</th>
-						<th width="4%">L</th>
-						<th width="4%">M</th>
-						<th width="4%">S</th>
-						<th width="14%" colspan="3">Prices(L-M-S)</th>
+						<th width="6%">List</th>
+						<th width="10%">Meat</th>
+						<th width="4%">V.Mild</th>
+						<th width="4%">Mild</th>
+						<th width="4%">Spicy</th>
+						<th width="5%">L</th>
+						<th width="5%">M</th>
+						<th width="5%">S</th>
+						<th width="16%" colspan="3">Prices(L-M-S)</th>
 						<th width="6%">Total</th>
-						<th width="12%">Comment</th>
+						<th width="14%">Comment</th>
 					</tr>
 				</thead>
 				<tbody>
