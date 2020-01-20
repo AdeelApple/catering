@@ -175,7 +175,7 @@
 			<h4 class="mt-1"><i class="fa fa-hockey-puck"></i> Package Pot Meat And Rice Limits</h4>
 		</div>
 		<div class="card-body">
-			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
+			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limit_id = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
 			while($r = mysqli_fetch_array($rs)){ ?>
 			<div class="row">
 				<div class="col-md-4 border rounded p-2 m-0">
@@ -220,7 +220,7 @@
 			<h4 class="mt-1"><i class="fa fa-bone"></i> Package Tray Meat And Rice</h4>
 		</div>
 		<div class="card-body">
-			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1 order by is_meat_cal desc;");
+			<?php $rs = q("select * from food_package_items left join mr_limits on mr_limit_id = mr_limits.id where is_meat_cal=1 or is_rice_cal=1 order by is_meat_cal desc;");
 			while($r = mysqli_fetch_array($rs)){ ?>
 			<div class="row">
 				<div class="col-md-2 border rounded p-2 m-0">

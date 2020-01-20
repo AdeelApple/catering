@@ -1,8 +1,8 @@
 <?php include "inc/top.php"; ?>
 <div class="container-fluid border">
-	<div class="row d-print-none">
+	<div class="row">
 		<div class="col-md-12 p-0">
-			<div class="card">
+			<div class="card d-print-none">
 				<div class="card-header">
 					<small>Package Pot Meat And Rice Limits</small>
 				</div>
@@ -10,7 +10,7 @@
 					<div class="row">
 						<div class="col-lg-6 col-sm-12 rounded">
 						<div class="font-weight-bold">PACKAGE</div>
-							<?php $rs = q("select * from food_package_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
+							<?php $rs = q("select * from food_package_items left join mr_limits on mr_limit_id = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
 							while($r = mysqli_fetch_array($rs)){ ?>
 							<div class="row">
 								<div class="col border rounded text-capitalize">
@@ -36,7 +36,7 @@
 						</div>
 						<div class="col-lg-6 col-sm-12 rounded">
 						<div class="font-weight-bold">CUSTOM</div>
-							<?php $rs = q("select * from food_custom_items left join mr_limits on mr_limits = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
+							<?php $rs = q("select * from food_custom_items left join mr_limits on mr_limit_id = mr_limits.id where is_meat_cal=1 or is_rice_cal=1;");
 							while($r = mysqli_fetch_array($rs)){ ?>
 							<div class="row">
 								<div class="col border rounded text-capitalize">

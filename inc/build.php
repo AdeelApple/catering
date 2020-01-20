@@ -210,7 +210,7 @@ function oit_of_date($list,$dt){
 
 	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.category, {$t1}.package, {$t1}.main, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.list, {$t1}.delivery_time,name,pp,meat_limit,rice_limit";
 
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where item!=0 and list={$list} and DATE(delivery_time) = '{$dt}' order by delivery_time";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where item!=0 and list={$list} and DATE(delivery_time) = '{$dt}' order by delivery_time";
 	return q($qry);
 
  }
@@ -237,17 +237,17 @@ function update_pkg_item($item_id,$category,$package,$main,$persons,$spice,$tray
 	$qry = "update order_items set item=$item_id, category=$category,  package=$package,  main=$main, persons=$persons, spice=$spice, tray_lg=$tray_lg, tray_md=$tray_md, tray_sm=$tray_sm, description='$comment', qty=$total_qty, pkgprice=$pkgprice, total=$pkg_total, delivery_time='$delivery_time' where id=$order_items_id,mr_cal = $meatrice,rice_type = $rice_type,is_meat_cal = $is_meat_cal, is_rice_cal = $is_rice_cal";
 	q($qry);
  }
-function insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$pp,$list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-		$qry = "insert into order_items(order_id,item,name,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time,mr_cal,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,$item_name,$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time',$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+function insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$pp,$list,$delivery_time,$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+		$qry = "insert into order_items(order_id,item,name,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,'$item_name',$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time',$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
  }
-function insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-	$qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,$item_name,$main,2,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,'$delivery_time',$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+function insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,'$item_name',$main,2,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,'$delivery_time',$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
  }
 
-function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-	$items3_qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$items3_qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($items3_qry);
  }
 
@@ -366,47 +366,36 @@ function pot_items_of_day($list,$dt){
 function pot_item_of_day($val){
 	$nm = $val['name'];
 	$it = $val['item'];
+	$type = $val['type'];
 	$list = $val['list'];
 	$dt = $val['dt'];
 
-	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and type=1 and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and type={$type} and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	// die($qry);
 	return qry_arr($qry);
  }
 function non_mr_items_of_day($list,$dt){
 
-	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
 	while($r = mysqli_fetch_array($rs)){ 
 		array_push($list, array('name' => $r['name'],'item' => $r['item'],'type' => $r['type'],'pp' => $r['pp'],'list' => $r['list'],'dt' => tday_str($r['delivery_time'])));	}
 	return $list;
  }
-function tday($tm){
-	return strtotime(date('Y-m-d',strtotime($tm)));
- }
-function tday_str($tm){
-	return date('Y-m-d',strtotime($tm));
- }
-function sameday($d1,$d2){
-	return tday($d1) == tday($d2) ? true: false;
- }
-
-function add_hours_str($tst,$tspan){
-	return date('Y-m-d H:i:s',strtotime($tst." + {$tspan} hours"));
- }
-function add_hours_tm($tst,$tspan){
-	return strtotime($tst." + {$tspan} hours ");
- }
-function tm_range($r){
-	return strtotime($r['delivery_time']." + ".$r['tspan']." hours ");
- }
+function tday($tm){	return strtotime(date('Y-m-d',strtotime($tm)));	}
+function tday_str($tm){	return date('Y-m-d',strtotime($tm));	}
+function sameday($d1,$d2){	return tday($d1) == tday($d2) ? true: false;	}
+function add_hours_str($tst,$tspan){	return date('Y-m-d H:i:s',strtotime($tst." + {$tspan} hours"));	}
+function add_hours_tm($tst,$tspan){	return strtotime($tst." + {$tspan} hours ");	}
+function tm_range($r){	return strtotime($r['delivery_time']." + ".$r['tspan']." hours ");	}
 
 function item_in_day($val){
 	$nm = $val['name'];
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
-	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
  }
 
@@ -771,39 +760,39 @@ function get_mr($r){
 	$mr_funs = array(
 		1 => function($r){ //Chicken Biryani
 			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},2 => function($r){ //Veal Biryani
 			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},3 => function($r){ //Chicken Pulao
 			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},4 => function($r){ //Veal Pulao
 			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},5 => function($r){ //Chicken Korma
 			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},6 => function($r){ //Veal Korma
 			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},7 => function($r){ //Chicken Karahi
 			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},8 => function($r){ //Veal Karahi
 			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},9 => function($r){ //Zarda
 			$rice = ($r['tray_lg']*$r['rice_lg'])+($r['tray_md']*$r['rice_md'])+($r['tray_sm']*$r['rice_sm']);
@@ -972,219 +961,125 @@ function tray_to_per($r){
 	return $persons['lg_max']*$r['tray_lg']+$persons['md_max']*$r['tray_md']+$persons['sm_max']*$r['tray_sm'];
 }
 
-function rsp_nms_string($rsp){
-	$arr = explode(',', $rsp);
-	return "'".implode("','", $arr)."'";
- }
-function pkg_meat($rsp,$dt,$div){
-	$qry = "select sum(persons) from order_items where name in($rsp) and type=1 and date(delivery_time)='{$dt}' ";
+
+function pkg_meat(&$r,$dt,$div){
+	$qry = "select sum(persons) from order_items where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}' ";
 	return round(getbit($qry)/$div,2);
  }
-function ctm_meat($rsp,$dt){
+function ctm_meat(&$r,$dt){
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function fullctm_meat($rsp,$dt){
+function fullctm_meat(&$r,$dt){
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=3 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function pkg_rice($rsp,$dt){
+function pkg_rice(&$r,$dt){
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function ctm_rice($rsp,$dt){
+function ctm_rice(&$r,$dt){
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function fullctm_rice($rsp,$dt){
+function fullctm_rice(&$r,$dt){
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=2 and date(delivery_time)='{$dt}'";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function ctm_meat_for_all($rsp,$dt){
+function ctm_meat_for_all(&$r,$dt){
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm)";
-	$qry1 = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and date(delivery_time)='{$dt}'";
+	$qry1 = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
 	$row1 = frow($qry1);
 	return round($row1[0]+$row1[1]+$row1[2],2);
  }
-function all_qty($rsp,$dt){
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and date(delivery_time)='{$dt}') as allqty";
+function all_qty(&$r,$dt){
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
- function qty_pkg($rsp,$dt){
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limits=mr_limits.id where name in($rsp) and type=1 and date(delivery_time)='{$dt}') as allqty";
+ function qty_pkg(&$r,$dt){
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
-  function qty_ctm($rsp,$dt){
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where name in($rsp) and type=2 and date(delivery_time)='{$dt}') as allqty";
+  function qty_ctm(&$r,$dt){
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
-  function qty_fullctm($rsp,$dt){
-	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where name in($rsp) and type=3 and date(delivery_time)='{$dt}') as allqty";
+  function qty_fullctm(&$r,$dt){
+	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
- }
-
- // Get weight
-function getweight($rsp,$cal,$dt){
-	$wt = array('inkg' => 0.0,'inlb' => 0.0,'per' => 0, 'qty' => NULL);
-	$rsp = is_null($rsp)? 'NULL': rsp_nms_string($rsp);
-	$meat_funs = array(
-		1 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'>KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'>LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},2 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},3 => function($rsp,$dt){
-			$pcs =  qty_ctm($rsp,$dt) * 3;
-			$pcs +=  qty_fullctm($rsp,$dt) * 3;
-			$pcs += qty_pkg($rsp,$dt);
-			$legs = round($pcs / 3, 2);
-			$vkg = "<span class='kgval'>".$pcs."</span><span class='unit'> PC</span>";
-			$vlb = "<span class='lbval'>".$legs."</span><span class='unit'> Full Legs</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => $pcs);
-		},4 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},5 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},6 => function($rsp,$dt){
-			$kg = round(all_qty($rsp,$dt)*0.08,2);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},7 => function($rsp,$dt){
-			$kg = ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},8 => function($rsp,$dt){
-			$kg = round(all_qty($rsp,$dt)*0.08,2);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},9 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},10 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.70,2);
-			$vkg = "<span class='kgval'>-</span>";
-			$vlb = "<span class='lbval'>".$lb."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},11 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8);
-			$kg += round(ctm_meat($rsp,$dt),2);
-			$kg += round(fullctm_meat($rsp,$dt),2);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*2.2,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},12 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.70,2);
-			$vkg = "<span class='kgval'>-</span>";
-			$vlb = "<span class='lbval'>".$lb."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},13 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.50,2);
-			$vkg = "<span class='kgval'>-</span>";
-			$vlb = "<span class='lbval'>".$lb."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		},14 => function($rsp,$dt){
-			$pcs = all_qty($rsp,$dt);
-			$vkg = "<span class='kgval'>".$pcs."</span><span class='unit'> PC</span>";
-			$vlb = "<span class='lbval'>".$pcs."</span><span class='unit'> PC</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => $pcs);
-		},15 => function($rsp,$dt){
-			$kg = pkg_rice($rsp,$dt)+ctm_rice($rsp,$dt)+fullctm_rice($rsp,$dt);
-			$vkg = "<span class='kgval'>".$kg."</span><span class='unit'> KG</span>";
-			$vlb = "<span class='lbval'>".round($kg*3,2)."</span><span class='unit'> LB</span>";
-			return array('kg' => $vkg,'lb' => $vlb,'per' => NULL, 'qty' => NULL);
-		}
-	);
-	return $meat_funs[$cal]($rsp,$dt);
  }
 
  // Get values
-function getIngVal($rsp,$cal,$dt){
-	$wt = array('inkg' => 0.0,'inlb' => 0.0,'per' => 0, 'qty' => NULL);
-	$rsp = is_null($rsp)? 'NULL': rsp_nms_string($rsp);
+function getIngVal(&$r,$dt){
+	$wt = array('kg' => 0.0,'lb' => 0.0,'per' => 0, 'qty' => NULL);
 	$meat_funs = array(
-		1 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		1 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},2 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		},2 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},3 => function($rsp,$dt){
-			$pcs =  qty_ctm($rsp,$dt) * 3;
-			$pcs +=  qty_fullctm($rsp,$dt) * 3;
-			$pcs += qty_pkg($rsp,$dt);
+		},3 => function(&$r,$dt){
+			$pcs =  qty_ctm($r,$dt) * 3;
+			$pcs +=  qty_fullctm($r,$dt) * 3;
+			$pcs += qty_pkg($r,$dt);
 			$legs = round($pcs / 3, 2);
 			return array('val1' => $pcs,'val2' => $legs);
-		},4 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,10)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		},4 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},5 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		},5 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},6 => function($rsp,$dt){
-			$kg = round(all_qty($rsp,$dt)*0.08,2);
+		},6 => function(&$r,$dt){
+			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' =>round($kg*2.2,2));
-		},7 => function($rsp,$dt){
-			$kg = ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		},7 => function(&$r,$dt){
+			$kg = ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},8 => function($rsp,$dt){
-			$kg = round(all_qty($rsp,$dt)*0.08,2);
+		},8 => function(&$r,$dt){
+			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},9 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8)+ctm_meat($rsp,$dt)+fullctm_meat($rsp,$dt);
+		},9 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},10 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.70,2);
+		},10 => function(&$r,$dt){
+			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0, 'val2' => $lb);
-		},11 => function($rsp,$dt){
-			$kg = pkg_meat($rsp,$dt,8);
-			$kg += round(ctm_meat($rsp,$dt),2);
-			$kg += round(fullctm_meat($rsp,$dt),2);
+		},11 => function(&$r,$dt){
+			$kg = pkg_meat($r,$dt,8);
+			$kg += round(ctm_meat($r,$dt),2);
+			$kg += round(fullctm_meat($r,$dt),2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},12 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.70,2);
+		},12 => function(&$r,$dt){
+			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0,'val2' => $lb);
-		},13 => function($rsp,$dt){
-			$lb = round(all_qty($rsp,$dt)*0.50,2);
+		},13 => function(&$r,$dt){
+			$lb = round(all_qty($r,$dt)*0.50,2);
 			return array('val1' => 0,'val2' => $lb);
-		},14 => function($rsp,$dt){
-			$pcs = all_qty($rsp,$dt);
+		},14 => function(&$r,$dt){
+			$pcs = all_qty($r,$dt);
 			return array('val1' => $pcs,'val2' => 0);
-		},15 => function($rsp,$dt){
-			$kg = pkg_rice($rsp,$dt)+ctm_rice($rsp,$dt)+fullctm_rice($rsp,$dt);
+		},15 => function(&$r,$dt){
+			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt)+fullctm_rice($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
 		}
 	);
-	return $meat_funs[$cal]($rsp,$dt);
+	return $meat_funs[$r['cal']]($r,$dt);
  }
 
 	// Ingredients Daily RS
@@ -1192,7 +1087,7 @@ function getIngVal($rsp,$cal,$dt){
 	{
 		$rs = q($qry); $arr = array();
 		while($r = mysqli_fetch_assoc($rs)){
-			$res = getIngVal($r['recipes'],$r['cal'],$dt);
+			$res = getIngVal($r,$dt);
 			$r['val1'] = $res['val1'];
 			$r['val2'] = $res['val2'];
 			$r['total'] = 0.0;
@@ -1241,7 +1136,7 @@ function weeklyIngVals($r,$dt,$val="val2"){
 	$monday = firstDayOfWeek($dt);
 	$arr = array();
 	for ($i=0; $i < 7; $i++) { 
-		array_push($arr, getIngVal($r['recipes'],$r['cal'],incDay($monday,$i))[$val]);
+		array_push($arr, getIngVal($r,incDay($monday,$i))[$val]);
 	}
 	return $arr;
 }

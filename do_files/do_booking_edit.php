@@ -54,7 +54,9 @@ include '../inc/build.php';
 
 				$it = frow('select * from food_package_items where id = '.$item_id);
 				$item_name = $it['name']??'NULL';
-				$meatrice = $it['mr_cal']??'NULL';
+				$mr_cal = $it['mr_cal']??'NULL';
+				$mr_limits = $it['mr_limit_id']??'NULL';
+				$ingredient_id = $it['ingredient_id']??'NULL';
 				$rice_type = $it['rice_type']??'NULL';
 				$is_meat_cal = $it['is_meat_cal']??'NULL';
 				$is_rice_cal = $it['is_rice_cal']??'NULL';
@@ -81,7 +83,7 @@ include '../inc/build.php';
 					$extra_price = "NULL";
 				}
 
-				insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$is_pp,$list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);					
+				insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$is_pp,$list,$delivery_time,$mr_cal,$mr_limits,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);					
 			}
 		}
 	}
@@ -112,6 +114,8 @@ include '../inc/build.php';
 					$it = frow('select * from food_custom_items where id = '.$item_id);
 					$item_name = $it['name']??'NULL';
 					$mr_cal = $it['mr_cal']??'NULL';
+					$mr_limits = $it['mr_limit_id']??'NULL';
+					$ingredient_id = $it['ingredient_id']??'NULL';
 					$rice_type = $it['rice_type']??'NULL';
 					$is_meat_cal = $it['is_meat_cal']??'NULL';
 					$is_rice_cal = $it['is_rice_cal']??'NULL';
@@ -147,7 +151,7 @@ include '../inc/build.php';
 					$comment = 	pr($_POST['comment_ctm'.$value.$value1]);
 
 					
-					insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);	
+					insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$mr_limits,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank);	
 					// echo $items2_qry."<br>";
 				}
 			}
@@ -188,6 +192,8 @@ include '../inc/build.php';
 					if($fullctm_mr_cal!="none"){
 
 						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} limit 1"); 
+						$mr_limits = $it['mr_limit_id']??'NULL';
+						$ingredient_id = $it['ingredient_id']??'NULL';
 						$rice_type = $it['rice_type']??'NULL';
 						$is_meat_cal = $it['is_meat_cal']??'NULL';
 						$is_rice_cal = $it['is_rice_cal']??'NULL';
@@ -230,7 +236,7 @@ include '../inc/build.php';
 					$comment = 	pr($_POST['comment_fullctm'.$value.$value1]);
 					
 
-					insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$rice_type,$is_meat_cal,$is_rice_cal,4,10000);
+					insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limits,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,4,10000);
 				}
 			}
 		}
