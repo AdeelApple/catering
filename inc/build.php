@@ -370,7 +370,7 @@ function pot_item_of_day($val){
 	$list = $val['list'];
 	$dt = $val['dt'];
 
-	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and type={$type} and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
+	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	// die($qry);
 	return qry_arr($qry);
  }
