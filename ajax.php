@@ -530,7 +530,7 @@ $funs = array(
 		<div id="k-1" class="col border p-0 k-items">
 		<?php	foreach ($pots_list as $key => $val) { ?>
 			<div class="black-border">
-				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=($key+1)." ".$val['potname']."(".$val['potnum'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
+				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=($key+1)."- ".$val['potname']."(".$val['potnum'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
 				<?php foreach ($val['potitems'] as $key1 => $v) { ?>
 				<div class="row m-0 border">
 					<div class="col-4 p-0 pl-2" contenteditable="true"><?=customer_name($v['order_id']);?></div>
