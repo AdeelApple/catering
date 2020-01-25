@@ -427,19 +427,18 @@
 					<tr>
 						<th width="3%"><i class="fa fa-plus btn btn-success btn-sm" data-rows="<?=$fullctm_rows+1;?>" onclick="create_fullctm(this)"></i></th>
 						<th width="14%">Recipe</th>
-						<th width="6%">Type</th>
-						<th width="8%">List</th>
-						<th width="6%">Meat</th>
-						<th width="6%">Rice</th>
+						<th width="9%">Type & List</th>
+						<th width="9%">Meat</th>
 						<th width="3%">V.Mild</th>
 						<th width="3%">Mild</th>
 						<th width="3%">Spicy</th>
-						<th width="4%">L</th>
-						<th width="4%">M</th>
-						<th width="4%">S</th>
-						<th width="14%" colspan="3">Prices(L-M-S)</th>
+						<th width="5%">PP</th>
+						<th width="5%">L</th>
+						<th width="5%">M</th>
+						<th width="5%">S</th>
+						<th width="16%" colspan="3">Prices(L-M-S)</th>
 						<th width="6%">Total</th>
-						<th width="12%">Comment</th>
+						<th width="14%">Comment</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -465,21 +464,26 @@
 						<td class="text-left">
 							<input type="text" name="fullctm_name<?=$id.$iid?>" class="fullctm_name addiid emp form-control form-control-sm" oninput="fullctm_named(this)" value="<?=$fci['name']?>" placeholder="New Recipe..." required="required" <?=$dis?>>
 						</td>
+						<!-- Type And Kitchen List -->
 						<td>
 							<select name="fullctm_pp<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
 								<option value="0" <?php if($fci['pp']==0) echo "selected='selected'"; ?>>Trays</option>
 								<option value="1" <?php if($fci['pp']==1) echo "selected='selected'"; ?>>Per Serving</option>
 							</select>
-						</td>
-						<td>
 							<select name="fullctm_list<?=$id.$iid?>" class="list addiid form-control form-control-sm" <?=$dis?>>
 								<?php options("select list,name from kitchen_list where custom=1 order by rank",$fci['list']); ?>
 							</select>
 						</td>
+						<!-- Meat and Type -->
 						<td>
-							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
+							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
 								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank",$fci['mr_cal']); ?>
+							</select>
+							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" <?=$dis?>>
+								<option value="none">none</option>
+								<option value="1" <?php if($fci['meat_type']==1) echo "selected='selected'"; ?>>Package</option>
+								<option value="2" <?php if($fci['meat_type']==2) echo "selected='selected'"; ?>>Custom</option>
 							</select>
 						</td>
 						<td>
@@ -498,6 +502,11 @@
 							</label>
 						</td>
 
+
+						<!-- Persons -->
+						<td class="fullctm_person">
+							<input type="number" name="person_fullctm<?=$id.$iid?>" class="person addiid v0 form-control form-control-sm" min="0" value="<?=$fci['person']?>" placeholder="PP" oninput="fullctm_total(this)" <?=$dis?>>
+						</td>
 
 						<!-- TRAY ITEMS -->
 						<td class="fullctm_tray <?=$tray_cls?>">

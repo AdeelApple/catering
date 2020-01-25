@@ -186,7 +186,7 @@ function default_edit_row(){
 	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
  }
 function fullctm_default_arr(){
-	return array('spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
+	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'person' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
 
  }
 function del_pkg_order($oid,$tp,$pkg,$main){
@@ -246,8 +246,8 @@ function insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tr
 	q($qry);
  }
 
-function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-	$items3_qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$items3_qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,meat_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($items3_qry);
  }
 
@@ -533,7 +533,8 @@ function get_all_pots($list,$d){
 			}
 			array_push($potitems, $r);
 		}
-		if (count($potitems)>0){
+		if (count($potitems)>0)
+		{
 			array_push($pots_list, array('potitems' => $potitems,'potnum' => $pot_num++));
 		}
 	}
@@ -973,10 +974,15 @@ function ctm_meat(&$r,$dt){
 	return round($row[0]+$row[1]+$row[2],2);
  }
 function fullctm_meat(&$r,$dt){
-	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
-	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2);
+	if($r['meat_type']==1){
+		$qry = "select sum(persons) from order_items where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}' ";
+		return round(getbit($qry)/$div,2);
+	}else {
+		$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
+		$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
+		$row = frow($qry);
+		return round($row[0]+$row[1]+$row[2],2);
+	}
  }
 function pkg_rice(&$r,$dt){
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
@@ -1105,7 +1111,7 @@ function getIngVal(&$r,$dt){
 	// Ingredients Weekly RS
 	function ingredientWeeklyRs($qry,$dt)
 	{
-		$rs = q($qry); $arr = array();
+		$rs = q($qry); $arr = array();$arr2 = array();
 		while($r = mysqli_fetch_assoc($rs)){
 			// $r['val1'] = weeklyIngVals($r,$dt,'val1');
 			$r['val2'] = weeklyIngVals($r,$dt);
@@ -1117,18 +1123,26 @@ function getIngVal(&$r,$dt){
 		}
 
 		foreach ($arr as $key => $val) {
+			if(isset($val['ignore'])) continue;
 			$limit = $val['rowspan'];
 			if($limit==1){
 
 				$arr[$key]['total'] = $val['wtotal'];
 				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
+				array_push($arr2,$arr[$key]);
 
 			}elseif ($limit>1) {
-				for ($i=0; $i < $limit; $i++)	$arr[$key]['total'] += $arr[$key+$i]['wtotal'];
-				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
+				for ($i=0; $i < $limit; $i++){
+					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
+					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
+					$arr[$key+$i]['ignore'] = 1;
+				}
+				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
+				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 			}
+			array_push($arr2,$arr[$key]);
 		}
-		return $arr;
+		return $arr2;
 	}
 
 
@@ -1269,5 +1283,17 @@ function arrTotal($arr){
 	foreach ($arr as $key => $val) $sum += $val;
 	return $sum;
 }
+function mergeSum($arr,$arr2){
+	foreach ($arr as $key => $val) $arr[$key] += $arr2[$key];
+	return $arr;
+}
+
+function nullIfNone($val){
+	if($val!='none')
+		return $val;
+	else
+		return 'NULL';
+}
+
 
 ?>

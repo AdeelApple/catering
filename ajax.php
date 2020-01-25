@@ -20,10 +20,9 @@ $funs = array(
 	// Milk Bags
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
 	$starting_date = firstDayOfWeek($date);
-	$ending_date = lasttDayOfWeek($date);
+	$ending_date = lastDayOfWeek($date);
 
 	$rsps = "'Khoya Kheer','Fruit Trifle','Lab-e-Shireen'";
-	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
 	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
@@ -35,11 +34,10 @@ $funs = array(
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
 
 	$starting_date = firstDayOfWeek($date);
-	$ending_date = lasttDayOfWeek($date);
+	$ending_date = lastDayOfWeek($date);
 	
 
 	$rsps = "'Khoya Kheer'";
-	$clms2 = "order_id, custom as name, item, type, spice, qty, description, delivery_time";
 	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
@@ -408,7 +406,6 @@ $funs = array(
 				<th width="5%">Sat</th>
 				<th width="5%">Sun</th>
 				<th width="10%">WTotal</th>
-				<th width="10%">Total</th>
 				<th width="10%">Ordered</th>
 				<th width="10%">Remaining</th>
 			</tr>
@@ -423,11 +420,10 @@ $funs = array(
 					<td contenteditable="true"><?=$val?></td>
 					<?php } ?>
 					<td class="align-middle font-weight-bold" contenteditable="true"><?=$wval['wtotal'].$wval['unit2'];?></td>
-					<?php if($wval['rowspan']){ ?>
-					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><span contenteditable="true" class="total"><?=intval($wval['total'])?></span> <?=$wval['unit2'];?></td>
-					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=$wval['purchased'];?>"></td>
-					<td rowspan="<?=$wval['rowspan']?>" class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=intval($wval['remaining'])?></span> <?=$wval['unit2'];?></td>
-					<?php } ?>
+					
+					<td class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=$wval['purchased'];?>"></td>
+					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=intval($wval['remaining'])?></span> <?=$wval['unit2'];?></td>
+					
 				</tr>
 			<?php }  norecord_arr($wrs,$cols); ?>
 		</tbody>
@@ -534,7 +530,7 @@ $funs = array(
 		<div id="k-1" class="col border p-0 k-items">
 		<?php	foreach ($pots_list as $key => $val) { ?>
 			<div class="black-border">
-				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=$val['potname']."(".$val['potnum'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
+				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=($key+1)." ".$val['potname']."(".$val['potnum'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
 				<?php foreach ($val['potitems'] as $key1 => $v) { ?>
 				<div class="row m-0 border">
 					<div class="col-4 p-0 pl-2" contenteditable="true"><?=customer_name($v['order_id']);?></div>

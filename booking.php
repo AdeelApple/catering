@@ -344,12 +344,12 @@
 					<tr>
 						<th width="3%"><i class="fa fa-plus btn btn-success btn-sm" data-rows="2" onclick="create_fullctm(this)"></i></th>
 						<th width="14%">Recipe</th>
-						<th width="6%">Type</th>
-						<th width="6%">List</th>
-						<th width="10%">Meat</th>
-						<th width="4%">V.Mild</th>
-						<th width="4%">Mild</th>
-						<th width="4%">Spicy</th>
+						<th width="9%">Type&List</th>
+						<th width="9%">Meat</th>
+						<th width="3%">V.Mild</th>
+						<th width="3%">Mild</th>
+						<th width="3%">Spicy</th>
+						<th width="5%">PP</th>
 						<th width="5%">L</th>
 						<th width="5%">M</th>
 						<th width="5%">S</th>
@@ -367,21 +367,26 @@
 						<td class="text-left">
 							<input type="text" name="fullctm_name<?=$id.$iid?>" class="fullctm_name addiid emp form-control form-control-sm" oninput="fullctm_named(this)" placeholder="New Recipe..." required="required" <?=$dis?>>
 						</td>
+						<!-- Type And Kitchen List -->
 						<td>
 							<select name="fullctm_pp<?=$id.$iid?>" class="pp addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
 								<option value="0">Trays</option>
 								<option value="1">Per Serving</option>
 							</select>
-						</td>
-						<td>
 							<select name="fullctm_list<?=$id.$iid?>" class="list addiid form-control form-control-sm" <?=$dis?>>
 								<?php options("select list,name from kitchen_list where custom=1 order by rank"); ?>
 							</select>
 						</td>
+						<!-- Meat and Type -->
 						<td>
-							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" onchange="fullctm_changed(this);" <?=$dis?>>
+							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
 								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank"); ?>
+							</select>
+							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" <?=$dis?>>
+								<option value="none">none</option>
+								<option value="1">Package</option>
+								<option value="2">Custom</option>
 							</select>
 						</td>
 						<td>
@@ -400,7 +405,10 @@
 							</label>
 						</td>
 
-
+						<!-- Persons -->
+						<td class="fullctm_person">
+							<input type="number" name="person_fullctm<?=$id.$iid?>" class="person addiid v0 form-control form-control-sm" min="0" value="" placeholder="PP" oninput="fullctm_total(this)" <?=$dis?>>
+						</td>
 						<!-- TRAY ITEMS -->
 						<td class="fullctm_tray">
 							<input type="number" name="tray_lg_fullctm<?=$id.$iid?>" class="lg_qty addiid v0 form-control form-control-sm" min="0" value="0" placeholder="L" oninput="fullctm_total(this)" <?=$dis?>>
@@ -523,6 +531,5 @@
 </script>
 <?php include "inc/btm.php"; ?>
 <script>today_form_date();
-
 	ranges = JSON.parse('<?php echo json_ranges(); ?>');
 </script>

@@ -34,5 +34,5 @@
 		</div>
 	</div>
 </div>
-
 <?php include "inc/btm.php"; ?>
+<script>today_form_date(); ingredients();</script>
