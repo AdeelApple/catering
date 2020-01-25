@@ -349,7 +349,7 @@
 						<th width="3%">V.Mild</th>
 						<th width="3%">Mild</th>
 						<th width="3%">Spicy</th>
-						<th width="5%">PP</th>
+						<th width="5%" class="fullctm_person d-none">PP</th>
 						<th width="5%">L</th>
 						<th width="5%">M</th>
 						<th width="5%">S</th>
@@ -381,9 +381,9 @@
 						<td>
 							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
-								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank"); ?>
+								<?php options("select mr_cal,food_package_items.name,food_cat.name from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank","",1); ?>
 							</select>
-							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" <?=$dis?>>
+							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" onchange="fullctm_meat_type_changed(this);" <?=$dis?>>
 								<option value="none">none</option>
 								<option value="1">Package</option>
 								<option value="2">Custom</option>
@@ -406,7 +406,7 @@
 						</td>
 
 						<!-- Persons -->
-						<td class="fullctm_person">
+						<td class="fullctm_person d-none">
 							<input type="number" name="person_fullctm<?=$id.$iid?>" class="person addiid v0 form-control form-control-sm" min="0" value="" placeholder="PP" oninput="fullctm_total(this)" <?=$dis?>>
 						</td>
 						<!-- TRAY ITEMS -->

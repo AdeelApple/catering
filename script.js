@@ -499,6 +499,28 @@ function fullctm_submit_btn(){
 	
 }
 
+function fullctm_meat_type_changed(obj){
+
+	var tr = $(obj).closest('tr');
+	var cat_nm = $(obj).attr('data-param');
+	// rng = ranges[cat_nm];
+	// get_trays($(tr).find('.person').val());
+	// $(tr).find('.lg_qty').val(tray['lg']);
+	// $(tr).find('.md_qty').val(tray['md']);
+	// $(tr).find('.sm_qty').val(tray['sm']);
+	
+
+	var table = $(obj).closest('table');
+	if($(obj).val()=="1")
+	{
+		$(tr).find('.fullctm_person').removeClass("d-none");
+	}else{
+		$(tr).find('.fullctm_person').addClass("d-none");
+	}
+
+	fullctm_total(obj);
+
+}
 function fullctm_changed(obj){
 
 	var tr = $(obj).closest('tr');

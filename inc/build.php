@@ -113,11 +113,12 @@ function nullifunset($val){
 }
 
 	
-function options($qry,$sl=""){
+function options($qry,$sl="",$attr=0){
 	$rs = q($qry);
 	while($r = mysqli_fetch_array($rs)){
+		if($attr==1) $ext = "data-param='{$r[2]}'"; else $ext = "";
 		if($sl==$r[0]) $select = "selected='selected'"; else $select = "";
-		echo "<option value='".$r[0]."' $select>  ".$r[1]."</option>";
+		echo "<option {$ext} value='{$r[0]}' $select>  {$r[1]} </option>";
 	}
 }
 	
