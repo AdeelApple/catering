@@ -1097,8 +1097,10 @@ function getIngVal(&$r,$dt){
 
 		foreach ($arr as $key => $val) {
 			$limit = $val['rowspan'];
-			if($limit==1) $arr[$key]['total'] = $val['val2'];
-			elseif ($limit>1) for ($i=0; $i < $limit; $i++) $arr[$key]['total'] += $arr[$key+$i]['val2'];
+			$arr[$key]['total'] = $val['val2'];
+			if ($limit>1)
+				for ($i=1; $i < $limit; $i++)
+					$arr[$key]['total'] += $arr[$key+$i]['val2'];
 		}
 		return $arr;
 	}
@@ -1122,11 +1124,10 @@ function getIngVal(&$r,$dt){
 			$limit = $val['rowspan'];
 			if($limit==1){
 
-				$arr[$key]['total'] = $val['wtotal'];
-				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
+				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 
 			}elseif ($limit>1) {
-				for ($i=1; $i <= $limit; $i++){
+				for ($i=1; $i < $limit; $i++){
 					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
 					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
 				}
