@@ -223,7 +223,7 @@ function fetch_pkg(obj) {
 	function calRemainingQty(obj){
 
 		var tr = $(obj).closest('tr');
-		$(tr).find('.remaining').html(sub($(tr).find('.total').html(),$(tr).find('.purchased').val()));
+		$(tr).find('.remaining').html(sub($(tr).find('.wtotal').html(),$(tr).find('.purchased').val()));
 	}
 
 	// Update Admin Settings

@@ -349,7 +349,7 @@
 						<th width="3%">V.Mild</th>
 						<th width="3%">Mild</th>
 						<th width="3%">Spicy</th>
-						<th width="5%" class="fullctm_person d-none">PP</th>
+						<th width="5%">PP</th>
 						<th width="5%">L</th>
 						<th width="5%">M</th>
 						<th width="5%">S</th>
@@ -406,8 +406,8 @@
 						</td>
 
 						<!-- Persons -->
-						<td class="fullctm_person d-none">
-							<input type="number" name="person_fullctm<?=$id.$iid?>" class="person addiid v0 form-control form-control-sm" min="0" value="" placeholder="PP" oninput="fullctm_total(this)" <?=$dis?>>
+						<td>
+							<input type="number" name="persons_fullctm<?=$id.$iid?>" class="person d-none addiid v0 form-control form-control-sm" min="0" value="" placeholder="PP" oninput="fullctm_tray_cal(this)" <?=$dis?>>
 						</td>
 						<!-- TRAY ITEMS -->
 						<td class="fullctm_tray">

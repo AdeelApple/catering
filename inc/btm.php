@@ -17,7 +17,7 @@
  <script src="ajax.js"></script>
 
 <footer class="text-center small py-2 d-print-none">
-	<span class="d-block">Copyright &copy; <?php echo date('Y') ?>. All rights reserved. Developed by <a href="https://encodersolutions.pk" target="_blank">Encodersolutions</a></span>
+	<span class="d-block">Copyright &copy; <?php echo date('Y') ?>. All rights reserved. Developed by <a href="https://tainxa.com" target="_blank">Tainxa.Inc</a></span>
 </footer>
 <div id="msgdiv" class="msgdiv d-print-none">
 </body>

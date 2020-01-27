@@ -203,6 +203,7 @@ include '../inc/build.php';
 						$is_meat_cal = $it['is_meat_cal']??'NULL';
 						$is_rice_cal = $it['is_rice_cal']??'NULL';
 						$meat_type = nullIfNone($_POST['fullctm_meat_type'.$value.$value1]);
+						$persons = nullIfZ($_POST['persons_fullctm'.$value.$value1]);
 
 
 					}else{
@@ -244,7 +245,7 @@ include '../inc/build.php';
 					$comment = 	pr($_POST['comment_fullctm'.$value.$value1]);
 					
 					
-					insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limits,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,4,10000);
+					insert_fullctm_item($order_id,$fullctm_name,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limits,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,4,10000);
 				}
 			}
 		}

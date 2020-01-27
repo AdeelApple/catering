@@ -478,9 +478,9 @@
 						<td>
 							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
-								<?php options("select mr_cal,name from food_package_items where mr_cal is not null order by rank",$fci['mr_cal']); ?>
+								<?php options("select mr_cal,food_package_items.name,food_cat.name from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank",$fci['mr_cal'],1); ?>
 							</select>
-							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" <?=$dis?>>
+							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" onchange="fullctm_meat_type_changed(this);" <?=$dis?>>
 								<option value="none">none</option>
 								<option value="1" <?php if($fci['meat_type']==1) echo "selected='selected'"; ?>>Package</option>
 								<option value="2" <?php if($fci['meat_type']==2) echo "selected='selected'"; ?>>Custom</option>
@@ -504,8 +504,8 @@
 
 
 						<!-- Persons -->
-						<td class="fullctm_person">
-							<input type="number" name="person_fullctm<?=$id.$iid?>" class="person addiid v0 form-control form-control-sm" min="0" value="<?=$fci['person']?>" placeholder="PP" oninput="fullctm_total(this)" <?=$dis?>>
+						<td>
+							<input type="number" name="persons_fullctm<?=$id.$iid?>" class="person <?php if($fci['meat_type']!=1) echo "d-none"; ?> addiid v0 form-control form-control-sm" min="0" value="<?=$fci['persons']?>" placeholder="PP" oninput="fullctm_tray_cal(this)" <?=$dis?>>
 						</td>
 
 						<!-- TRAY ITEMS -->

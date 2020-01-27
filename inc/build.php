@@ -118,7 +118,7 @@ function options($qry,$sl="",$attr=0){
 	while($r = mysqli_fetch_array($rs)){
 		if($attr==1) $ext = "data-param='{$r[2]}'"; else $ext = "";
 		if($sl==$r[0]) $select = "selected='selected'"; else $select = "";
-		echo "<option {$ext} value='{$r[0]}' $select>  {$r[1]} </option>";
+		echo "<option value='{$r[0]}' {$ext} {$select}>  {$r[1]} </option>";
 	}
 }
 	
@@ -247,8 +247,8 @@ function insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tr
 	q($qry);
  }
 
-function insert_fullctm_item($order_id,$fullctm_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-	$items3_qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,meat_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+function insert_fullctm_item($order_id,$fullctm_name,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+	$items3_qry = "insert into order_items(order_id,item,name,main,type,persons,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,meat_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$persons,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($items3_qry);
  }
 
@@ -974,16 +974,14 @@ function ctm_meat(&$r,$dt){
 	$row = frow($qry);
 	return round($row[0]+$row[1]+$row[2],2);
  }
-function fullctm_meat(&$r,$dt){
-	if($r['meat_type']==1){
-		$qry = "select sum(persons) from order_items where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}' ";
-		return round(getbit($qry)/$div,2);
-	}else {
-		$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
-		$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
-		$row = frow($qry);
-		return round($row[0]+$row[1]+$row[2],2);
-	}
+function fullctm_meat(&$r,$dt,$div=1){
+	$qry = "select sum(persons) from order_items where meat_type=1 and ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}' ";
+	$meat_pkg = round(getbit($qry)/$div,2);
+
+	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
+	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where meat_type!=1 and ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
+	$row = frow($qry);
+	return round($row[0]+$row[1]+$row[2],2) + $meat_pkg;
  }
 function pkg_rice(&$r,$dt){
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
@@ -1035,26 +1033,24 @@ function getIngVal(&$r,$dt){
 	$wt = array('kg' => 0.0,'lb' => 0.0,'per' => 0, 'qty' => NULL);
 	$meat_funs = array(
 		1 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
+			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
 		},2 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
 		},3 => function(&$r,$dt){
-			$pcs =  qty_ctm($r,$dt) * 3;
-			$pcs +=  qty_fullctm($r,$dt) * 3;
-			$pcs += qty_pkg($r,$dt);
+			$pcs =  (qty_ctm($r,$dt) * 3) + (qty_fullctm($r,$dt) * 3) + qty_pkg($r,$dt);
 			$legs = round($pcs / 3, 2);
 			return array('val1' => $pcs,'val2' => $legs);
 		},4 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
+			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},5 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},6 => function(&$r,$dt){
 			$kg = round(all_qty($r,$dt)*0.08,2);
-			return array('val1' => $kg,'val2' =>round($kg*2.2,2));
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},7 => function(&$r,$dt){
 			$kg = ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
@@ -1062,15 +1058,13 @@ function getIngVal(&$r,$dt){
 			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},9 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt);
+			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},10 => function(&$r,$dt){
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0, 'val2' => $lb);
 		},11 => function(&$r,$dt){
-			$kg = pkg_meat($r,$dt,8);
-			$kg += round(ctm_meat($r,$dt),2);
-			$kg += round(fullctm_meat($r,$dt),2);
+			$kg = round((pkg_meat($r,$dt,8) + ctm_meat($r,$dt) + fullctm_meat($r,$dt,8)),2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},12 => function(&$r,$dt){
 			$lb = round(all_qty($r,$dt)*0.70,2);
@@ -1080,9 +1074,9 @@ function getIngVal(&$r,$dt){
 			return array('val1' => 0,'val2' => $lb);
 		},14 => function(&$r,$dt){
 			$pcs = all_qty($r,$dt);
-			return array('val1' => $pcs,'val2' => 0);
+			return array('val1' => $pcs,'val2' => $pcs);
 		},15 => function(&$r,$dt){
-			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt)+fullctm_rice($r,$dt);
+			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
 		}
 	);
@@ -1124,19 +1118,17 @@ function getIngVal(&$r,$dt){
 		}
 
 		foreach ($arr as $key => $val) {
-			if(isset($val['ignore'])) continue;
+			if($val['rowspan']==0) continue;
 			$limit = $val['rowspan'];
 			if($limit==1){
 
 				$arr[$key]['total'] = $val['wtotal'];
 				$arr[$key]['remaining'] = $arr[$key]['total'] - $arr[$key]['purchased'];
-				array_push($arr2,$arr[$key]);
 
 			}elseif ($limit>1) {
-				for ($i=0; $i < $limit; $i++){
+				for ($i=1; $i <= $limit; $i++){
 					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
 					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
-					$arr[$key+$i]['ignore'] = 1;
 				}
 				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
 				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
@@ -1210,18 +1202,16 @@ function flt_qry($qry,$ex="",$rpp=15){
 			$clause[] = " pickup_time like '%".$_POST['pickup_time']."%'";			
 		}
 		if(isset($_POST['phone'])){
-			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";			
+			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
 		}
 		if(isset($_POST['rpp'])){
 			$rpp = $_POST['rpp'];			
 		}
-
 		if(count($clause)>0)
 		{
 			$cls = implode(" and ", $clause);
 			$qry .= " where ".$cls;
 		}
-
 		return p($qry." ".$ex,$rpp);
  }
 function qbuild($qry){
@@ -1294,6 +1284,13 @@ function nullIfNone($val){
 		return $val;
 	else
 		return 'NULL';
+}
+
+function nullIfZ($val){
+	if($val=='' or $val==0)
+		return 'NULL';
+	else
+		return $val;
 }
 
 
