@@ -389,9 +389,8 @@ $funs = array(
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
 	$qry = "select * from food_ingredients";
 	$wrs = ingredientWeeklyRs($qry,$date);
-	$cols = 6;
-	$firstday = firstDayOfWeek($date);
-
+	$cols = 12;
+	
 	?>
 	<table class="table table-hover small table-responsive w-100 d-block d-md-table table-bordered text-center">
 		<thead>
@@ -412,7 +411,7 @@ $funs = array(
 		</thead>
 		<tbody>
 			<?php
-			foreach ($wrs as $wkey => $wval) { $date1 = $firstday; ?>
+			foreach ($wrs as $wkey => $wval) { ?>
 				<tr>
 					<th><?=(++$wkey)?></th>
 					<th class="text-left" contenteditable="true"><?=$wval['name'];?></th>

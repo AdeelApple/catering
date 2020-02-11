@@ -1120,8 +1120,8 @@ function getIngVal(&$r,$dt){
 		}
 
 		foreach ($arr as $key => $val) {
-			if($val['rowspan']==0) continue;
-			$limit = $val['rowspan'];
+			if($val['reportspan']==0) continue;
+			$limit = $val['reportspan'];
 			if($limit==1){
 
 				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
