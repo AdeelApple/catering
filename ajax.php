@@ -414,8 +414,8 @@ $funs = array(
 			<?php
 			foreach ($wrs as $wkey => $wval) { $date1 = $firstday; ?>
 				<tr>
-					<td><?=(++$wkey)?></td>
-					<td class="text-left" contenteditable="true"><?=$wval['name'];?></td>
+					<th><?=(++$wkey)?></th>
+					<th class="text-left" contenteditable="true"><?=$wval['name'];?></th>
 					<?php foreach ($wval['val2'] as $key => $val) { ?>
 					<td contenteditable="true"><?=$val?></td>
 					<?php } ?>
