@@ -1077,7 +1077,7 @@ function getIngVal(&$r,$dt){
 			return array('val1' => $pcs,'val2' => $pcs);
 		},15 => function(&$r,$dt){
 			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
-			return array('val1' => $kg,'val2' => round($kg*3,2));
+			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		}
 	);
 	return $meat_funs[$r['cal']]($r,$dt);
