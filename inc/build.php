@@ -799,6 +799,10 @@ function get_mr($r){
 		},9 => function($r){ //Zarda
 			$rice = ($r['tray_lg']*$r['rice_lg'])+($r['tray_md']*$r['rice_md'])+($r['tray_sm']*$r['rice_sm']);
 			return array('rice' => $rice,'meat' => 0.0);
+		},10 => function($r){ //Butter Chicken
+			if($r['type']==1)	$meat = $r['persons']/8;
+			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			return array('rice' => 0.0,'meat' => $meat);
 		}
 	);
 	return $mr_funs[$r['mr_cal']]($r);
