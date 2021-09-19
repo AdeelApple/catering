@@ -841,8 +841,8 @@ $funs = array(
 						<div class="col p-0"><?=cus_nm($r['order_id'])?></div>
 						<div class="col p-0"><?=spice($r['spice'])?></div>
 						<?php if(is_pp($val)){ ?>
-						<div class="col p-0"><?=$r['qty']?></div>
-						<?php $q+=$r['qty']; }else{ ?>
+						<div class="col p-0"><?=bbq_pcs($r)?></div>
+						<?php $q+=bbq_pcs($r); }else{ ?>
 						<div class="col p-0"><?=$r['persons']?></div>
 						<div class="col p-0"><?=$r['tray_lg']?></div>
 						<div class="col p-0"><?=$r['tray_md']?></div>
