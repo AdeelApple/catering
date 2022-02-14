@@ -44,7 +44,7 @@
 	function q2($qry){	if($rs=mysqli_query($GLOBALS['conn'], $qry)){return $rs;	}else{	die("fail");	}}
 	function bit($qry){	  return intval(getbit($qry))>0?true:false;	}
 	function frow($qry){   return mysqli_fetch_array(q($qry));	}
-	function getbit($qry){	return frow($qry)[0];	}
+	function getbit($qry){	return isset(frow($qry)[0]) ? frow($qry)[0]: null;	}
 	function incval($tbl,$clm){ return getbit("select $clm from $tbl order by $clm desc limit 1")+1; }
 	function del($id,$tbl){ q("delete from $tbl where id=$id");	 }
 	function eq($inp){	echo $inp; }
@@ -540,11 +540,21 @@ function get_all_pots($list,$d){
 		}
 	}
 	if(count($pots_list)>0){
+		$elements = array();
 
 		foreach ($pots_list as $key => $value) {
 			$pots_list[$key]['delivery_time'] = $value['potitems'][0]['delivery_time'];
 			$pots_list[$key]['potname'] = $value['potitems'][0]['name'];
 			$pots_list[$key]['rank'] = $value['potitems'][0]['rank'];
+			// get pots name elements
+			if(isset($elements[$value['potitems'][0]['name']])){
+				$elements[$value['potitems'][0]['name']] += 1;
+			}else{
+				$elements[$value['potitems'][0]['name']] = 1;
+			}
+		}
+		foreach ($pots_list as $key => $value) {
+			$pots_list[$key]['totalpots'] = $elements[$value['potname']];
 		}
 		foreach ($pots_list as $key => $val){
 			$sort_dt[$key] = strtotime($val['delivery_time']);
