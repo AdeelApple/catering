@@ -42,7 +42,7 @@
 				<div class="input-group-prepend">
 				    <span class="input-group-text">Persons</span>
 				</div>
-				<input type="number" name="persons" id="persons" value="<?=$or['persons']?>" min="25" oninput="count_tray();amount_cal();" class="form-control">
+				<input type="number" name="persons" id="persons" value="<?=$or['persons']?>" min="15" oninput="count_tray();amount_cal();" class="form-control">
 			</div>
 		</div>
 		<div class="col-md-4 py-1">

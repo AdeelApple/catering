@@ -50,7 +50,7 @@ $funs = array(
 
 	$rsps = "'Khoya Kheer'";
 	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
-	$qry1 = "select sum(tray_lg) as lg,sum(tray_md) as md,sum(tray_sm) as sm where name in({$rsps}) and item != 0 and type in (2,3) and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry1 = "select sum(tray_lg) as lg,sum(tray_md) as md,sum(tray_sm) as sm from order_items where name in({$rsps}) and item != 0 and type in (2,3) and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
