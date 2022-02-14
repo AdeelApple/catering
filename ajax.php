@@ -23,10 +23,21 @@ $funs = array(
 	$ending_date = lastDayOfWeek($date);
 
 	$rsps = "'Khoya Kheer','Fruit Trifle','Lab-e-Shireen'";
+	$khoya_kheer = "'Khoya Kheer'";
+	$trifle_lab_shireen = "'Fruit Trifle','Lab-e-Shireen'";
 	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$khoya_kheer_qry = "select sum(tray_lg) as lg,sum(tray_md) as md,sum(tray_sm) as sm from order_items where name in({$khoya_kheer}) and item != 0 and type in (2,3) and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$trifle_lab_shireen_qry = "select sum(tray_lg) as lg,sum(tray_md) as md,sum(tray_sm) as sm from order_items where name in({$trifle_lab_shireen}) and item != 0 and type in (2,3) and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
+
+	$data1 = frow($khoya_kheer_qry);
+	$data2 = frow($trifle_lab_shireen_qry);
+
+	$milkbag += ($data1['lg'] * 1.3) +  ($data1['md'] * 1) + ($data1['sm'] * 0.6);
+	$milkbag += ($data2['lg'] * 1) +  ($data2['md'] * 0.7) + ($data2['sm'] * 0.4);
+
 	echo "Milk Bag: ".round($milkbag,2);
 },
 7 => function(){
@@ -39,9 +50,13 @@ $funs = array(
 
 	$rsps = "'Khoya Kheer'";
 	$qry = "select sum(persons) from order_items where name in({$rsps}) and item != 0 and type=1 and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
+	$qry1 = "select sum(tray_lg) as lg,sum(tray_md) as md,sum(tray_sm) as sm where name in({$rsps}) and item != 0 and type in (2,3) and list=6 and date(delivery_time) between '{$starting_date}' and '{$ending_date}'";
 	
 	$pp = getbit($qry);
 	$milkbag = $pp/22;
+
+	$data1 = frow($qry1);
+	$milkbag += ($data1['lg'] * 1.3) +  ($data1['md'] * 1) + ($data1['sm'] * 0.6);
 	echo "Milk Bag For Khoya Kheer: ".round($milkbag,2);
 },
 // SELECT QUERIES
@@ -528,13 +543,13 @@ $funs = array(
 		<div id="k-1" class="col border p-0 k-items">
 		<?php	foreach ($pots_list as $key => $val) { ?>
 			<div class="black-border">
-				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=($key+1)."- ".$val['potname']."(".$val['potnum'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
+				<div class="text-center h4 p-2 font-weight-bold" contenteditable="true"><?=($key+1)."- ".$val['potname']."(".$val['potnum']."/".$val['totalpots'].")<span class='mx-4'>".date('h:iA',strtotime($val['delivery_time']))."</span>"?></div>
 				<?php foreach ($val['potitems'] as $key1 => $v) { ?>
 				<div class="row m-0 border">
 					<div class="col-4 p-0 pl-2" contenteditable="true"><?=customer_name($v['order_id']);?></div>
 					<div class="col pr-1" contenteditable="true"><?=date('h:i',strtotime($v['delivery_time']));?></div>
 					<div class="col p-0" contenteditable="true"><?=spice($v['spice'])?></div>
-					<div class="col p-0" contenteditable="true"><?php if($v['type']==1) echo intval($v['persons']).'pp'; ?></div>
+					<div class="col p-0" contenteditable="true"><?php if($v['type']==1 || ($v['type']==3 && $v['meat_type']==1)) echo intval($v['persons']).'pp'; ?></div>
 					<?php if($v['pp']){ ?>
 					<div class="col p-0" contenteditable="true">qty: <?=$v['qty']?></div>
 					<?php }else{ $trays=""; ?>
