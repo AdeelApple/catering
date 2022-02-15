@@ -104,7 +104,7 @@ $funs = array(
 310 => function(){
 	// Update Package item prices
 	$arr = json_decode($_POST['arr']);
-	$tbl = "food_package_items";
+	$tbl = "food_packages";
 	foreach ($arr as $key => $val) {
 		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
 		q($qry);

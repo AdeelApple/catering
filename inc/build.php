@@ -771,47 +771,47 @@ function fit_per(&$pot,&$r2,$r,$old_meat=0){
 function get_mr($r){
 	$mr_funs = array(
 		1 => function($r){ //Chicken Biryani
-			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},2 => function($r){ //Veal Biryani
-			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},3 => function($r){ //Chicken Pulao
-			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},4 => function($r){ //Veal Pulao
-			if($r['type']==1){	$meat = $r['persons']/10;	}
-			if($r['type']==2||$r['type']==3){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
 			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
 			return array('rice' => $rice,'meat' => $meat);
 		},5 => function($r){ //Chicken Korma
-			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},6 => function($r){ //Veal Korma
-			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},7 => function($r){ //Chicken Karahi
-			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},8 => function($r){ //Veal Karahi
-			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		},9 => function($r){ //Zarda
 			$rice = ($r['tray_lg']*$r['rice_lg'])+($r['tray_md']*$r['rice_md'])+($r['tray_sm']*$r['rice_sm']);
 			return array('rice' => $rice,'meat' => 0.0);
 		},10 => function($r){ //Butter Chicken
-			if($r['type']==1)	$meat = $r['persons']/8;
-			if($r['type']==2||$r['type']==3)	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
+			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
+			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
 			return array('rice' => 0.0,'meat' => $meat);
 		}
 	);
@@ -855,6 +855,10 @@ function tray_to_meat($r,$tray){
 			if($tray=="lg") return $r['tray_lg']*$r['rice_lg']; else 
 			if($tray=="md") return $r['tray_md']*$r['rice_md']; else
 			if($tray=="sm") return $r['tray_sm']*$r['rice_sm'];
+		},10 => function($r,$tray){
+			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
+			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
+			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
 		}
 	);
 	return $meat_funs[$r['mr_cal']]($r,$tray);
@@ -890,6 +894,10 @@ function meat_to_tray($r,$meat,$tray){
 			if($tray=="md") return $meat/$r['meat_md']; else
 			if($tray=="sm") return $meat/$r['meat_sm'];
 		},8 => function($r,$meat,$tray){
+			if($tray=="lg") return $meat/$r['meat_lg']; else 
+			if($tray=="md") return $meat/$r['meat_md']; else
+			if($tray=="sm") return $meat/$r['meat_sm'];
+		},10 => function($r,$meat,$tray){
 			if($tray=="lg") return $meat/$r['meat_lg']; else 
 			if($tray=="md") return $meat/$r['meat_md']; else
 			if($tray=="sm") return $meat/$r['meat_sm'];
