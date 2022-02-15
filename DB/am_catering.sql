@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 4.8.4
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 29, 2020 at 09:07 PM
--- Server version: 10.1.37-MariaDB
--- PHP Version: 7.3.0
+-- Generation Time: Feb 15, 2022 at 07:12 AM
+-- Server version: 10.4.21-MariaDB
+-- PHP Version: 8.0.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -31,12 +30,12 @@ SET time_zone = "+00:00";
 CREATE TABLE `food_cat` (
   `id` int(11) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1',
+  `visible` tinyint(4) NOT NULL DEFAULT 1,
   `food_main` int(11) DEFAULT NULL,
-  `pp` tinyint(4) NOT NULL DEFAULT '0',
+  `pp` tinyint(4) NOT NULL DEFAULT 0,
   `none` decimal(10,2) DEFAULT NULL,
   `edit_none` tinyint(3) UNSIGNED DEFAULT NULL,
-  `edit` tinyint(4) DEFAULT '0',
+  `edit` tinyint(4) DEFAULT 0,
   `lg_min` smallint(5) UNSIGNED DEFAULT NULL,
   `lg_max` smallint(5) UNSIGNED DEFAULT NULL,
   `md_min` smallint(5) UNSIGNED DEFAULT NULL,
@@ -73,8 +72,8 @@ INSERT INTO `food_cat` (`id`, `name`, `visible`, `food_main`, `pp`, `none`, `edi
 CREATE TABLE `food_custom` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1',
-  `open` tinyint(4) NOT NULL DEFAULT '0'
+  `visible` tinyint(4) NOT NULL DEFAULT 1,
+  `open` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -100,22 +99,22 @@ CREATE TABLE `food_custom_items` (
   `md_price` decimal(10,2) DEFAULT NULL,
   `lg_price` decimal(10,2) DEFAULT NULL,
   `price` decimal(10,2) UNSIGNED DEFAULT NULL,
-  `tspan` tinyint(3) UNSIGNED DEFAULT '4',
+  `tspan` tinyint(3) UNSIGNED DEFAULT 4,
   `mr_cal` tinyint(3) UNSIGNED DEFAULT NULL,
   `is_meat_cal` tinyint(3) UNSIGNED DEFAULT NULL,
   `is_rice_cal` tinyint(3) UNSIGNED DEFAULT NULL,
   `rice_type` tinyint(4) DEFAULT NULL,
   `mr_limit_id` int(10) UNSIGNED DEFAULT NULL,
   `ingredient_id` int(11) DEFAULT NULL,
-  `pp` tinyint(4) NOT NULL DEFAULT '0',
+  `pp` tinyint(4) NOT NULL DEFAULT 0,
   `lg_min` tinyint(3) UNSIGNED DEFAULT NULL,
   `lg_max` tinyint(3) UNSIGNED DEFAULT NULL,
   `md_min` tinyint(3) UNSIGNED DEFAULT NULL,
   `md_max` tinyint(3) UNSIGNED DEFAULT NULL,
   `sm_min` tinyint(3) UNSIGNED DEFAULT NULL,
   `sm_max` tinyint(3) UNSIGNED DEFAULT NULL,
-  `list` tinyint(4) NOT NULL DEFAULT '1',
-  `visible` tinyint(4) NOT NULL DEFAULT '1'
+  `list` tinyint(4) NOT NULL DEFAULT 1,
+  `visible` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -129,7 +128,7 @@ INSERT INTO `food_custom_items` (`id`, `name`, `rank`, `food_custom`, `sm_price`
 (100400, 'Chicken Pulao', 3, 100, '30.00', '45.00', '60.00', NULL, 4, 3, 0, 1, 1, 14, 1, 0, 16, 20, 11, 15, 1, 10, 1, 1),
 (100500, 'Haleem', 9, 100, '35.00', '50.00', '70.00', NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, 26, 40, 15, 25, 1, 14, 1, 1),
 (100600, 'Nihari', 10, 100, '50.00', '80.00', '110.00', NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, 26, 40, 15, 25, 1, 14, 1, 1),
-(100700, 'Butter Chicken', 11, 100, '40.00', '50.00', '80.00', NULL, 4, NULL, NULL, NULL, NULL, 15, 9, 0, 26, 40, 15, 25, 1, 14, 1, 1),
+(100700, 'Butter Chicken', 11, 100, '40.00', '50.00', '80.00', NULL, 4, 10, 1, NULL, NULL, 15, 9, 0, 26, 40, 15, 25, 1, 14, 1, 1),
 (100800, 'Veal Karahi', 8, 100, '45.00', '70.00', '90.00', NULL, 4, 8, 1, 0, NULL, 16, 5, 0, 25, 35, 15, 24, 1, 14, 1, 1),
 (100900, 'Veal Korma', 6, 100, '45.00', '70.00', '90.00', NULL, 4, 6, 1, 0, NULL, 17, 5, 0, 25, 35, 15, 24, 1, 14, 1, 1),
 (101000, 'Veal Biryani', 2, 100, '45.00', '60.00', '90.00', NULL, 4, 2, 0, 1, 2, 18, 4, 0, 16, 20, 11, 15, 1, 10, 1, 1),
@@ -176,8 +175,8 @@ INSERT INTO `food_custom_items` (`id`, `name`, `rank`, `food_custom`, `sm_price`
 CREATE TABLE `food_full_custom` (
   `id` int(11) NOT NULL,
   `name` varchar(50) DEFAULT NULL,
-  `open` tinyint(4) DEFAULT '0',
-  `visible` tinyint(4) DEFAULT '1'
+  `open` tinyint(4) DEFAULT 0,
+  `visible` tinyint(4) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -196,14 +195,14 @@ INSERT INTO `food_full_custom` (`id`, `name`, `open`, `visible`) VALUES
 CREATE TABLE `food_ingredients` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
-  `cal` tinyint(11) NOT NULL DEFAULT '0',
-  `rowspan` tinyint(4) NOT NULL DEFAULT '1',
+  `cal` tinyint(11) NOT NULL DEFAULT 0,
+  `rowspan` tinyint(4) NOT NULL DEFAULT 1,
   `reportspan` tinyint(1) DEFAULT NULL,
   `merge_name` varchar(100) DEFAULT NULL,
   `description` varchar(25) DEFAULT NULL,
   `unit1` varchar(50) DEFAULT NULL,
   `unit2` varchar(50) DEFAULT NULL,
-  `visible` int(11) NOT NULL DEFAULT '1'
+  `visible` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -236,8 +235,8 @@ INSERT INTO `food_ingredients` (`id`, `name`, `cal`, `rowspan`, `reportspan`, `m
 CREATE TABLE `food_main` (
   `id` int(11) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
-  `open` tinyint(4) NOT NULL DEFAULT '0',
-  `visible` tinyint(4) NOT NULL DEFAULT '1'
+  `open` tinyint(4) NOT NULL DEFAULT 0,
+  `visible` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -257,9 +256,9 @@ INSERT INTO `food_main` (`id`, `name`, `open`, `visible`) VALUES
 CREATE TABLE `food_packages` (
   `id` int(11) NOT NULL,
   `name` varchar(100) DEFAULT NULL,
-  `food_main` int(11) NOT NULL DEFAULT '0',
-  `price` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `visible` tinyint(4) NOT NULL DEFAULT '1'
+  `food_main` int(11) NOT NULL DEFAULT 0,
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `visible` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -267,7 +266,7 @@ CREATE TABLE `food_packages` (
 --
 
 INSERT INTO `food_packages` (`id`, `name`, `food_main`, `price`, `visible`) VALUES
-(100, 'PACKAGE1', 100, '6.99', 1),
+(100, 'PACKAGE1', 100, '5.99', 1),
 (200, 'PACKAGE2', 100, '7.99', 1),
 (300, 'PACKAGE3', 100, '8.49', 1),
 (400, 'PACKAGE4', 100, '9.49', 1),
@@ -285,7 +284,7 @@ CREATE TABLE `food_package_cat` (
   `id` int(11) NOT NULL,
   `food_cat_id` int(11) NOT NULL,
   `food_package_id` int(11) NOT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1'
+  `visible` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -366,13 +365,13 @@ CREATE TABLE `food_package_items` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `rank` int(10) UNSIGNED DEFAULT NULL,
-  `list` tinyint(4) NOT NULL DEFAULT '1',
+  `list` tinyint(4) NOT NULL DEFAULT 1,
   `food_cat_id` int(11) NOT NULL,
-  `pp` tinyint(4) NOT NULL DEFAULT '0',
-  `is_extra` tinyint(3) UNSIGNED DEFAULT '0',
-  `reduce` decimal(10,2) DEFAULT '0.00',
-  `increase` decimal(10,2) DEFAULT '0.00',
-  `tspan` tinyint(3) UNSIGNED DEFAULT '4',
+  `pp` tinyint(4) NOT NULL DEFAULT 0,
+  `is_extra` tinyint(3) UNSIGNED DEFAULT 0,
+  `reduce` decimal(10,2) DEFAULT 0.00,
+  `increase` decimal(10,2) DEFAULT 0.00,
+  `tspan` tinyint(3) UNSIGNED DEFAULT 4,
   `mr_cal` tinyint(3) UNSIGNED DEFAULT NULL,
   `is_meat_cal` tinyint(3) UNSIGNED DEFAULT NULL,
   `is_rice_cal` tinyint(3) UNSIGNED DEFAULT NULL,
@@ -381,7 +380,7 @@ CREATE TABLE `food_package_items` (
   `ingredient_id` int(11) DEFAULT NULL,
   `extra_price` decimal(5,2) UNSIGNED DEFAULT NULL,
   `selected` tinyint(4) DEFAULT NULL,
-  `visible` tinyint(4) NOT NULL DEFAULT '1'
+  `visible` tinyint(4) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -405,7 +404,7 @@ INSERT INTO `food_package_items` (`id`, `name`, `rank`, `list`, `food_cat_id`, `
 (1400, 'Fruit Trifle', 14, 6, 400, 0, 0, '0.00', '0.00', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (1500, 'Lab-e-Shireen', 15, 6, 400, 0, 0, '0.00', '0.00', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (1600, 'Zarda', 16, 1, 400, 0, 0, '0.00', '0.00', 4, 9, 0, 1, 2, 9, 15, NULL, NULL, 1),
-(1700, 'Butter Chicken', 17, 1, 500, 0, 0, '0.00', '0.00', 4, 10, NULL, NULL, NULL, NULL, 9, NULL, NULL, 1),
+(1700, 'Butter Chicken', 17, 1, 500, 0, 0, '0.00', '0.00', 4, 10, 1, NULL, NULL, NULL, 9, NULL, NULL, 1),
 (1800, 'Nihari', 18, 1, 500, 0, 0, '0.00', '0.00', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (1900, 'Haleem', 19, 1, 500, 0, 0, '0.00', '0.00', 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (2000, 'Tikka Masala', 20, 1, 500, 0, 0, '0.00', '0.00', 4, 6, 1, NULL, NULL, 10, 11, NULL, NULL, 1),
@@ -533,7 +532,7 @@ INSERT INTO `mr_limits` (`id`, `meat_lg`, `meat_md`, `meat_sm`, `rice_lg`, `rice
 (12, '3.750', '2.810', '1.875', NULL, NULL, NULL, '20.00', NULL),
 (13, '2.500', '2.000', '1.250', '1.500', '1.150', '0.750', '10.00', '7.50'),
 (14, '2.500', '2.000', '1.250', '1.500', '1.150', '0.750', '10.00', '7.50'),
-(15, '3.750', '2.810', '1.875', NULL, NULL, NULL, '0.00', NULL),
+(15, '3.750', '2.810', '1.875', NULL, NULL, NULL, '20.00', NULL),
 (16, '3.750', '2.810', '1.875', NULL, NULL, NULL, '30.00', NULL),
 (17, '3.750', '2.810', '1.875', NULL, NULL, NULL, '30.00', NULL),
 (18, '2.500', '2.000', '1.250', '1.500', '1.150', '0.750', '10.00', '7.50'),
@@ -553,9 +552,9 @@ CREATE TABLE `orders` (
   `name` varchar(100) DEFAULT NULL,
   `persons` smallint(6) DEFAULT NULL,
   `extra` decimal(10,2) DEFAULT NULL,
-  `total` decimal(10,2) DEFAULT '0.00',
-  `advance` decimal(10,2) DEFAULT '0.00',
-  `balance` decimal(10,2) DEFAULT '0.00',
+  `total` decimal(10,2) DEFAULT 0.00,
+  `advance` decimal(10,2) DEFAULT 0.00,
+  `balance` decimal(10,2) DEFAULT 0.00,
   `phone1` varchar(15) DEFAULT NULL,
   `phone2` varchar(15) DEFAULT NULL,
   `shipping` tinyint(4) DEFAULT NULL,
@@ -2671,8 +2670,10 @@ INSERT INTO `orders` (`id`, `name`, `persons`, `extra`, `total`, `advance`, `bal
 (2289, 'Fahad', 60, '0.00', '5189.40', '0.00', '5189.40', '', '', 2, '2020-01-31 19:30:00', '', '', '2020-01-26'),
 (2290, 'LLLLL', 25, '0.00', '187.25', '0.00', '187.25', '', '', 2, '2020-01-30 16:30:00', '', '', '2020-01-27'),
 (2291, 'MMMM', 25, '0.00', '174.75', '0.00', '174.75', '', '', 2, '2020-01-31 20:09:00', '', '', '2020-01-27'),
-(2292, 'Abc', 25, '0.00', '35.00', '0.00', '35.00', '', '', 2, '2020-03-04 12:30:00', '', '', '2020-03-04'),
-(2294, 'Bbbbbbbbbb', 25, '0.00', '216.00', '0.00', '216.00', '', '', 2, '2020-03-10 20:00:00', '', '', '2020-03-10');
+(2295, 'abc', 25, '0.00', '42.50', '0.00', '42.50', '', '', 2, '2021-09-18 19:03:00', '', 'jjj', '2021-09-18'),
+(2296, 'abc', 25, '0.00', '225.00', '0.00', '225.00', '', '', 2, '2022-02-14 10:36:00', '', 'goood people', '2022-02-14'),
+(2297, 'hammad', 25, '0.00', '150.00', '0.00', '150.00', '', '', 2, '2022-02-14 10:49:00', '', '', '2022-02-14'),
+(2306, 'Nadeem', 25, '0.00', '600.00', '0.00', '600.00', '', '', 2, '2022-02-15 14:42:00', '', '', '2022-02-15');
 
 -- --------------------------------------------------------
 
@@ -2711,7 +2712,7 @@ CREATE TABLE `order_items` (
   `md_price` decimal(10,2) UNSIGNED DEFAULT NULL,
   `lg_price` decimal(10,2) UNSIGNED DEFAULT NULL,
   `pkgcmt` varchar(100) DEFAULT NULL,
-  `total` decimal(10,2) UNSIGNED NOT NULL DEFAULT '0.00',
+  `total` decimal(10,2) UNSIGNED NOT NULL DEFAULT 0.00,
   `d_total` decimal(10,2) UNSIGNED DEFAULT NULL,
   `pp` tinyint(3) UNSIGNED DEFAULT NULL,
   `list` smallint(3) UNSIGNED DEFAULT NULL,
@@ -16275,8 +16276,12 @@ INSERT INTO `order_items` (`id`, `order_id`, `item`, `name`, `category`, `packag
 (22490, 2291, 2700, 'Garden Salad', 1100, 100, 100, 1, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 1, '', NULL, NULL, NULL, '6.99', NULL, NULL, NULL, NULL, '', '174.75', NULL, 0, 4, 4, 27, '2020-01-31 20:09:00'),
 (22491, 2291, 3000, 'Tandoori Naan', 1200, 100, 100, 1, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', 18, 0, '0.00', '6.99', NULL, NULL, NULL, NULL, '', '174.75', NULL, 1, 5, 4, 30, '2020-01-31 20:09:00'),
 (22492, 2291, 3200, 'Raita', 1300, 100, 100, 1, 25, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '', 2, 0, '0.00', '6.99', NULL, NULL, NULL, NULL, '', '174.75', NULL, 1, 3, 4, 32, '2020-01-31 20:09:00'),
-(22493, 2292, 102000, 'Tandoori Chicken Tikka', NULL, NULL, 100, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, '', 10, NULL, NULL, NULL, '3.50', NULL, NULL, NULL, NULL, '35.00', '35.00', 1, 2, 4, 23, '2020-03-04 12:30:00'),
-(22496, 2294, 1, 'cummm', NULL, NULL, 100, 3, 80, 10, NULL, NULL, NULL, 1, NULL, 9, 3, 2, 0, 0, '', NULL, NULL, NULL, NULL, NULL, '0.00', '0.00', '108.00', NULL, '216.00', '216.00', 0, 1, 4, 10000, '2020-03-10 20:00:00');
+(22497, 2295, 101900, 'Beef Kabab', NULL, NULL, 100, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 8, 3, NULL, NULL, NULL, 'yesss', 10, NULL, NULL, NULL, '2.50', NULL, NULL, NULL, NULL, '25.00', '25.00', 1, 2, 4, 22, '2021-09-18 19:03:00'),
+(22498, 2295, 102000, 'Tandoori Chicken Tikka', NULL, NULL, 100, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, 3, NULL, NULL, NULL, 'nooo', 5, NULL, NULL, NULL, '3.50', NULL, NULL, NULL, NULL, '17.50', '17.50', 1, 2, 4, 23, '2021-09-18 19:03:00'),
+(22499, 2296, 1, 'ShireenBB', NULL, NULL, 100, 3, 12, 1, 0, 1, 2, 1, 1, 1, 3, NULL, NULL, NULL, 'abc', 15, NULL, NULL, NULL, '15.00', NULL, NULL, NULL, NULL, '225.00', '225.00', 1, 1, 4, 10000, '2022-02-14 10:36:00'),
+(22500, 2297, 1, 'my item1', NULL, NULL, 100, 3, 36, 1, 0, 1, 2, 1, 1, 1, 2, 2, 0, 0, 'bbb', NULL, NULL, NULL, NULL, NULL, '0.00', '0.00', '0.00', NULL, '0.00', '0.00', 0, 1, 4, 10000, '2022-02-14 10:49:00'),
+(22501, 2297, 1, 'My item 2', NULL, NULL, 100, 3, 10, 6, 1, 0, NULL, 1, 6, 5, 3, NULL, NULL, NULL, 'good', 15, NULL, NULL, NULL, '10.00', NULL, NULL, NULL, NULL, '150.00', '150.00', 1, 1, 4, 10000, '2022-02-14 10:49:00'),
+(22513, 2306, 100700, 'Butter Chicken', NULL, NULL, 100, 2, NULL, 10, 1, NULL, NULL, NULL, 15, 9, 3, 5, 0, 5, 'emergency', NULL, NULL, NULL, NULL, NULL, '40.00', '50.00', '80.00', NULL, '600.00', '600.00', 0, 1, 4, 11, '2022-02-15 14:42:00');
 
 -- --------------------------------------------------------
 
@@ -16338,7 +16343,7 @@ CREATE TABLE `sidebar` (
   `allow` tinyint(4) DEFAULT NULL,
   `icon` varchar(50) DEFAULT NULL,
   `submenu` tinyint(4) DEFAULT NULL,
-  `super` tinyint(3) UNSIGNED NOT NULL DEFAULT '0'
+  `super` tinyint(3) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -16405,7 +16410,7 @@ CREATE TABLE `users` (
   `pass` varchar(100) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
   `type` varchar(50) DEFAULT NULL,
-  `allow` tinyint(4) DEFAULT '1'
+  `allow` tinyint(4) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -16634,13 +16639,13 @@ ALTER TABLE `mr_limits`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2295;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2307;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22497;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22514;
 
 --
 -- AUTO_INCREMENT for table `purchased_items`
