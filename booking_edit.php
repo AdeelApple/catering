@@ -284,13 +284,13 @@
 						<th width="4%">V.Mild</th>
 						<th width="4%">Mild</th>
 						<th width="4%">Spicy</th>
-						<th width="4%">Larg</th>
+						<th width="6%">Larg</th>
 						<?php if($id!=200){ ?>
-						<th width="4%">Med</th>
+						<th width="6%">Med</th>
 						<?php } ?>
-						<th width="4%">Small</th>
-						<th width="11%">Total</th>
-						<th width="11%">D.total</th>
+						<th width="6%">Small</th>
+						<th width="8%">Total</th>
+						<th width="8%">D.total</th>
 						<th width="20%">Comment</th>
 					</tr>
 				</thead>
