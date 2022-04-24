@@ -599,10 +599,10 @@ $funs = array(
 				 		<tr>
 				 			<th width="8%" class="text-left">Time</th>
 				 			<th width="20%" class="text-left">BBQ</th>
-				 			<th width="10%" class="text-left">Customer</th>
+				 			<th width="20%" class="text-left">Customer</th>
 				 			<th width="5%" class="text-left">QTY</th>
-				 			<th width="10%" class="text-left">Spice</th>
-				 			<th width="25%" class="text-left">Cmnt</th>
+				 			<th width="5%" class="text-left">Spice</th>
+				 			<th width="20%" class="text-left">Cmnt</th>
 				 		</tr>
 				 	</thead>
 				 	<tbody>
@@ -642,17 +642,17 @@ $funs = array(
 					$ttl += $v['qty']; $cus++;?>
 				
 				<div class="row m-0 border">
-					<div class="col p-0 pl-2"><?=customer_name($v['order_id']);?></div>
-					<div class="col p-1"><?=date('h:i',strtotime($v['delivery_time']));?></div>
+					<div class="col p-0 pl-1"><?=customer_name($v['order_id']);?></div>
+					<div class="col col-2 p-1"><?=date('h:i',strtotime($v['delivery_time']));?></div>
 					<?php if($v['pp']){ ?>
-					<div class="col p-0"><?=$v['qty']?></div>
+					<div class="col col-2 p-0"><?=$v['qty']?></div>
 					<?php }else{ $trays=""; ?>
 					<?php if($v['tray_lg']>0) $trays.= "<span class='px-2'>".round($v['tray_lg'],1).'L</span>'; ?>
 					<?php if($v['tray_md']>0) $trays.= "<span class='px-2'>".round($v['tray_md'],1).'M</span>'; ?>
 					<?php if($v['tray_sm']>0) $trays.= "<span class='px-2'>".round($v['tray_sm'],1).'S</span>'; ?>
 					<div class='col p-0'><?=$trays?></div>
 					<?php } ?>
-					<div class="col p-0"><?=$v['description']; ?></div>
+					<div class="col col-2 p-0"><?=$v['description']; ?></div>
 				</div>
 				<?php } ?>
 				<div class="row m-0 fc p-fc pot">
