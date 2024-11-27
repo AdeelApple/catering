@@ -1,13 +1,11 @@
 <?php 
 	
+	$db_host = getenv('DATABASE_HOST');
+	$db_name = getenv('DATABASE_NAME');
+	$db_user = getenv('DATABASE_USERNAME');
+	$db_pass = getenv('DATABASE_PASSWORD');
 
-
-	$database = "am_catering";
-	// $database = "encoders_encodersolution";
 	$conn = mysqli_connect("localhost", "root", "", $database);
-	// $conn = mysqli_connect("localhost", "adeelapple", "adeel@5", $database);
-	// $conn = mysqli_connect("localhost", "encoders_encoder", "1MRBDoSP@W)W", $database);
-
 
 	// Global Variables
 	$pages=0;
