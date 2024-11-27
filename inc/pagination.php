@@ -46,6 +46,7 @@
 		  			<span class="sr-only">Next</span>
 		  		</a>
 			</li>
+			<li><span class="d-block p-2 h6">Total: <span id="total_order_count_span">0</span></span></li>
 		</ul>
 	</nav>
 

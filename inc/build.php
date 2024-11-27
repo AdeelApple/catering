@@ -1177,14 +1177,14 @@ function getPurchasedItems($id,$dt){
 }
 
 
-function p($qry,$lim=26){
+function p($qry,$limit=26){
 	if(isset($_POST['page'])){
 		$pgno = (int) $_POST['page'];
 	}else{	$pgno = 1;	}
 	$rows = mysqli_num_rows(q($qry));
-	$GLOBALS['pages'] = ceil($rows/$lim);
-	$offset = ($pgno-1) * $lim;
-	$qry.=" limit $offset,$lim";
+	$GLOBALS['pages'] = ceil($rows/$limit);
+	$offset = ($pgno-1) * $limit;
+	$qry.=" limit $offset,$limit";
 	return	q($qry);
  }
 function norecord($rs,$num){
@@ -1206,8 +1206,10 @@ function tbl_pagination($num){
 	include 'inc/pagination.php';
 	echo "</td></tr>";
  }
-function flt_qry($qry,$ex="",$rpp=15){
-	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['rpp']:1;
+
+//  remove this function
+function flt_qry($qry,$ex="",$limit=15){
+	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
 	$clause = array();
 		if(isset($_POST['search'])){
 			$srch = $_POST['search'];
@@ -1227,16 +1229,60 @@ function flt_qry($qry,$ex="",$rpp=15){
 		if(isset($_POST['phone'])){
 			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
 		}
-		if(isset($_POST['rpp'])){
-			$rpp = $_POST['rpp'];			
+		if(isset($_POST['limit'])){
+			$limit = $_POST['limit'];			
 		}
 		if(count($clause)>0)
 		{
 			$cls = implode(" and ", $clause);
 			$qry .= " where ".$cls;
 		}
-		return p($qry." ".$ex,$rpp);
+		return p($qry." ".$ex,$limit);
  }
+
+function get_filter_query($qry,$ex="",$paginated=false, $limit=15){
+	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
+	$clause = array();
+		if(isset($_POST['search'])){
+			$srch = $_POST['search'];
+			$q = " name like '%$srch%'";		
+			if(is_numeric($srch)) $q .= " or id=$srch";		
+			$clause[] = $q;
+		}
+		if(isset($_POST['searchid'])){
+			$clause[] = " id = ".$_POST['searchid'];			
+		}
+		if(isset($_POST['delivery_time'])){
+			$clause[] = " DATE(delivery_time) = '".$_POST['delivery_time']."'";			
+		}
+		if(isset($_POST['pickup_time'])){
+			$clause[] = " pickup_time like '%".$_POST['pickup_time']."%'";			
+		}
+		if(isset($_POST['phone'])){
+			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
+		}
+		if(isset($_POST['limit'])){
+			$limit = $_POST['limit'];			
+		}
+		if(count($clause)>0)
+		{
+			$cls = implode(" and ", $clause);
+			$qry .= " where ".$cls;
+		}
+		
+		$qry = $qry." ".$ex
+
+		if($paginated){
+			return $qry;
+
+		$pgno = isset($_POST['page']) ? (int) $_POST['page'] : 1;
+		$rows = mysqli_num_rows(q($qry));
+		$GLOBALS['pages'] = ceil($rows / $limit);
+		$offset = ($pgno - 1) * $limit;
+		$qry .= " limit $offset, $limit";
+		return $qry;
+}
+
 function qbuild($qry){
 	$clause = array();
 	if(isset($_POST['search'])){

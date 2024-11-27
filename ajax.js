@@ -23,6 +23,8 @@ function filter(pg){
 	if($("#scr").length<1)	$('body').append("<div id='scr' class='screen'><i class='fas fa-3x fa-spinner fa-pulse'></i></div>");
 	$.post('ajax.php', flt, function(d) {
 		$("#tbl").html(d);
+		total_order_count = $("#total_order_count").val();
+		$("#total_order_count_span").html(total_order_count);
 		$("#scr").remove();
 	});
 }

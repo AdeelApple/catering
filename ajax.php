@@ -451,12 +451,17 @@ $funs = array(
 	$qry = "select * from orders";
 	
 	$rs = flt_qry($qry,"order by id desc");
+	
+	
+	$qry2 = "select count(id) from orders";
+	$filtered_query = get_filter_query($qry2,"order by id desc", false);
+	$total_count = getbit($filtered_query);
 	$cols=9;
 
 	?>
 	<thead>
 		<tr>
-			<th>Edit/Receipt</th>
+			<th>Edit/Receipt<span id="total_order_count" class="hidden"><?=$total_count?></th>
 			<th>Order No.</th>
 			<th class="text-left">Customer Name</th>
 			<th>Phone no.1</th>

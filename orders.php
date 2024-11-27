@@ -10,7 +10,7 @@
 					<h5 class="text-success">Orders List</h5>
 				</div>
 				<div class="col-md-4">
-					<?php include "inc/rpp.php"; ?>
+					<?php include "inc/records_limit_dropdown.php"; ?>
 					<a href="booking.php" class="btn btn-primary btn-sm float-right mx-1" title="Book a new order"><i class="fa fa-book"></i></a>
 				</div>
 			</div>
