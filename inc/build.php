@@ -1,11 +1,12 @@
 <?php 
-	
-	$db_host = getenv('DATABASE_HOST');
-	$db_name = getenv('DATABASE_NAME');
-	$db_user = getenv('DATABASE_USERNAME');
-	$db_pass = getenv('DATABASE_PASSWORD');
 
-	$conn = mysqli_connect("localhost", "root", "", $database);
+	$config = json_decode(file_get_contents(dirname(__DIR__) . '/configs.json'), true);
+	$db_host = $config['DATABASE_HOST'];
+	$db_name = $config['DATABASE_NAME'];
+	$db_user = $config['DATABASE_USERNAME'];
+	$db_pass = $config['DATABASE_PASSWORD'];
+
+	$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
 	// Global Variables
 	$pages=0;
@@ -1268,10 +1269,11 @@ function get_filter_query($qry,$ex="",$paginated=false, $limit=15){
 			$qry .= " where ".$cls;
 		}
 		
-		$qry = $qry." ".$ex
+		$qry = $qry." ".$ex;
 
-		if($paginated){
+		if(!$paginated){
 			return $qry;
+		}
 
 		$pgno = isset($_POST['page']) ? (int) $_POST['page'] : 1;
 		$rows = mysqli_num_rows(q($qry));

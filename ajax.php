@@ -461,7 +461,7 @@ $funs = array(
 	?>
 	<thead>
 		<tr>
-			<th>Edit/Receipt<span id="total_order_count" class="hidden"><?=$total_count?></th>
+			<th>Edit/Receipt<span id="total_order_count" class="d-none"><?=$total_count?></th>
 			<th>Order No.</th>
 			<th class="text-left">Customer Name</th>
 			<th>Phone no.1</th>

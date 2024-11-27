@@ -23,7 +23,14 @@
 						<input type="search" id="search" onkeyup="filter()" class="form-control filter" placeholder="name or order-no...">
 					</div>
 				</div>
-				<div class="col-md-3"></div>
+				<div class="col-md-3">
+					<div class="input-group input-group-sm d-print-none">
+						<div class="input-group-prepend">
+						    <span class="input-group-text">Total Orders</span>
+						</div>
+						<input type="text" id="total_order_count_input" class="form-control filter" disabled="true" placeholder="none">
+					</div>
+				</div>
 				<div class="col-md-3">
 					<div class="input-group input-group-sm">
 						<div class="input-group-prepend">
