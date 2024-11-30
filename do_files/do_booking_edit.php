@@ -187,11 +187,11 @@ include '../inc/build.php';
 					$main = $value;
 
 
-					$fullctm_mr_cal = $_POST['fullctm_mr_cal'.$value.$value1];
+					list($fullctm_mr_cal, $ingredient_id) = explode('|', $_POST['fullctm_mr_cal'.$value.$value1]);
 
 					if($fullctm_mr_cal!="none"){
 
-						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} limit 1"); 
+						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} and ingredient_id = {$ingredient_id} limit 1"); 
 						$mr_limits = $it['mr_limit_id']??'NULL';
 						$ingredient_id = $it['ingredient_id']??'NULL';
 						$rice_type = $it['rice_type']??'NULL';

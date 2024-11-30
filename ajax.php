@@ -433,9 +433,9 @@ $funs = array(
 					<?php foreach ($wval['val2'] as $key => $val) { ?>
 					<td contenteditable="true"><?=$val?></td>
 					<?php } ?>
-					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],1)?></span> <?=$wval['unit2'];?></td>
+					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],1)?></span> <?=get_unit_for_report($wval);?></td>
 					<td class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=round($wval['purchased'],1);?>"></td>
-					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=round($wval['remaining'],1)?></span> <?=$wval['unit2'];?></td>
+					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=round($wval['remaining'],1)?></span> <?=get_unit_for_report($wval);?></td>
 					
 				</tr>
 			<?php }  norecord_arr($wrs,$cols); ?>

@@ -36,7 +36,7 @@
 		return bit("select {$type} from sidebar where link like '$pg' union select {$type} from sub_sidebar where link like '$pg' ");
 	}
 	function order_no(){
-		$db = $GLOBALS['database'];
+		$db = $GLOBALS['db_name'];
 		return getbit("select `auto_increment`from  information_schema.tables where table_schema = '$db' and   table_name   = 'orders';");
 	}
 	function q($qry){	if($rs=mysqli_query($GLOBALS['conn'], $qry)){return $rs;	}else{	die("<b>Die:</b>".$qry);	}}
@@ -112,12 +112,14 @@ function nullifunset($val){
 }
 
 	
-function options($qry,$sl="",$attr=0){
+function options($qry,$sl="",$attr=0,$merged_value=""){
 	$rs = q($qry);
 	while($r = mysqli_fetch_array($rs)){
 		if($attr==1) $ext = "data-param='{$r[2]}'"; else $ext = "";
 		if($sl==$r[0]) $select = "selected='selected'"; else $select = "";
-		echo "<option value='{$r[0]}' {$ext} {$select}>  {$r[1]} </option>";
+		$value = $r[0];
+		if($merged_value!="") $value = $r[0]."|".$r[$merged_value];
+		echo "<option value='{$value}' {$ext} {$select}>  {$r[1]} </option>";
 	}
 }
 	
@@ -186,7 +188,7 @@ function default_edit_row(){
 	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
  }
 function fullctm_default_arr(){
-	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'person' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
+	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'persons' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
 
  }
 function del_pkg_order($oid,$tp,$pkg,$main){
@@ -1052,51 +1054,52 @@ function all_qty(&$r,$dt){
  // Get values
 function getIngVal(&$r,$dt){
 	$wt = array('kg' => 0.0,'lb' => 0.0,'per' => 0, 'qty' => NULL);
+	// Table = food_ingredients
 	$meat_funs = array(
-		1 => function(&$r,$dt){
+		1 => function(&$r,$dt){	// Chicken+Rice => Aleas => 4 Pieces
 			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},2 => function(&$r,$dt){
+		},2 => function(&$r,$dt){	// Chicken+Curry => Aleas => 4 Pieces
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},3 => function(&$r,$dt){
+		},3 => function(&$r,$dt){	// BBQ+Chicken
 			$pcs =  (qty_ctm($r,$dt) * 3) + (qty_fullctm($r,$dt) * 3) + qty_pkg($r,$dt);
 			$legs = round($pcs / 3, 2);
 			return array('val1' => $pcs,'val2' => $legs);
-		},4 => function(&$r,$dt){
+		},4 => function(&$r,$dt){	// Veal+Rice  => Aleas => Veal
 			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},5 => function(&$r,$dt){
+		},5 => function(&$r,$dt){	// Veal+Curry => Aleas => Veal
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},6 => function(&$r,$dt){
+		},6 => function(&$r,$dt){	// Reshmi Kabab
 			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},7 => function(&$r,$dt){
+		},7 => function(&$r,$dt){	// Chicken Pasta
 			$kg = ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},8 => function(&$r,$dt){
+		},8 => function(&$r,$dt){	// Beef Keema
 			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},9 => function(&$r,$dt){
+		},9 => function(&$r,$dt){	// Butter Chicken
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},10 => function(&$r,$dt){
+		},10 => function(&$r,$dt){	// Malai Boti
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0, 'val2' => $lb);
-		},11 => function(&$r,$dt){
+		},11 => function(&$r,$dt){	// Boneless Tikka Masala
 			$kg = round((pkg_meat($r,$dt,8) + ctm_meat($r,$dt) + fullctm_meat($r,$dt,8)),2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},12 => function(&$r,$dt){
+		},12 => function(&$r,$dt){	// Boneless Tikka
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0,'val2' => $lb);
-		},13 => function(&$r,$dt){
+		},13 => function(&$r,$dt){	// Bihari Kabab
 			$lb = round(all_qty($r,$dt)*0.50,2);
 			return array('val1' => 0,'val2' => $lb);
-		},14 => function(&$r,$dt){
+		},14 => function(&$r,$dt){	// Fish
 			$pcs = all_qty($r,$dt);
 			return array('val1' => $pcs,'val2' => $pcs);
-		},15 => function(&$r,$dt){
+		},15 => function(&$r,$dt){	// Zarda Rice
 			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		}
@@ -1131,8 +1134,9 @@ function getIngVal(&$r,$dt){
 	{
 		$rs = q($qry); $arr = array();$arr2 = array();
 		while($r = mysqli_fetch_assoc($rs)){
+			$value_with_unit = get_display_unit_for_value($r['display_report_unit']);
 			// $r['val1'] = weeklyIngVals($r,$dt,'val1');
-			$r['val2'] = weeklyIngVals($r,$dt);
+			$r['val2'] = weeklyIngVals($r,$dt,$value_with_unit);
 			$r['wtotal'] = arrTotal($r['val2']);
 			$r['purchased'] = getPurchasedItems($r['id'],$dt);
 			$r['remaining'] = 0;
@@ -1143,23 +1147,31 @@ function getIngVal(&$r,$dt){
 		foreach ($arr as $key => $val) {
 			if($val['reportspan']==0) continue;
 			$limit = $val['reportspan'];
-			if($limit==1){
 
-				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
-
-			}elseif ($limit>1) {
+			if ($limit>1) {
 				for ($i=1; $i < $limit; $i++){
 					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
 					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
 				}
 				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
-				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 			}
+			$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 			array_push($arr2,$arr[$key]);
 		}
 		return $arr2;
 	}
 
+function get_display_unit_for_value($unit){
+	if($unit == 'KG')
+		return 'val1';
+	return 'val2';
+}
+
+function get_unit_for_report($r){
+	if($r['display_report_unit'] == 'KG')
+		return $r['unit1'];
+	return $r['unit2'];
+}
 
 function weeklyIngVals($r,$dt,$val="val2"){
 	$monday = firstDayOfWeek($dt);

@@ -381,7 +381,7 @@
 						<td>
 							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
-								<?php options("select mr_cal,food_package_items.name,food_cat.name from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank","",1); ?>
+								<?php options("select mr_cal,food_package_items.name,food_cat.name,ingredient_id from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank","",1,$merged_value="ingredient_id"); ?>
 							</select>
 							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" onchange="fullctm_meat_type_changed(this);" <?=$dis?>>
 								<option value="none">none</option>
