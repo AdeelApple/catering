@@ -21,7 +21,7 @@ include '../inc/build.php';
 
 
 
-	$order_qry = "update orders set name='$customer', persons=$persons, extra=$extra, total=$total, advance=$advance, balance=$balance, phone1='$phone1',phone2='$phone2', shipping=$shipping, address='$address', remark='$remark', delivery_time='$delivery_time' where id=$order_id";
+	$order_qry = "update orders set name='$customer', persons=$persons, extra=$extra, total=$total, advance=$advance, balance=$balance, phone1='$phone1',phone2='$phone2', shipping=$shipping, address='$address', remark='$remark', delivery_time='$delivery_time', trays=NULL, is_pre_booking=NULL where id=$order_id";
 
 	q($order_qry);
 	q("delete from order_items where order_id = $order_id ");

@@ -64,8 +64,28 @@ function weekly_report(){
 			change_cols($("#cols"));
 		});
 	});
+}
 
+// Prebooking Report
+function prebooking_report(){
+	var flt = {};
+	
+	$('.filter').each(function(index, el) {
+		if($(el).val()!=""){
+			var id = $(el).attr('id');
+			flt[id] = $(el).val();
+		}
+	});
+	var fun = $('#tbl').attr('data-fun');
+	flt['fun'] = fun;
+	$.post('ajax.php', flt, function(d) {
+		$("#tbl").html(d);
 
+		flt['fun'] = 4;
+		$.post('ajax.php', flt, function(d) {
+			$("#report-title").html(d);
+		});
+	});
 }
 
 

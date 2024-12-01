@@ -111,6 +111,16 @@ function nullifunset($val){
 		return "NULL";
 }
 
+function get_total_pp($date){
+	$qry = "select sum(persons) from orders where date(delivery_time) = '{$date}'";
+	return getbit($qry);
+}
+
+function get_total_trays($date){
+	$qry = "select sum(trays) from orders where date(delivery_time) = '{$date}'";
+	return getbit($qry);
+}
+
 	
 function options($qry,$sl="",$attr=0,$merged_value=""){
 	$rs = q($qry);
@@ -1346,6 +1356,11 @@ function lastDayOfWeek($date){
 }
 function showWeek($date){
 	return "Monday(".firstDayOfWeek($date).") - Sunday(".lastDayOfWeek($date).")";
+}
+function show_prebooking_date_title($date){
+	$start = date("F Y", strtotime($date));
+	$end = date("F Y", strtotime($date . " +5 months"));
+	return $start . " - " . $end;
 }
 function incDay($date,$i=1){
 	return date("Y-m-d",strtotime($date."+".$i." day"));

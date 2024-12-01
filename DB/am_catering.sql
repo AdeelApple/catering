@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 30, 2024 at 12:09 PM
+-- Generation Time: Dec 01, 2024 at 06:14 AM
 -- Server version: 10.6.19-MariaDB-cll-lve
 -- PHP Version: 8.1.29
 
@@ -563,8 +563,12 @@ CREATE TABLE `orders` (
   `delivery_time` datetime DEFAULT NULL,
   `address` varchar(150) DEFAULT NULL,
   `remark` varchar(150) DEFAULT NULL,
-  `date` date DEFAULT NULL
+  `date` date DEFAULT NULL,
+  `trays` int(11) DEFAULT NULL,
+  `is_pre_booking` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `order_items`
@@ -609,6 +613,8 @@ CREATE TABLE `order_items` (
   `rank` int(10) UNSIGNED DEFAULT NULL,
   `delivery_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `purchased_items`
@@ -676,6 +682,7 @@ CREATE TABLE `sidebar` (
 INSERT INTO `sidebar` (`id`, `name`, `admin`, `operator`, `chef`, `tandoor`, `manager`, `link`, `allow`, `icon`, `submenu`, `super`) VALUES
 (100, 'Booking', 1, 1, 0, 0, 0, 'booking.php', 1, 'fas fa-fw fa-book', 0, 0),
 (105, 'Edit Order', 1, 0, 0, 0, 0, 'booking_edit.php', 0, NULL, 0, 0),
+(106, 'Pre Booking', 1, 0, 0, 0, 0, 'pre_booking.php', 1, 'fa fa-calendar-check', 0, 0),
 (110, 'Receipt', 1, 1, 0, 0, 0, 'receipt.php', 0, NULL, 0, 0),
 (115, 'Admin Setting', 1, 0, 0, 0, 0, 'settings_admin.php', 0, NULL, 0, 1),
 (200, 'Meat', 1, 0, 0, 0, 0, 'ingredients.php', 1, 'fas fa-clipboard-list', 0, 0),
@@ -714,6 +721,7 @@ INSERT INTO `sub_sidebar` (`id`, `main`, `name`, `admin`, `operator`, `chef`, `t
 (300, 500, 'Vegi And Naan', 1, 0, 0, 0, 1, 1, 'report_vegi_naan.php', 'fas fa-chart-pie'),
 (400, 500, 'Sweets Report', 1, 0, 0, 0, 1, 1, 'report_sweets.php', 'fas fa-chart-pie'),
 (410, 500, 'Meat Report', 1, 0, 0, 0, 1, 1, 'report_meat.php', 'fas fa-chart-pie'),
+(415, 500, 'Pre Booking Report', 1, 0, 0, 0, 1, 1, 'report_pre_booking.php', 'fa fa-calendar-check'),
 (500, 600, 'Package Items', 1, 0, 0, 0, 0, 1, 'setting_package.php', 'fas fa-tools'),
 (600, 600, 'Custom Items', 1, 0, 0, 0, 0, 1, 'setting_custom.php', 'fas fa-tools'),
 (700, 600, 'Privileges', 1, 0, 0, 0, 0, 1, 'setting_privileges.php', 'fa fa-users'),
@@ -963,13 +971,13 @@ ALTER TABLE `mr_limits`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16820;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16824;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138749;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138763;
 
 --
 -- AUTO_INCREMENT for table `purchased_items`

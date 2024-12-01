@@ -11,6 +11,11 @@ $funs = array(
 },
 1 => function(){
 },
+4 => function(){
+	// Prebooking Report Date title
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	echo show_prebooking_date_title($date);
+},
 5 => function(){
 	// Report Date title
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
@@ -476,8 +481,15 @@ $funs = array(
 	<tbody id="tbody">
 		<?php $n=1; while($r = mysqli_fetch_array($rs)){ $oid=$r['id']; ?>
 		<tr>
-			<td><a href="booking_edit.php?oid=<?=$oid;?>" class="btn-sm btn-success"><i class="fa fa-pen"></i></a>
-				<a href="receipt.php?oid=<?=$oid;?>" class="btn-sm btn-warning"><i class="fa fa-file-invoice"></i></a></td>
+			<td><a href="booking_edit.php?oid=<?=$oid;?>" class="btn-sm btn-success c-pointer"><i class="fa fa-pen"></i></a>
+			<?php
+				if($r['is_pre_booking']==1){
+			?>
+				<a href="pre_booking.php?oid=<?=$oid;?>" class="btn-sm btn-primary c-pointer"><i class="fa fa-calendar-check"></i></a>
+			<?php } else{ ?>
+				<a href="receipt.php?oid=<?=$oid;?>" class="btn-sm btn-warning c-pointer"><i class="fa fa-file-invoice"></i></a>
+			<?php } ?>
+			</td>
 			<td><?=$r['id']?></td>
 			<td class="text-left"><span class="c-p h-blue font-weight-bold" data-toggle="collapse" data-target="#a<?=$n?>"><?=$r['name']?></span></td>
 			<td><?=empty($r['phone1'])?'-':$r['phone1'];?></td>
@@ -913,6 +925,56 @@ $funs = array(
 	<div id="r-7" class="row"></div>
 	<div id="r-8" class="row"></div>
 
+	<?php
+},
+
+8500 => function(){
+	// pre booking Report
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	$months = 6;
+	
+	?>
+	<div class="row p-0 m-0">
+		<?php while($months>0){ ?>
+		<div class="col col-12 col-lg-6 p-4 m-0">
+			<div class="row p-0 m-0 border bg-success text-light">
+				<div class="col">
+					<div class="text-center font-weight-bold py-2"><?=date('F Y', strtotime($date));?></div>
+				</div>
+			</div>
+			<div class="row p-0 m-0">
+				<?php
+				$daysInMonth = date('t', strtotime($date));
+				$month_days = date("Y-m-01", strtotime($date));
+				for ($i = 1; $i <= $daysInMonth; $i++) {
+					$pp = get_total_pp($month_days);
+					$trays = get_total_trays($month_days);
+					$month_days = date("Y-m-d", strtotime($month_days . " +1 day"));
+					
+				?>
+				<div class="col-calender border <?php=$pp > 1000? 'highligh-order-cell': '' ?>">
+					<div class="row m-0 p-0 border-bottom">
+						<div class="col">
+							<div class="text-center font-weight-bold py-2"><?=$i?></div>
+						</div>
+					</div>
+					<div class="row m-0 p-0">
+						<div class="col-6 m-0 p-0 border-right">
+							<div class="text-center small py-2"><?=$pp?></div>
+						</div>
+						<div class="col-6 m-0 p-0">
+							<div class="text-center small py-2"><?=$trays?></div>
+						</div>
+					</div>
+				</div>
+				<?php } ?>
+			</div>
+		</div>
+		<?php
+			$date = date("Y-m-d", strtotime($date . " +1 month"));
+			$months--; 
+		}?>
+	</div>
 	<?php
 });
 $funs[$_POST['fun']](); ?>
