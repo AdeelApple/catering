@@ -227,12 +227,12 @@ function get_item_from_all_orders($nm,$dt){
  }
 
  function get_item_from_all_orders_weekly($nm,$date_from,$date_to){
-	$qry = "select order_items.*, orders.persons from order_items right join orders on order_items.order_id = orders.id where order_items.name like '{$nm}' and item != 0 and date(delivery_time) between '{$date_from}' and '{$date_to}'";
+	$qry = "select order_items.*, orders.persons from order_items right join orders on order_items.order_id = orders.id where order_items.name like '{$nm}' and item != 0 and date(order_items.delivery_time) between '{$date_from}' and '{$date_to}'";
 	return q($qry);
  }
 
  function get_calculate_weekly_sweet_report($rs){
-	$manual_tray_obj = get_key_value_obj("select people, qty_string from manual_sweet_trays")
+	$manual_tray_obj = get_key_value_obj("select people, qty_string from manual_sweet_trays");
 	$trays_qty_obj = array();
 	while($r = mysqli_fetch_array($rs)){
 		if($r['type']==1){
