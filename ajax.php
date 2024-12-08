@@ -207,6 +207,16 @@ $funs = array(
 	}
 	echo "success";
 },
+326 => function(){
+	// Update Package Manual Qty String
+	$arr = json_decode($_POST['arr']);
+	$tbl = "manual_sweet_trays";
+	foreach ($arr as $key => $val) {
+		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
+		q($qry);
+	}
+	echo "success";
+},
 345 => function(){
 	// Update Update Privileges
 	$id = $_POST['id'];

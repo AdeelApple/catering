@@ -537,6 +537,35 @@ function fetch_pkg(obj) {
 		});
 	}
 
+	// Update Package Manual Qty String
+	function update_package_manual_qty_string(btn){
+		if(!confirm("Are you sure to update your changes?")) return;
+		var oldtxt = $(btn).html();
+		$(btn).html("<i class='fas fa-spinner fa-pulse'></i> Updating...");
+		var obj = {};
+		$(".qty_string[data-changed='1']").each(function(index, el) {
+			var id = $(el).attr('data-id');
+			var val = $(el).val();	if(val=="") val = 0.00;
+			var clm = $(el).attr('data-clm');
+			oldval = $(el).attr('data-old');
+			newval = $(el).val();
+			if(oldval!=newval){
+				obj[index] = [clm,val,id];
+			}
+			$(el).css('backgroundColor' , '#FFF');
+			$(el).removeAttr('data-changed');
+		});
+
+		var json = JSON.stringify(obj);
+		$.post('ajax.php',{arr:json,fun:326}, function(d) {
+			$(btn).html(oldtxt);
+			if(d=="success")
+            	msg("Changes saved.");
+        	else
+            	msg("Changes failed: "+d,2);
+		});
+	}
+
 	// Update Custom item Tray Meat and Rice
 	function update_custom_mr(btn){
 		if(!confirm("Are you sure to update your changes?")) return;

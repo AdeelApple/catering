@@ -292,6 +292,38 @@
 			<button onclick="update_package_mr(this)" class="btn btn-success float-right">Save Changes</button>
 		</div>
 	</div>
+
+	<!-- Pot Meat Rice Limits -->
+	<div class="card mt-2">
+		<div class="card-header bg-success text-light">
+			<h4 class="mt-1"><i class="fa fa-hockey-puck"></i> Manual Sweet Trays</h4>
+		</div>
+		<div class="card-body">
+			<?php $rs = q("select * from manual_sweet_trays");
+			while($r = mysqli_fetch_array($rs)){ ?>
+			<div class="row">
+				<div class="col-md-4 border rounded p-2 m-0">
+					<span class="text-capitalize"><strong><?=$r['people']?></strong></span>
+				</div>
+				<div class="col-md-8 border rounded p-2 m-0">
+					<div class="row">
+						<div class="col">
+							<div class="input-group input-group-sm">
+								<div class="input-group-prepend">
+								    <span class="input-group-text bg-success text-light">QTY String</span>
+								</div>
+								<input type="string" id="qty_string<?=$r['id']?>" value="<?=$r['qty_string']?>" data-id="<?=$r['id']?>" data-clm="qty_string" data-old="<?=$r['qty_string']?>" class="qty_string form-control">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php } ?>
+		</div>
+		<div class="card-footer">
+			<button onclick="update_package_manual_qty_string(this)" class="btn btn-success float-right">Save Changes</button>
+		</div>
+	</div>
 </div>
 
 <?php include "inc/btm.php"; ?>

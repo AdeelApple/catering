@@ -243,6 +243,7 @@ function get_item_from_all_orders($nm,$dt){
 			add_qty_to_trays_qty_obj($trays_qty_obj,'sm',$r['tray_sm']);
 		}
 	}
+	ksort($trays_qty_obj);
 	return $trays_qty_obj;
  }
 
