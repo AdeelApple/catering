@@ -720,6 +720,7 @@ INSERT INTO `sub_sidebar` (`id`, `main`, `name`, `admin`, `operator`, `chef`, `t
 (200, 500, 'Haleem Nihari Report', 1, 0, 0, 0, 1, 1, 'report_haleem_nihari.php', 'fas fa-chart-pie'),
 (300, 500, 'Vegi And Naan', 1, 0, 0, 0, 1, 1, 'report_vegi_naan.php', 'fas fa-chart-pie'),
 (400, 500, 'Sweets Report', 1, 0, 0, 0, 1, 1, 'report_sweets.php', 'fas fa-chart-pie'),
+(405, 500, 'Sweets Report 2', 1, 0, 0, 0, 1, 1, 'report_sweets_2.php', 'fas fa-chart-pie'),
 (410, 500, 'Meat Report', 1, 0, 0, 0, 1, 1, 'report_meat.php', 'fas fa-chart-pie'),
 (415, 500, 'Pre Booking Report', 1, 0, 0, 0, 1, 1, 'report_pre_booking.php', 'fa fa-calendar-check'),
 (500, 600, 'Package Items', 1, 0, 0, 0, 0, 1, 'setting_package.php', 'fas fa-tools'),

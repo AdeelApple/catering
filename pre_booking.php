@@ -5,7 +5,7 @@
 		$or = frow("select * from orders where id = $oid");
 	}else{
 		$oid = order_no();
-		$or = array('name'=>'','persons'=>0,'phone1'=>'','phone2'=>'','shipping'=>1,'address'=>'','trays'=>'','delivery_time'=>'');
+		$or = array('name'=>'','persons'=>0,'phone1'=>'','phone2'=>'','shipping'=>1,'address'=>'','trays'=>0,'delivery_time'=>'');
 	}
 
  ?>
@@ -98,7 +98,10 @@
 			</div>
 		</div>
 		<div class="row pt-2">
-			<div class="col-md-11">
+			<div class="col-md-12">
+			    <?php if(isset($_GET['oid'])){ ?>
+			    <a href="booking_edit.php?oid=<?=$oid?>" class="btn btn-success float-right m-4"><i class="fa fa-list-alt"></i> Enter menu</a>
+			    <?php } ?>
 				<button type="submit" id="submitbtn" class="btn btn-success float-right m-4"><i class="fa fa-save"></i> Save Pre Booking</button>
 				<button type="reset" id="resetbtn" class="btn btn-info m-4"><i class="fa fa-sync"></i> Reset</button>
 			</div>
@@ -108,4 +111,17 @@
 <?php include "inc/btm.php"; ?>
 <script>
 	today_form_date();
+	$(document).ready(function() {
+		$('#persons').on('input', function() {
+			if ($(this).val() > 0) {
+				$('#trays').val(0);
+			}
+		});
+
+		$('#trays').on('input', function() {
+			if ($(this).val() > 0) {
+				$('#persons').val(0);
+			}
+		});
+	});
 </script>

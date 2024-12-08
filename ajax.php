@@ -435,10 +435,10 @@ $funs = array(
 				<tr>
 					<th><?=(++$wkey)?></th>
 					<th class="text-left" contenteditable="true"><?=$wval['name'];?></th>
-					<?php foreach ($wval['val2'] as $key => $val) { ?>
+					<?php foreach ($wval['qty'] as $key => $val) { ?>
 					<td contenteditable="true"><?=$val?></td>
 					<?php } ?>
-					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],1)?></span> <?=get_unit_for_report($wval);?></td>
+					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],2)?></span> <?=get_unit_for_report($wval);?></td>
 					<td class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=round($wval['purchased'],1);?>"></td>
 					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=round($wval['remaining'],1)?></span> <?=get_unit_for_report($wval);?></td>
 					
@@ -927,6 +927,52 @@ $funs = array(
 
 	<?php
 },
+8050 => function(){
+	// weekly Report
+	$items = isset($_POST['items'])?$_POST['items']:die("No items choosed for report...");
+	$items = json_decode($items);
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	$weekday = date("l",strtotime($date));
+	while($weekday!="Monday"){
+		$date = date("Y-m-d",strtotime($date."-1 day"));
+		$weekday = date("l",strtotime($date));
+	}
+	$firstday = $date;
+	$date_from = $firstday;
+	$date_to = date("Y-m-d",strtotime("+6 day",strtotime($date_from)));
+	?>
+	<div id="r-1" class="row report-row">
+		<?php foreach($items as $key=>$val){ 
+		
+		$rs = get_item_from_all_orders_weekly($val,$date_from,$date_to);
+		$weekly_report_items = get_calculate_weekly_sweet_report($rs); 
+		
+		?>
+		<div class="col p-0 rcol">
+			<div class="text-center font-weight-bold report-top-header py-2 blr"><?=$val;?></div>
+			<div class="row m-0 py-2 px-1 report-header blr">
+				<div class="col p-0"><b>People/Tray</b></div>
+				<div class="col p-0"><b>QTY</b></div>
+			</div>
+			<?php foreach ($weekly_report_items as $key => $val) { ?>
+			<div class="row m-0 px-1 body-row blr">
+				<div class="col p-0"><?=$key?></div>
+				<div class="col p-0"><?=$val?></div>
+			</div>
+			<?php } ?>
+		</div>
+		<?php } ?>
+	</div>
+	<div id="r-2" class="row"></div>
+	<div id="r-3" class="row"></div>
+	<div id="r-4" class="row"></div>
+	<div id="r-5" class="row"></div>
+	<div id="r-6" class="row"></div>
+	<div id="r-7" class="row"></div>
+	<div id="r-8" class="row"></div>
+
+	<?php
+},
 
 8500 => function(){
 	// pre booking Report
@@ -944,29 +990,46 @@ $funs = array(
 			</div>
 			<div class="row p-0 m-0">
 				<?php
+				foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $day) { ?>
+					<div class="col-calender border">
+						<div class="text-center small py-1"><?=$day?></div>
+					</div>
+				<?php } ?>
+			</div>
+			<div class="row p-0 m-0">
+				<?php
 				$daysInMonth = date('t', strtotime($date));
 				$month_days = date("Y-m-01", strtotime($date));
-				for ($i = 1; $i <= $daysInMonth; $i++) {
-					$pp = get_total_pp($month_days);
-					$trays = get_total_trays($month_days);
-					$month_days = date("Y-m-d", strtotime($month_days . " +1 day"));
-					
-				?>
-				<div class="col-calender border <?php=$pp > 1000? 'highligh-order-cell': '' ?>">
-					<div class="row m-0 p-0 border-bottom">
-						<div class="col">
-							<div class="text-center font-weight-bold py-2"><?=$i?></div>
+				$first_day_number = date('N', strtotime($month_days));
+				for ($i = 2 - $first_day_number; $i <= $daysInMonth; $i++) {
+					if($i > 0){
+
+						$pp = get_total_pp($month_days);
+						$trays = get_total_trays($month_days);
+						$month_days = date("Y-m-d", strtotime($month_days . " +1 day"));
+							
+						?>
+						<div class="col-calender border <?=$pp > 1000? 'highligh-order-cell': '' ?>">
+							<div class="row m-0 p-0 border-bottom">
+								<div class="col">
+									<div class="text-center font-weight-bold py-2"><?=$i?></div>
+								</div>
+							</div>
+							<div class="row m-0 p-0">
+								<div class="col-6 m-0 p-0 border-right">
+									<div class="text-center small py-2"><?=$pp?></div>
+								</div>
+								<div class="col-6 m-0 p-0">
+									<div class="text-center small py-2"><?=$trays?></div>
+								</div>
+							</div>
 						</div>
-					</div>
-					<div class="row m-0 p-0">
-						<div class="col-6 m-0 p-0 border-right">
-							<div class="text-center small py-2"><?=$pp?></div>
+					<?php } else { ?>
+						<div class="col-calender border">
+							<div class="row m-0 p-0">
+							</div>
 						</div>
-						<div class="col-6 m-0 p-0">
-							<div class="text-center small py-2"><?=$trays?></div>
-						</div>
-					</div>
-				</div>
+					<?php } ?>
 				<?php } ?>
 			</div>
 		</div>

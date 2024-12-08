@@ -58,6 +58,14 @@
 		while($r = mysqli_fetch_assoc($rs)){	array_push($arr,$r); 	}
 		return $arr;
 	}
+	function get_key_value_obj($qry){
+		$rs = q($qry);
+		$obj = array();
+		while($r = mysqli_fetch_array($rs)){
+			$obj[$r[0]] = $r[1];
+		}
+		return $obj;
+	}
 	
 	function rand_name(){ return date("dmY").time().rand_str(5); }
 	function rand_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
@@ -214,9 +222,49 @@ function is_ctm_pp($it){
 function get_item_from_all_orders($nm,$dt){
 
 	$qry = "select * from order_items where name like '{$nm}' and item != 0 and date(delivery_time) = '{$dt}'";
-	// $qry .= " union select {$clms}{$clm2} from {$t1} where {$t1}.custom like '{$nm}' and type=3 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
 
+ }
+
+ function get_item_from_all_orders_weekly($nm,$date_from,$date_to){
+	$qry = "select order_items.*, orders.persons from order_items right join orders on order_items.order_id = orders.id where order_items.name like '{$nm}' and item != 0 and date(delivery_time) between '{$date_from}' and '{$date_to}'";
+	return q($qry);
+ }
+
+ function get_calculate_weekly_sweet_report($rs){
+	$manual_tray_obj = get_key_value_obj("select people, qty_string from manual_sweet_trays")
+	$trays_qty_obj = array();
+	while($r = mysqli_fetch_array($rs)){
+		if($r['type']==1){
+			update_trays_qty_obj($trays_qty_obj,$r,$manual_tray_obj);
+		}elseif($r['type']==2 || $r['type']==3){
+			add_qty_to_trays_qty_obj($trays_qty_obj,'lg',$r['tray_lg']);
+			add_qty_to_trays_qty_obj($trays_qty_obj,'md',$r['tray_md']);
+			add_qty_to_trays_qty_obj($trays_qty_obj,'sm',$r['tray_sm']);
+		}
+	}
+	return $trays_qty_obj;
+ }
+
+ function update_trays_qty_obj(&$trays_qty_obj,$r,$manual_tray_obj){
+	if (isset($manual_tray_obj[$r['persons']])) {
+		$qty_string = $manual_tray_obj[$r['persons']];
+		$qty_arr = explode('__', $qty_string);
+		foreach ($qty_arr as $qty) {
+			$qty = explode('_', $qty);
+			add_qty_to_trays_qty_obj($trays_qty_obj,$qty[0],$qty[1]);
+		}
+	} else {
+		add_qty_to_trays_qty_obj($trays_qty_obj,$r['persons'],1);
+	}
+ }
+
+ function add_qty_to_trays_qty_obj(&$trays_qty_obj,$key,$value){
+	if (isset($trays_qty_obj[$key])) {
+		$trays_qty_obj[$key] += $value;
+	} else {
+		$trays_qty_obj[$key] = $value;
+	}
  }
 function oit_of_date($list,$dt){
 
@@ -762,7 +810,6 @@ function fit_per(&$pot,&$r2,$r,$old_meat=0){
 		$space_meat = $pot['meat']-$old_meat;
 	else
 		$space_meat = $r['meat_limit'];
-	// $pot['meat'] += $space_meat;
 
 	if($r['is_meat_cal']){
 
@@ -1110,8 +1157,9 @@ function getIngVal(&$r,$dt){
 			$pcs = all_qty($r,$dt);
 			return array('val1' => $pcs,'val2' => $pcs);
 		},15 => function(&$r,$dt){	// Zarda Rice
-			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+			$total_qty = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
+			$kg = $total_qty/2;
+			return array('val1' => round($kg,2),'val2' => round($kg*2.2,2));
 		}
 	);
 	return $meat_funs[$r['cal']]($r,$dt);
@@ -1145,9 +1193,8 @@ function getIngVal(&$r,$dt){
 		$rs = q($qry); $arr = array();$arr2 = array();
 		while($r = mysqli_fetch_assoc($rs)){
 			$value_with_unit = get_display_unit_for_value($r['display_report_unit']);
-			// $r['val1'] = weeklyIngVals($r,$dt,'val1');
-			$r['val2'] = weeklyIngVals($r,$dt,$value_with_unit);
-			$r['wtotal'] = arrTotal($r['val2']);
+			$r['qty'] = weeklyIngVals($r,$dt,$value_with_unit);
+			$r['wtotal'] = arrTotal($r['qty']);
 			$r['purchased'] = getPurchasedItems($r['id'],$dt);
 			$r['remaining'] = 0;
 			$r['total'] = 0;
@@ -1161,7 +1208,7 @@ function getIngVal(&$r,$dt){
 			if ($limit>1) {
 				for ($i=1; $i < $limit; $i++){
 					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
-					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
+					$arr[$key]['qty'] = mergeSum($arr[$key]['qty'],$arr[$key+$i]['qty']);
 				}
 				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
 			}
