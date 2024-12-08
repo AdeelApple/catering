@@ -1021,9 +1021,18 @@ $funs = array(
 						$pp = get_total_pp($month_days);
 						$trays = get_total_trays($month_days);
 						$month_days = date("Y-m-d", strtotime($month_days . " +1 day"));
+						$cell_class = "";
+						if($pp >= 1000){
+							$cell_class = 'highligh-order-cell-green';
+						}
+						if($pp >= 1500){
+							$cell_class = 'highligh-order-cell-red';
+						}
+						
+
 							
 						?>
-						<div class="col-calender border <?=$pp > 1000? 'highligh-order-cell': '' ?>">
+						<div class="col-calender border <?=$cell_class ?>">
 							<div class="row m-0 p-0 border-bottom">
 								<div class="col">
 									<div class="text-center font-weight-bold py-2"><?=$i?></div>

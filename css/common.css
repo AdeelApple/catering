@@ -275,6 +275,10 @@ a, a:hover {
     min-height: 1px;
 }
 
-.highligh-order-cell {
+.highligh-order-cell-red {
     background-color: #efc6c6;
+}
+
+.highligh-order-cell-green {
+    background-color: #89f37b;
 }
