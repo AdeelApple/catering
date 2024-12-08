@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 01, 2024 at 06:14 AM
+-- Generation Time: Dec 08, 2024 at 01:08 PM
 -- Server version: 10.6.19-MariaDB-cll-lve
 -- PHP Version: 8.1.29
 
@@ -499,6 +499,52 @@ INSERT INTO `kitchen_list` (`id`, `name`, `admin`, `operator`, `chef`, `tandoor`
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `manual_sweet_trays`
+--
+
+CREATE TABLE `manual_sweet_trays` (
+  `id` int(11) NOT NULL,
+  `people` int(11) NOT NULL,
+  `qty_string` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `manual_sweet_trays`
+--
+
+INSERT INTO `manual_sweet_trays` (`id`, `people`, `qty_string`) VALUES
+(1, 25, 'md_1'),
+(2, 30, 'lg_1'),
+(3, 35, 'lg_1'),
+(4, 40, '40_1'),
+(5, 45, '45_1'),
+(6, 50, '25_2'),
+(7, 55, '55_1'),
+(8, 60, '30_2'),
+(9, 65, 'lg_1__25_1'),
+(10, 70, '35_2'),
+(11, 75, '75_1'),
+(12, 80, '40_2'),
+(13, 85, '85_1'),
+(14, 90, '45_2'),
+(15, 95, '95_1'),
+(16, 100, 'lg_2__25_1'),
+(17, 105, '105_1'),
+(18, 110, '110_1'),
+(19, 115, '115_1'),
+(20, 120, 'lg_3'),
+(21, 125, '125_1'),
+(22, 130, '130_1'),
+(23, 135, '135_1'),
+(24, 140, '140_1'),
+(25, 145, '145_1'),
+(26, 150, '150_1'),
+(27, 155, '155_1'),
+(28, 160, 'lg_4');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mr_limits`
 --
 
@@ -522,7 +568,7 @@ INSERT INTO `mr_limits` (`id`, `meat_lg`, `meat_md`, `meat_sm`, `rice_lg`, `rice
 (1, 2.500, 2.000, 1.250, 1.500, 1.150, 0.750, 10.00, 6.00),
 (2, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.75),
 (3, 2.500, 2.000, 1.250, 1.500, 1.150, 0.750, 10.00, 6.00),
-(4, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 4.50),
+(4, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.75),
 (5, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
 (6, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
 (7, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
@@ -536,8 +582,8 @@ INSERT INTO `mr_limits` (`id`, `meat_lg`, `meat_md`, `meat_sm`, `rice_lg`, `rice
 (15, 3.750, 2.810, 1.875, NULL, NULL, NULL, 40.00, NULL),
 (16, 4.000, 3.000, 2.000, NULL, NULL, NULL, 40.00, NULL),
 (17, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
-(18, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 7.50),
-(19, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 3.00),
+(18, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.75),
+(19, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.00),
 (20, NULL, NULL, NULL, 1.250, 1.000, 0.750, NULL, 10.00),
 (21, 2.000, 1.500, 1.000, NULL, NULL, NULL, NULL, NULL),
 (22, 3.500, 2.300, 1.750, NULL, NULL, NULL, 30.00, NULL),
@@ -633,7 +679,8 @@ CREATE TABLE `purchased_items` (
 
 INSERT INTO `purchased_items` (`id`, `ingredient_id`, `value`, `date`) VALUES
 (1, 1, 0.00, '2020-01-20'),
-(2, 3, 0.00, '2020-01-20');
+(2, 3, 0.00, '2020-01-20'),
+(3, 1, 100.00, '2024-11-04');
 
 -- --------------------------------------------------------
 
@@ -840,6 +887,12 @@ ALTER TABLE `kitchen_list`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `manual_sweet_trays`
+--
+ALTER TABLE `manual_sweet_trays`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `mr_limits`
 --
 ALTER TABLE `mr_limits`
@@ -963,6 +1016,12 @@ ALTER TABLE `kitchen_list`
   MODIFY `id` smallint(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
+-- AUTO_INCREMENT for table `manual_sweet_trays`
+--
+ALTER TABLE `manual_sweet_trays`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
 -- AUTO_INCREMENT for table `mr_limits`
 --
 ALTER TABLE `mr_limits`
@@ -972,19 +1031,19 @@ ALTER TABLE `mr_limits`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16824;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16905;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=138763;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139505;
 
 --
 -- AUTO_INCREMENT for table `purchased_items`
 --
 ALTER TABLE `purchased_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `settings`
