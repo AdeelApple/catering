@@ -556,6 +556,13 @@ function fetch_pkg(obj) {
 			$(el).removeAttr('data-changed');
 		});
 
+		$('#qty_strings').children().each(function(index, el) {
+			let val1 = $(el).find('.qty-people').val();
+			if(!val1) return;
+			let val2 = $(el).find('.qty_string').val();
+			obj[`${index}_insert`] = [val1,val2,'new'];
+		});
+
 		var json = JSON.stringify(obj);
 		$.post('ajax.php',{arr:json,fun:326}, function(d) {
 			$(btn).html(oldtxt);

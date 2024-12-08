@@ -293,16 +293,16 @@
 		</div>
 	</div>
 
-	<!-- Pot Meat Rice Limits -->
+	<!-- Manual Sweet Tray Qty String -->
 	<div class="card mt-2">
 		<div class="card-header bg-success text-light">
 			<h4 class="mt-1"><i class="fa fa-hockey-puck"></i> Manual Sweet Trays</h4>
 		</div>
-		<div class="card-body">
+		<div class="card-body" id="qty_strings">
 			<?php $rs = q("select * from manual_sweet_trays");
 			while($r = mysqli_fetch_array($rs)){ ?>
 			<div class="row">
-				<div class="col-md-4 border rounded p-2 m-0">
+				<div class="col-md-4 border rounded p-2 m-0 new_qty_people">
 					<span class="text-capitalize"><strong><?=$r['people']?></strong></span>
 				</div>
 				<div class="col-md-8 border rounded p-2 m-0">
@@ -322,15 +322,30 @@
 		</div>
 		<div class="card-footer">
 			<button onclick="update_package_manual_qty_string(this)" class="btn btn-success float-right">Save Changes</button>
+			<button onclick="add_manual_sweet_qty_string()" class="btn btn-primary float-right mr-2">Add New</button>
 		</div>
 	</div>
 </div>
 
 <?php include "inc/btm.php"; ?>
 <script>
-	$('.price,.none,.extra_price,.tray_range, .mr, .mr_limit').on('input',function(){
+	$('.price,.none,.extra_price,.tray_range, .mr, .mr_limit, .qty_string').on('input',function(){
 		$(this).attr('data-changed', '1');
 		$(this).css('backgroundColor' , '#FFE5D4');
 	});
 	
+</script>
+<script>
+	function add_manual_sweet_qty_string(){
+		var lastChild = $('#qty_strings').children().last().clone();
+		lastChild.find('input').val('');
+		lastChild.find('input').attr('data-id', 'new');
+		oldPeopleValue = lastChild.find('.new_qty_people strong').html();
+		oldPeopleValue1 = lastChild.find('.new_qty_people input').val();
+		newPeopleValue = parseInt(oldPeopleValue || oldPeopleValue1) + 5;
+		newInput = `<input type="number" step="5" class="form-control form-control-sm qty-people" name="new_people" value="${newPeopleValue}" placeholder="Enter people">`;
+		lastChild.find('.new_qty_people').html(newInput);
+		$('#qty_strings').append(lastChild);
+		
+	}
 </script>

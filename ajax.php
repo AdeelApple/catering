@@ -212,7 +212,11 @@ $funs = array(
 	$arr = json_decode($_POST['arr']);
 	$tbl = "manual_sweet_trays";
 	foreach ($arr as $key => $val) {
-		$qry = "update {$tbl} set {$val[0]} = {$val[1]} where id = {$val[2]};";
+		if($val[2] == 'new'){
+			$qry = "insert into {$tbl} (people,qty_string) values({$val[0]},'{$val[1]}');";
+		}else{
+			$qry = "update {$tbl} set {$val[0]} = '{$val[1]}' where id = {$val[2]};";
+		}
 		q($qry);
 	}
 	echo "success";
