@@ -301,8 +301,8 @@
 		<div class="card-body" id="qty_strings">
 			<?php $rs = q("select * from manual_sweet_trays");
 			while($r = mysqli_fetch_array($rs)){ ?>
-			<div class="row">
-				<div class="col-md-4 border rounded p-2 m-0 new_qty_people">
+			<div class="row record">
+				<div class="col-md-3 border rounded p-2 m-0 new_qty_people">
 					<span class="text-capitalize"><strong><?=$r['people']?></strong></span>
 				</div>
 				<div class="col-md-8 border rounded p-2 m-0">
@@ -314,6 +314,13 @@
 								</div>
 								<input type="string" id="qty_string<?=$r['id']?>" value="<?=$r['qty_string']?>" data-id="<?=$r['id']?>" data-clm="qty_string" data-old="<?=$r['qty_string']?>" class="qty_string form-control">
 							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-1 border rounded p-2 m-0">
+					<div class="row">
+						<div class="col">
+							<button onclick="del_manual_tray_calc_record(this)" data-id="<?=$r['id'];?>" class="btn btn-sm btn-danger del-btn"><i class="fa fa-xs fa-trash"></i></button>
 						</div>
 					</div>
 				</div>
@@ -340,6 +347,7 @@
 		var lastChild = $('#qty_strings').children().last().clone();
 		lastChild.find('input').val('');
 		lastChild.find('input').attr('data-id', 'new');
+		lastChild.find('.del-btn').attr('data-id', 'new');
 		oldPeopleValue = lastChild.find('.new_qty_people strong').html();
 		oldPeopleValue1 = lastChild.find('.new_qty_people input').val();
 		newPeopleValue = parseInt(oldPeopleValue || oldPeopleValue1) + 5;

@@ -741,6 +741,20 @@ function fetch_pkg(obj) {
 		});
 	}
 
+	// Delete Manual tray formula
+	function del_manual_tray_calc_record(obj){
+		if(!confirm("Are sure to delete this custom formula?")) return;
+		var id = $(obj).attr('data-id');
+		if(id=="new") {
+			$(obj).closest('.record').remove();
+			return msg("Formula deleted"+d);
+		}
+		$.post('ajax.php', {id:id,fun:405}, function(d) {
+			$(obj).closest('.record').remove();
+			msg("Formula deleted"+d);
+		});
+	}
+
 
 
 

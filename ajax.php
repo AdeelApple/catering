@@ -261,6 +261,13 @@ $funs = array(
 	del($uid,$tbl);
 	echo "success";
 },
+405 => function(){
+	// Delete manual_sweet_trays_formula
+	$id = $_POST['id'];
+	$tbl = "manual_sweet_trays";
+	del($id,$tbl);
+	echo "success";
+},
 410 => function(){
 	// Delete order
 	$tbls = array(1 => "orders");
