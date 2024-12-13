@@ -208,9 +208,7 @@
 						<th width="4%">Mild</th>
 						<th width="4%">Spicy</th>
 						<th width="6%">L</th>
-						<?php if($id!=200){ ?>
 						<th width="6%">M</th>
-						<?php } ?>
 						<th width="6%">S</th>
 						<th width="8%">Total</th>
 						<th width="8%">D.total</th>
@@ -256,13 +254,11 @@
 							<!-- price -->
 							<input type="hidden" name="lg_price<?=$id.$iid?>" class="price" value="<?=$ci['lg_price']?>">
 						</td>
-						<?php if($id!=200){?>
 						<td class="ctm_tray_price">
 							<input type="number" id="tray_md_ctm<?=$id.$iid?>" class="item-qty form-control form-control-sm" name="tray_md_ctm<?=$id.$iid?>" value="0" min="0" oninput="ctm_total(this)" readonly="readonly">
 							<!-- price -->
 							<input type="hidden" name="md_price<?=$id.$iid?>" class="price" value="<?=$ci['md_price']?>">
 						</td>
-						<?php } ?>
 						<td class="ctm_tray_price">
 							<input type="number" id="tray_sm_ctm<?=$id.$iid?>" class="item-qty form-control form-control-sm" name="tray_sm_ctm<?=$id.$iid?>" value="0" min="0" oninput="ctm_total(this)" readonly="readonly">
 							<!-- price -->
