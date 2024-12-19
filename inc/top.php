@@ -66,6 +66,7 @@ if(access($type,$pgnm) or $pgnm == "index.php"){}
 	        	<div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
           <?php if($type=="admin"){ ?>
 	        		<a class="dropdown-item" href="settings_admin.php"><i class="fa fa-user-cog"></i> Settings</a>
+	        		<a class="dropdown-item" href="download.php"><i class="fa fa-save"></i> Download Backup File</a>
 					<!-- <a class="dropdown-item" href="#">Activity Log</a> -->
 					<div class="dropdown-divider"></div>
           <?php } ?>

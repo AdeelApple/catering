@@ -10,7 +10,7 @@
 					<h5 class="text-success">Orders List</h5>
 				</div>
 				<div class="col-md-4">
-					<?php include "inc/rpp.php"; ?>
+					<?php include "inc/records_limit_dropdown.php"; ?>
 					<a href="booking.php" class="btn btn-primary btn-sm float-right mx-1" title="Book a new order"><i class="fa fa-book"></i></a>
 				</div>
 			</div>
@@ -23,7 +23,14 @@
 						<input type="search" id="search" onkeyup="filter()" class="form-control filter" placeholder="name or order-no...">
 					</div>
 				</div>
-				<div class="col-md-3"></div>
+				<div class="col-md-3">
+					<div class="input-group input-group-sm d-print-none">
+						<div class="input-group-prepend">
+						    <span class="input-group-text">Total Orders</span>
+						</div>
+						<input type="text" id="total_order_count_input" class="form-control filter" disabled="true" placeholder="none">
+					</div>
+				</div>
 				<div class="col-md-3">
 					<div class="input-group input-group-sm">
 						<div class="input-group-prepend">

@@ -23,6 +23,8 @@ function filter(pg){
 	if($("#scr").length<1)	$('body').append("<div id='scr' class='screen'><i class='fas fa-3x fa-spinner fa-pulse'></i></div>");
 	$.post('ajax.php', flt, function(d) {
 		$("#tbl").html(d);
+		let total_order_count = $("#total_order_count").html();
+		$("#total_order_count_input").val(total_order_count);
 		$("#scr").remove();
 	});
 }
@@ -62,8 +64,28 @@ function weekly_report(){
 			change_cols($("#cols"));
 		});
 	});
+}
 
+// Prebooking Report
+function prebooking_report(){
+	var flt = {};
+	
+	$('.filter').each(function(index, el) {
+		if($(el).val()!=""){
+			var id = $(el).attr('id');
+			flt[id] = $(el).val();
+		}
+	});
+	var fun = $('#tbl').attr('data-fun');
+	flt['fun'] = fun;
+	$.post('ajax.php', flt, function(d) {
+		$("#tbl").html(d);
 
+		flt['fun'] = 4;
+		$.post('ajax.php', flt, function(d) {
+			$("#report-title").html(d);
+		});
+	});
 }
 
 
@@ -515,6 +537,42 @@ function fetch_pkg(obj) {
 		});
 	}
 
+	// Update Package Manual Qty String
+	function update_package_manual_qty_string(btn){
+		if(!confirm("Are you sure to update your changes?")) return;
+		var oldtxt = $(btn).html();
+		$(btn).html("<i class='fas fa-spinner fa-pulse'></i> Updating...");
+		var obj = {};
+		$(".qty_string[data-changed='1']").each(function(index, el) {
+			var id = $(el).attr('data-id');
+			var val = $(el).val();	if(val=="") val = 0.00;
+			var clm = $(el).attr('data-clm');
+			oldval = $(el).attr('data-old');
+			newval = $(el).val();
+			if(oldval!=newval){
+				obj[index] = [clm,val,id];
+			}
+			$(el).css('backgroundColor' , '#FFF');
+			$(el).removeAttr('data-changed');
+		});
+
+		$('#qty_strings').children().each(function(index, el) {
+			let val1 = $(el).find('.qty-people').val();
+			if(!val1) return;
+			let val2 = $(el).find('.qty_string').val();
+			obj[`${index}_insert`] = [val1,val2,'new'];
+		});
+
+		var json = JSON.stringify(obj);
+		$.post('ajax.php',{arr:json,fun:326}, function(d) {
+			$(btn).html(oldtxt);
+			if(d=="success")
+            	msg("Changes saved.");
+        	else
+            	msg("Changes failed: "+d,2);
+		});
+	}
+
 	// Update Custom item Tray Meat and Rice
 	function update_custom_mr(btn){
 		if(!confirm("Are you sure to update your changes?")) return;
@@ -680,6 +738,20 @@ function fetch_pkg(obj) {
 			$(obj).closest('tr').next('tr').remove();
 			$(obj).closest('tr').hide('fast',function(){$(this).remove(); });
 			msg("Order deleted"+d);
+		});
+	}
+
+	// Delete Manual tray formula
+	function del_manual_tray_calc_record(obj){
+		if(!confirm("Are sure to delete this custom formula?")) return;
+		var id = $(obj).attr('data-id');
+		if(id=="new") {
+			$(obj).closest('.record').remove();
+			return msg("Formula deleted"+d);
+		}
+		$.post('ajax.php', {id:id,fun:405}, function(d) {
+			$(obj).closest('.record').remove();
+			msg("Formula deleted"+d);
 		});
 	}
 

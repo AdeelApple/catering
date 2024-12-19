@@ -21,7 +21,7 @@ include '../inc/build.php';
 
 
 
-	$order_qry = "update orders set name='$customer', persons=$persons, extra=$extra, total=$total, advance=$advance, balance=$balance, phone1='$phone1',phone2='$phone2', shipping=$shipping, address='$address', remark='$remark', delivery_time='$delivery_time' where id=$order_id";
+	$order_qry = "update orders set name='$customer', persons=$persons, extra=$extra, total=$total, advance=$advance, balance=$balance, phone1='$phone1',phone2='$phone2', shipping=$shipping, address='$address', remark='$remark', delivery_time='$delivery_time', trays=NULL, is_pre_booking=NULL where id=$order_id";
 
 	q($order_qry);
 	q("delete from order_items where order_id = $order_id ");
@@ -187,11 +187,11 @@ include '../inc/build.php';
 					$main = $value;
 
 
-					$fullctm_mr_cal = $_POST['fullctm_mr_cal'.$value.$value1];
+					list($fullctm_mr_cal, $ingredient_id) = explode('|', $_POST['fullctm_mr_cal'.$value.$value1]);
 
 					if($fullctm_mr_cal!="none"){
 
-						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} limit 1"); 
+						$it = frow("select * from food_package_items where mr_cal = {$fullctm_mr_cal} and ingredient_id = {$ingredient_id} limit 1"); 
 						$mr_limits = $it['mr_limit_id']??'NULL';
 						$ingredient_id = $it['ingredient_id']??'NULL';
 						$rice_type = $it['rice_type']??'NULL';

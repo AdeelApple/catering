@@ -261,3 +261,24 @@ a, a:hover {
 #page-content-wrapper {
     padding: 0 15px;
 }
+
+.c-pointer {
+    cursor: pointer;
+}
+
+.col-calender {
+    flex: 0 0 14.285714%;
+    max-width: 14.2857143%;
+
+    position: relative;
+    width: 100%;
+    min-height: 1px;
+}
+
+.highligh-order-cell-red {
+    background-color: #efc6c6;
+}
+
+.highligh-order-cell-green {
+    background-color: #b0ffa7;
+}

@@ -37,7 +37,6 @@
 								<input type="number" min="0" step="any" id="lg_price<?=$r['id']?>" value="<?=$r['lg_price']?>" data-id="<?=$r['id']?>" data-clm="lg_price" data-old="<?=$r['lg_price']?>" class="price form-control">
 							</div>
 						</div>
-						<?php if($r['food_custom']!=200){ ?>
 						<div class="col">
 							<div class="input-group input-group-sm">
 								<div class="input-group-prepend">
@@ -47,7 +46,6 @@
 								<input type="number" min="0" step="any" id="md_price<?=$r['id']?>" value="<?=$r['md_price']?>" data-id="<?=$r['id']?>" data-clm="md_price" data-old="<?=$r['md_price']?>" class="price form-control">
 							</div>
 						</div>
-						<?php } ?>
 						<div class="col">
 							<div class="input-group input-group-sm">
 								<div class="input-group-prepend">

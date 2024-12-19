@@ -11,6 +11,11 @@ $funs = array(
 },
 1 => function(){
 },
+4 => function(){
+	// Prebooking Report Date title
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	echo show_prebooking_date_title($date);
+},
 5 => function(){
 	// Report Date title
 	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
@@ -202,6 +207,20 @@ $funs = array(
 	}
 	echo "success";
 },
+326 => function(){
+	// Update Package Manual Qty String
+	$arr = json_decode($_POST['arr']);
+	$tbl = "manual_sweet_trays";
+	foreach ($arr as $key => $val) {
+		if($val[2] == 'new'){
+			$qry = "insert into {$tbl} (people,qty_string) values({$val[0]},'{$val[1]}');";
+		}else{
+			$qry = "update {$tbl} set {$val[0]} = '{$val[1]}' where id = {$val[2]};";
+		}
+		q($qry);
+	}
+	echo "success";
+},
 345 => function(){
 	// Update Update Privileges
 	$id = $_POST['id'];
@@ -242,6 +261,13 @@ $funs = array(
 	del($uid,$tbl);
 	echo "success";
 },
+405 => function(){
+	// Delete manual_sweet_trays_formula
+	$id = $_POST['id'];
+	$tbl = "manual_sweet_trays";
+	del($id,$tbl);
+	echo "success";
+},
 410 => function(){
 	// Delete order
 	$tbls = array(1 => "orders");
@@ -250,7 +276,7 @@ $funs = array(
 	del($id,$tbl);
 },
 4000 => function(){
-	// Fetch Food Pakae Categories and Items
+	// booking body
 
 	$pkg = $_POST['pkg'];
 	$id = $_POST['id'];
@@ -430,12 +456,12 @@ $funs = array(
 				<tr>
 					<th><?=(++$wkey)?></th>
 					<th class="text-left" contenteditable="true"><?=$wval['name'];?></th>
-					<?php foreach ($wval['val2'] as $key => $val) { ?>
+					<?php foreach ($wval['qty'] as $key => $val) { ?>
 					<td contenteditable="true"><?=$val?></td>
 					<?php } ?>
-					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],1)?></span> <?=$wval['unit2'];?></td>
+					<td class="align-middle font-weight-bold" contenteditable="true"><span class="wtotal"><?=round($wval['wtotal'],2)?></span> <?=get_unit_for_report($wval);?></td>
 					<td class="align-middle font-weight-bold"><input type="number" class="form-control form-control-sm purchased" onchange="calRemainingQty(this)" onblur="savePurchasedQty(this)" data-old="<?=$wval['purchased'];?>" data-id="<?=$wval['id'];?>" value="<?=round($wval['purchased'],1);?>"></td>
-					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=round($wval['remaining'],1)?></span> <?=$wval['unit2'];?></td>
+					<td class="align-middle font-weight-bold"><span contenteditable="true" class="remaining"><?=round($wval['remaining'],1)?></span> <?=get_unit_for_report($wval);?></td>
 					
 				</tr>
 			<?php }  norecord_arr($wrs,$cols); ?>
@@ -451,12 +477,17 @@ $funs = array(
 	$qry = "select * from orders";
 	
 	$rs = flt_qry($qry,"order by id desc");
+	
+	
+	$qry2 = "select count(id) from orders";
+	$filtered_query = get_filter_query($qry2,"order by id desc", false);
+	$total_count = getbit($filtered_query);
 	$cols=9;
 
 	?>
 	<thead>
 		<tr>
-			<th>Edit/Receipt</th>
+			<th>Edit/Receipt<span id="total_order_count" class="d-none"><?=$total_count?></th>
 			<th>Order No.</th>
 			<th class="text-left">Customer Name</th>
 			<th>Phone no.1</th>
@@ -471,8 +502,15 @@ $funs = array(
 	<tbody id="tbody">
 		<?php $n=1; while($r = mysqli_fetch_array($rs)){ $oid=$r['id']; ?>
 		<tr>
-			<td><a href="booking_edit.php?oid=<?=$oid;?>" class="btn-sm btn-success"><i class="fa fa-pen"></i></a>
-				<a href="receipt.php?oid=<?=$oid;?>" class="btn-sm btn-warning"><i class="fa fa-file-invoice"></i></a></td>
+			<td><a href="booking_edit.php?oid=<?=$oid;?>" class="btn-sm btn-success c-pointer"><i class="fa fa-pen"></i></a>
+			<?php
+				if($r['is_pre_booking']==1){
+			?>
+				<a href="pre_booking.php?oid=<?=$oid;?>" class="btn-sm btn-primary c-pointer"><i class="fa fa-calendar-check"></i></a>
+			<?php } else{ ?>
+				<a href="receipt.php?oid=<?=$oid;?>" class="btn-sm btn-warning c-pointer"><i class="fa fa-file-invoice"></i></a>
+			<?php } ?>
+			</td>
 			<td><?=$r['id']?></td>
 			<td class="text-left"><span class="c-p h-blue font-weight-bold" data-toggle="collapse" data-target="#a<?=$n?>"><?=$r['name']?></span></td>
 			<td><?=empty($r['phone1'])?'-':$r['phone1'];?></td>
@@ -908,6 +946,128 @@ $funs = array(
 	<div id="r-7" class="row"></div>
 	<div id="r-8" class="row"></div>
 
+	<?php
+},
+8050 => function(){
+	// weekly Report
+	$items = isset($_POST['items'])?$_POST['items']:die("No items choosed for report...");
+	$items = json_decode($items);
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	$weekday = date("l",strtotime($date));
+	while($weekday!="Monday"){
+		$date = date("Y-m-d",strtotime($date."-1 day"));
+		$weekday = date("l",strtotime($date));
+	}
+	$firstday = $date;
+	$date_from = $firstday;
+	$date_to = date("Y-m-d",strtotime("+6 day",strtotime($date_from)));
+	?>
+	<div id="r-1" class="row report-row">
+		<?php foreach($items as $key=>$val){ 
+		
+		$rs = get_item_from_all_orders_weekly($val,$date_from,$date_to);
+		$weekly_report_items = get_calculate_weekly_sweet_report($rs); 
+		
+		?>
+		<div class="col p-0 rcol">
+			<div class="text-center font-weight-bold report-top-header py-2 blr"><?=$val;?></div>
+			<div class="row m-0 py-2 px-1 report-header blr">
+				<div class="col p-0"><b>People/Tray</b></div>
+				<div class="col p-0"><b>QTY</b></div>
+			</div>
+			<?php foreach ($weekly_report_items as $key => $val) { ?>
+			<div class="row m-0 px-1 body-row blr">
+				<div class="col p-0"><?=$key?></div>
+				<div class="col p-0"><?=$val?></div>
+			</div>
+			<?php } ?>
+		</div>
+		<?php } ?>
+	</div>
+	<div id="r-2" class="row"></div>
+	<div id="r-3" class="row"></div>
+	<div id="r-4" class="row"></div>
+	<div id="r-5" class="row"></div>
+	<div id="r-6" class="row"></div>
+	<div id="r-7" class="row"></div>
+	<div id="r-8" class="row"></div>
+
+	<?php
+},
+
+8500 => function(){
+	// pre booking Report
+	$date = isset($_POST['date'])? $_POST['date']:"1975-01-01";
+	$months = 6;
+	
+	?>
+	<div class="row p-0 m-0">
+		<?php while($months>0){ ?>
+		<div class="col col-12 col-lg-6 p-4 m-0">
+			<div class="row p-0 m-0 border bg-success text-light">
+				<div class="col">
+					<div class="text-center font-weight-bold py-2"><?=date('F Y', strtotime($date));?></div>
+				</div>
+			</div>
+			<div class="row p-0 m-0">
+				<?php
+				foreach (['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as $day) { ?>
+					<div class="col-calender border">
+						<div class="text-center small py-1"><?=$day?></div>
+					</div>
+				<?php } ?>
+			</div>
+			<div class="row p-0 m-0">
+				<?php
+				$daysInMonth = date('t', strtotime($date));
+				$month_days = date("Y-m-01", strtotime($date));
+				$first_day_number = date('N', strtotime($month_days));
+				for ($i = 2 - $first_day_number; $i <= $daysInMonth; $i++) {
+					if($i > 0){
+
+						$pp = get_total_pp($month_days);
+						$trays = get_total_trays($month_days);
+						$month_days = date("Y-m-d", strtotime($month_days . " +1 day"));
+						$cell_class = "";
+						if($pp >= 1000){
+							$cell_class = 'highligh-order-cell-green';
+						}
+						if($pp >= 1500){
+							$cell_class = 'highligh-order-cell-red';
+						}
+						
+
+							
+						?>
+						<div class="col-calender border <?=$cell_class ?>">
+							<div class="row m-0 p-0 border-bottom">
+								<div class="col">
+									<div class="text-center font-weight-bold py-2"><?=$i?></div>
+								</div>
+							</div>
+							<div class="row m-0 p-0">
+								<div class="col-6 m-0 p-0 border-right">
+									<div class="text-center small py-2"><?=$pp?></div>
+								</div>
+								<div class="col-6 m-0 p-0">
+									<div class="text-center small py-2"><?=$trays?></div>
+								</div>
+							</div>
+						</div>
+					<?php } else { ?>
+						<div class="col-calender border">
+							<div class="row m-0 p-0">
+							</div>
+						</div>
+					<?php } ?>
+				<?php } ?>
+			</div>
+		</div>
+		<?php
+			$date = date("Y-m-d", strtotime($date . " +1 month"));
+			$months--; 
+		}?>
+	</div>
 	<?php
 });
 $funs[$_POST['fun']](); ?>

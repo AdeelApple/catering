@@ -1,4 +1,4 @@
-<select name="" id="rpp" class="form-control form-control-sm mx-1 filter float-right d-print-none" onchange="filter()" style="max-width: 60px">
+<select name="" id="limit" class="form-control form-control-sm mx-1 filter float-right d-print-none" onchange="filter()" style="max-width: 60px">
 	<option value="12" selected="selected">12</option>
 	<option value="25">25</option>
 	<option value="50">50</option>

@@ -285,9 +285,7 @@
 						<th width="4%">Mild</th>
 						<th width="4%">Spicy</th>
 						<th width="6%">Larg</th>
-						<?php if($id!=200){ ?>
 						<th width="6%">Med</th>
-						<?php } ?>
 						<th width="6%">Small</th>
 						<th width="8%">Total</th>
 						<th width="8%">D.total</th>
@@ -338,13 +336,11 @@
 							<!-- price -->
 							<input type="hidden" name="lg_price<?=$id.$iid?>" class="price" value="<?=$ci['lg_price']?>">
 						</td>
-						<?php if($id!=200){ ?>
 						<td class="ctm_tray_price">
 							<input type="number" id="tray_md_ctm<?=$id.$iid?>" class="item-qty form-control form-control-sm" name="tray_md_ctm<?=$id.$iid?>" min="0" value="<?=$er['tray_md']?>" oninput="ctm_total(this)" <?=$read;?>>
 							<!-- price -->
 							<input type="hidden" name="md_price<?=$id.$iid?>" class="price" value="<?=$ci['md_price']?>">
 						</td>
-						<?php } ?>
 						<td class="ctm_tray_price">
 							
 							<input type="number" id="tray_sm_ctm<?=$id.$iid?>" class="item-qty form-control form-control-sm" name="tray_sm_ctm<?=$id.$iid?>" min="0" value="<?=$er['tray_sm']?>" oninput="ctm_total(this)" <?=$read;?>>
@@ -478,7 +474,7 @@
 						<td>
 							<select name="fullctm_mr_cal<?=$id.$iid?>" class="mrcal addiid form-control form-control-sm" <?=$dis?>>
 								<option value="none">none</option>
-								<?php options("select mr_cal,food_package_items.name,food_cat.name from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank",$fci['mr_cal'],1); ?>
+								<?php options("select mr_cal,food_package_items.name,food_cat.name,ingredient_id from food_package_items left join food_cat on food_cat_id=food_cat.id where mr_cal is not null order by rank",$fci['mr_cal'],1,$merged_value="ingredient_id"); ?>
 							</select>
 							<select name="fullctm_meat_type<?=$id.$iid?>" class="meat_type addiid form-control form-control-sm" onchange="fullctm_meat_type_changed(this);" <?=$dis?>>
 								<option value="none">none</option>

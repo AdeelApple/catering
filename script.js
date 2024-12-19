@@ -216,7 +216,7 @@
 					var cat_nm = $(tr).find('.cat_name').html().toLowerCase();
 					var sel_item = $(tr).find('.cat_select').children('option:selected').html().toLowerCase();
 					var pp_cat = ["naan","raita","bbq"];
-					var pp_item = ["gulab jamun","samosa","fried fish"];
+					var pp_item = ["gulab jamun","samosa","fried fish","spring rolls"];
 					if(pp_cat.includes(cat_nm)||pp_item.includes(sel_item))
 					{
 						if(cat_nm=="naan")	 cal_naan(tr);
@@ -224,6 +224,7 @@
 						if(cat_nm=="bbq")	 cal_bbq(tr);
 						if(sel_item=="gulab jamun")	 cal_gulab_jamun(tr);
 						if(sel_item=="samosa")	 cal_samosa(tr);
+						if(sel_item=="spring rolls")	cal_spring_rolls(tr);
 						if(sel_item=="fried fish")	 cal_fried_fish(tr);
 
 					}else
@@ -311,6 +312,16 @@
 		if($(sel).val()=="0"||$(sel).val()==""){	$(total_qty).val(0);	return;		}
 
 		$(total_qty).val(parseInt(mul(1,per)));
+	}
+
+	function cal_spring_rolls(tr) {
+		var sel = $(tr).find('.cat_select');
+		var total_qty = $(tr).find('.total_qty');
+		var per = $('#persons').val();
+
+		if($(sel).val()=="0"||$(sel).val()==""){	$(total_qty).val(0);	return;		}
+
+		$(total_qty).val(parseInt(mul(2,per)));
 	}
 
 	function cal_fried_fish(tr) {
@@ -623,6 +634,7 @@ function pack_cat_change(obj){
 		// Functions
 	 	if(nm=="gulab jamun") cal_gulab_jamun(tr);
 	 	if(nm=="samosa") cal_samosa(tr);
+	 	if(nm=="spring rolls") cal_spring_rolls(tr);
 	 	if(nm=="fried fish") cal_fried_fish(tr);
 
 	}else{

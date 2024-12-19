@@ -1,13 +1,12 @@
 <?php 
-	
 
+	$config = json_decode(file_get_contents(dirname(__DIR__) . '/configs.json'), true);
+	$db_host = $config['DATABASE_HOST'];
+	$db_name = $config['DATABASE_NAME'];
+	$db_user = $config['DATABASE_USERNAME'];
+	$db_pass = $config['DATABASE_PASSWORD'];
 
-	$database = "am_catering";
-	// $database = "encoders_encodersolution";
-	$conn = mysqli_connect("localhost", "root", "", $database);
-	// $conn = mysqli_connect("localhost", "adeelapple", "adeel@5", $database);
-	// $conn = mysqli_connect("localhost", "encoders_encoder", "1MRBDoSP@W)W", $database);
-
+	$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
 	// Global Variables
 	$pages=0;
@@ -37,7 +36,7 @@
 		return bit("select {$type} from sidebar where link like '$pg' union select {$type} from sub_sidebar where link like '$pg' ");
 	}
 	function order_no(){
-		$db = $GLOBALS['database'];
+		$db = $GLOBALS['db_name'];
 		return getbit("select `auto_increment`from  information_schema.tables where table_schema = '$db' and   table_name   = 'orders';");
 	}
 	function q($qry){	if($rs=mysqli_query($GLOBALS['conn'], $qry)){return $rs;	}else{	die("<b>Die:</b>".$qry);	}}
@@ -58,6 +57,14 @@
 		$rs = q($qry); $arr = array();
 		while($r = mysqli_fetch_assoc($rs)){	array_push($arr,$r); 	}
 		return $arr;
+	}
+	function get_key_value_obj($qry){
+		$rs = q($qry);
+		$obj = array();
+		while($r = mysqli_fetch_array($rs)){
+			$obj[$r[0]] = $r[1];
+		}
+		return $obj;
 	}
 	
 	function rand_name(){ return date("dmY").time().rand_str(5); }
@@ -106,19 +113,28 @@ function zifnull($val){
 		return $val;
 }
 function nullifunset($val){
-	if(isset($_POST[$val]))
-		return $_POST[$val];
-	else
-		return "NULL";
+	return isset($_POST[$val]) && $_POST[$val] !== "" ? $_POST[$val] : "NULL";
+}
+
+function get_total_pp($date){
+	$qry = "select sum(persons) from orders where date(delivery_time) = '{$date}'";
+	return getbit($qry);
+}
+
+function get_total_trays($date){
+	$qry = "select sum(trays) from orders where date(delivery_time) = '{$date}'";
+	return getbit($qry);
 }
 
 	
-function options($qry,$sl="",$attr=0){
+function options($qry,$sl="",$attr=0,$merged_value=""){
 	$rs = q($qry);
 	while($r = mysqli_fetch_array($rs)){
 		if($attr==1) $ext = "data-param='{$r[2]}'"; else $ext = "";
 		if($sl==$r[0]) $select = "selected='selected'"; else $select = "";
-		echo "<option value='{$r[0]}' {$ext} {$select}>  {$r[1]} </option>";
+		$value = $r[0];
+		if($merged_value!="") $value = $r[0]."|".$r[$merged_value];
+		echo "<option value='{$value}' {$ext} {$select}>  {$r[1]} </option>";
 	}
 }
 	
@@ -187,7 +203,7 @@ function default_edit_row(){
 	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
  }
 function fullctm_default_arr(){
-	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'person' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
+	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'persons' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
 
  }
 function del_pkg_order($oid,$tp,$pkg,$main){
@@ -203,9 +219,50 @@ function is_ctm_pp($it){
 function get_item_from_all_orders($nm,$dt){
 
 	$qry = "select * from order_items where name like '{$nm}' and item != 0 and date(delivery_time) = '{$dt}'";
-	// $qry .= " union select {$clms}{$clm2} from {$t1} where {$t1}.custom like '{$nm}' and type=3 and {$t1}.list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
 
+ }
+
+ function get_item_from_all_orders_weekly($nm,$date_from,$date_to){
+	$qry = "select order_items.*, orders.persons from order_items right join orders on order_items.order_id = orders.id where order_items.name like '{$nm}' and item != 0 and date(order_items.delivery_time) between '{$date_from}' and '{$date_to}'";
+	return q($qry);
+ }
+
+ function get_calculate_weekly_sweet_report($rs){
+	$manual_tray_obj = get_key_value_obj("select people, qty_string from manual_sweet_trays");
+	$trays_qty_obj = array();
+	while($r = mysqli_fetch_array($rs)){
+		if($r['type']==1){
+			update_trays_qty_obj($trays_qty_obj,$r,$manual_tray_obj);
+		}elseif($r['type']==2 || $r['type']==3){
+			add_qty_to_trays_qty_obj($trays_qty_obj,'lg',$r['tray_lg']);
+			add_qty_to_trays_qty_obj($trays_qty_obj,'md',$r['tray_md']);
+			add_qty_to_trays_qty_obj($trays_qty_obj,'sm',$r['tray_sm']);
+		}
+	}
+	ksort($trays_qty_obj);
+	return $trays_qty_obj;
+ }
+
+ function update_trays_qty_obj(&$trays_qty_obj,$r,$manual_tray_obj){
+	if (isset($manual_tray_obj[$r['persons']])) {
+		$qty_string = $manual_tray_obj[$r['persons']];
+		$qty_arr = explode('__', $qty_string);
+		foreach ($qty_arr as $qty) {
+			$qty = explode('_', $qty);
+			add_qty_to_trays_qty_obj($trays_qty_obj,$qty[0],$qty[1]);
+		}
+	} else {
+		add_qty_to_trays_qty_obj($trays_qty_obj,$r['persons'],1);
+	}
+ }
+
+ function add_qty_to_trays_qty_obj(&$trays_qty_obj,$key,$value){
+	if (isset($trays_qty_obj[$key])) {
+		$trays_qty_obj[$key] += $value;
+	} else {
+		$trays_qty_obj[$key] = $value;
+	}
  }
 function oit_of_date($list,$dt){
 
@@ -751,7 +808,6 @@ function fit_per(&$pot,&$r2,$r,$old_meat=0){
 		$space_meat = $pot['meat']-$old_meat;
 	else
 		$space_meat = $r['meat_limit'];
-	// $pot['meat'] += $space_meat;
 
 	if($r['is_meat_cal']){
 
@@ -1049,57 +1105,88 @@ function all_qty(&$r,$dt){
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
+ function vegi_pasta_trays(&$r,$dt){
+	$qry = "select sum((tray_lg*1)+(tray_md*0.75)+(tray_sm*0.5)) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$trays = getbit($qry);
+	return is_null($trays)? 0:$trays;
+ }
+ function samosa_count(&$r,$dt){
+	$qry = "select sum(qty) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qty = getbit($qry);
+	return is_null($qty)? 0:$qty;
+ }
+ function spring_roll_count(&$r,$dt){
+	$qry = "select sum(qty) as total from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qty = getbit($qry);
+	return is_null($qty)? 0:$qty;
+ }
+	
+
 
  // Get values
 function getIngVal(&$r,$dt){
 	$wt = array('kg' => 0.0,'lb' => 0.0,'per' => 0, 'qty' => NULL);
+	// Table = food_ingredients
 	$meat_funs = array(
-		1 => function(&$r,$dt){
+		1 => function(&$r,$dt){	// Chicken+Rice => Aleas => 4 Pieces
 			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},2 => function(&$r,$dt){
+		},2 => function(&$r,$dt){	// Chicken+Curry => Aleas => 4 Pieces
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},3 => function(&$r,$dt){
+		},3 => function(&$r,$dt){	// BBQ+Chicken
 			$pcs =  (qty_ctm($r,$dt) * 3) + (qty_fullctm($r,$dt) * 3) + qty_pkg($r,$dt);
 			$legs = round($pcs / 3, 2);
 			return array('val1' => $pcs,'val2' => $legs);
-		},4 => function(&$r,$dt){
+		},4 => function(&$r,$dt){	// Veal+Rice  => Aleas => Veal
 			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},5 => function(&$r,$dt){
+		},5 => function(&$r,$dt){	// Veal+Curry => Aleas => Veal
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},6 => function(&$r,$dt){
+		},6 => function(&$r,$dt){	// Reshmi Kabab
 			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},7 => function(&$r,$dt){
+		},7 => function(&$r,$dt){	// Chicken Pasta
 			$kg = ctm_meat($r,$dt)+fullctm_meat($r,$dt);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},8 => function(&$r,$dt){
+		},8 => function(&$r,$dt){	// Beef Keema
 			$kg = round(all_qty($r,$dt)*0.08,2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},9 => function(&$r,$dt){
+		},9 => function(&$r,$dt){	// Butter Chicken
 			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},10 => function(&$r,$dt){
+		},10 => function(&$r,$dt){	// Malai Boti
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0, 'val2' => $lb);
-		},11 => function(&$r,$dt){
+		},11 => function(&$r,$dt){	// Boneless Tikka Masala and Boneless Chicken Karahi
 			$kg = round((pkg_meat($r,$dt,8) + ctm_meat($r,$dt) + fullctm_meat($r,$dt,8)),2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},12 => function(&$r,$dt){
+		},12 => function(&$r,$dt){	// Boneless Tikka
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0,'val2' => $lb);
-		},13 => function(&$r,$dt){
+		},13 => function(&$r,$dt){	// Bihari Kabab
 			$lb = round(all_qty($r,$dt)*0.50,2);
 			return array('val1' => 0,'val2' => $lb);
-		},14 => function(&$r,$dt){
+		},14 => function(&$r,$dt){	// Fish
 			$pcs = all_qty($r,$dt);
 			return array('val1' => $pcs,'val2' => $pcs);
-		},15 => function(&$r,$dt){
-			$kg = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
+		},15 => function(&$r,$dt){	// Zarda Rice
+			$total_qty = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
+			$kg = $total_qty/2;
+			return array('val1' => round($kg,2),'val2' => round($kg*2.2,2));
+		},16 => function(&$r,$dt){	// free index
+			return array('val1' => 0,'val2' => 0);
+		},17 => function(&$r,$dt){	// Vegi Pasta
+			$total_qty = vegi_pasta_trays($r,$dt);
+			return array('val1' => $total_qty,'val2' => $total_qty);
+		},18 => function(&$r,$dt){	// Samosa
+			$total_qty = samosa_count($r,$dt);
+			return array('val1' => $total_qty,'val2' => $total_qty);
+		},19 => function(&$r,$dt){	// Spring Rolls
+			$total_qty = spring_roll_count($r,$dt);
+			$kg = $total_qty/2;
+			return array('val1' => $total_qty,'val2' => $total_qty);
 		}
 	);
 	return $meat_funs[$r['cal']]($r,$dt);
@@ -1132,9 +1219,9 @@ function getIngVal(&$r,$dt){
 	{
 		$rs = q($qry); $arr = array();$arr2 = array();
 		while($r = mysqli_fetch_assoc($rs)){
-			// $r['val1'] = weeklyIngVals($r,$dt,'val1');
-			$r['val2'] = weeklyIngVals($r,$dt);
-			$r['wtotal'] = arrTotal($r['val2']);
+			$value_with_unit = get_display_unit_for_value($r['display_report_unit']);
+			$r['qty'] = weeklyIngVals($r,$dt,$value_with_unit);
+			$r['wtotal'] = arrTotal($r['qty']);
 			$r['purchased'] = getPurchasedItems($r['id'],$dt);
 			$r['remaining'] = 0;
 			$r['total'] = 0;
@@ -1144,23 +1231,31 @@ function getIngVal(&$r,$dt){
 		foreach ($arr as $key => $val) {
 			if($val['reportspan']==0) continue;
 			$limit = $val['reportspan'];
-			if($limit==1){
 
-				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
-
-			}elseif ($limit>1) {
+			if ($limit>1) {
 				for ($i=1; $i < $limit; $i++){
 					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
-					$arr[$key]['val2'] = mergeSum($arr[$key]['val2'],$arr[$key+$i]['val2']);
+					$arr[$key]['qty'] = mergeSum($arr[$key]['qty'],$arr[$key+$i]['qty']);
 				}
 				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
-				$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 			}
+			$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
 			array_push($arr2,$arr[$key]);
 		}
 		return $arr2;
 	}
 
+function get_display_unit_for_value($unit){
+	if($unit == 'KG')
+		return 'val1';
+	return 'val2';
+}
+
+function get_unit_for_report($r){
+	if($r['display_report_unit'] == 'KG')
+		return $r['unit1'];
+	return $r['unit2'];
+}
 
 function weeklyIngVals($r,$dt,$val="val2"){
 	$monday = firstDayOfWeek($dt);
@@ -1177,14 +1272,14 @@ function getPurchasedItems($id,$dt){
 }
 
 
-function p($qry,$lim=26){
+function p($qry,$limit=26){
 	if(isset($_POST['page'])){
 		$pgno = (int) $_POST['page'];
 	}else{	$pgno = 1;	}
 	$rows = mysqli_num_rows(q($qry));
-	$GLOBALS['pages'] = ceil($rows/$lim);
-	$offset = ($pgno-1) * $lim;
-	$qry.=" limit $offset,$lim";
+	$GLOBALS['pages'] = ceil($rows/$limit);
+	$offset = ($pgno-1) * $limit;
+	$qry.=" limit $offset,$limit";
 	return	q($qry);
  }
 function norecord($rs,$num){
@@ -1206,8 +1301,10 @@ function tbl_pagination($num){
 	include 'inc/pagination.php';
 	echo "</td></tr>";
  }
-function flt_qry($qry,$ex="",$rpp=15){
-	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['rpp']:1;
+
+//  remove this function
+function flt_qry($qry,$ex="",$limit=15){
+	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
 	$clause = array();
 		if(isset($_POST['search'])){
 			$srch = $_POST['search'];
@@ -1227,16 +1324,61 @@ function flt_qry($qry,$ex="",$rpp=15){
 		if(isset($_POST['phone'])){
 			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
 		}
-		if(isset($_POST['rpp'])){
-			$rpp = $_POST['rpp'];			
+		if(isset($_POST['limit'])){
+			$limit = $_POST['limit'];			
 		}
 		if(count($clause)>0)
 		{
 			$cls = implode(" and ", $clause);
 			$qry .= " where ".$cls;
 		}
-		return p($qry." ".$ex,$rpp);
+		return p($qry." ".$ex,$limit);
  }
+
+function get_filter_query($qry,$ex="",$paginated=false, $limit=15){
+	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
+	$clause = array();
+		if(isset($_POST['search'])){
+			$srch = $_POST['search'];
+			$q = " name like '%$srch%'";		
+			if(is_numeric($srch)) $q .= " or id=$srch";		
+			$clause[] = $q;
+		}
+		if(isset($_POST['searchid'])){
+			$clause[] = " id = ".$_POST['searchid'];			
+		}
+		if(isset($_POST['delivery_time'])){
+			$clause[] = " DATE(delivery_time) = '".$_POST['delivery_time']."'";			
+		}
+		if(isset($_POST['pickup_time'])){
+			$clause[] = " pickup_time like '%".$_POST['pickup_time']."%'";			
+		}
+		if(isset($_POST['phone'])){
+			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
+		}
+		if(isset($_POST['limit'])){
+			$limit = $_POST['limit'];			
+		}
+		if(count($clause)>0)
+		{
+			$cls = implode(" and ", $clause);
+			$qry .= " where ".$cls;
+		}
+		
+		$qry = $qry." ".$ex;
+
+		if(!$paginated){
+			return $qry;
+		}
+
+		$pgno = isset($_POST['page']) ? (int) $_POST['page'] : 1;
+		$rows = mysqli_num_rows(q($qry));
+		$GLOBALS['pages'] = ceil($rows / $limit);
+		$offset = ($pgno - 1) * $limit;
+		$qry .= " limit $offset, $limit";
+		return $qry;
+}
+
 function qbuild($qry){
 	$clause = array();
 	if(isset($_POST['search'])){
@@ -1288,6 +1430,11 @@ function lastDayOfWeek($date){
 }
 function showWeek($date){
 	return "Monday(".firstDayOfWeek($date).") - Sunday(".lastDayOfWeek($date).")";
+}
+function show_prebooking_date_title($date){
+	$start = date("F Y", strtotime($date));
+	$end = date("F Y", strtotime($date . " +5 months"));
+	return $start . " - " . $end;
 }
 function incDay($date,$i=1){
 	return date("Y-m-d",strtotime($date."+".$i." day"));
