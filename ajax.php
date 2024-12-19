@@ -276,7 +276,7 @@ $funs = array(
 	del($id,$tbl);
 },
 4000 => function(){
-	// Fetch Food Pakae Categories and Items
+	// booking body
 
 	$pkg = $_POST['pkg'];
 	$id = $_POST['id'];

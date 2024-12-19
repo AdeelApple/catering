@@ -25,6 +25,14 @@
 				</div>
 			</div>
 			<div id="tbl" data-fun="8050" data-items="Khoya Kheer"></div>
+			<div class="row my-4">
+				<div class="col-3 p-2 black-border">
+					<div id="milk" class="font-weight-bold" style="font-size: 140%;"></div>
+				</div>
+				<div class="col-6 p-2 black-border">
+					<div id="milk2" class="font-weight-bold" style="font-size: 140%;"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

@@ -113,10 +113,7 @@ function zifnull($val){
 		return $val;
 }
 function nullifunset($val){
-	if(isset($_POST[$val]))
-		return $_POST[$val];
-	else
-		return "NULL";
+	return isset($_POST[$val]) && $_POST[$val] !== "" ? $_POST[$val] : "NULL";
 }
 
 function get_total_pp($date){
@@ -1108,6 +1105,23 @@ function all_qty(&$r,$dt){
 	$qty = getbit($qry);
 	return is_null($qty)? 0:$qty;
  }
+ function vegi_pasta_trays(&$r,$dt){
+	$qry = "select sum((tray_lg*1)+(tray_md*0.75)+(tray_sm*0.5)) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$trays = getbit($qry);
+	return is_null($trays)? 0:$trays;
+ }
+ function samosa_count(&$r,$dt){
+	$qry = "select sum(qty) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qty = getbit($qry);
+	return is_null($qty)? 0:$qty;
+ }
+ function spring_roll_count(&$r,$dt){
+	$qry = "select sum(qty) as total from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qty = getbit($qry);
+	return is_null($qty)? 0:$qty;
+ }
+	
+
 
  // Get values
 function getIngVal(&$r,$dt){
@@ -1145,7 +1159,7 @@ function getIngVal(&$r,$dt){
 		},10 => function(&$r,$dt){	// Malai Boti
 			$lb = round(all_qty($r,$dt)*0.70,2);
 			return array('val1' => 0, 'val2' => $lb);
-		},11 => function(&$r,$dt){	// Boneless Tikka Masala
+		},11 => function(&$r,$dt){	// Boneless Tikka Masala and Boneless Chicken Karahi
 			$kg = round((pkg_meat($r,$dt,8) + ctm_meat($r,$dt) + fullctm_meat($r,$dt,8)),2);
 			return array('val1' => $kg,'val2' => round($kg*2.2,2));
 		},12 => function(&$r,$dt){	// Boneless Tikka
@@ -1161,6 +1175,18 @@ function getIngVal(&$r,$dt){
 			$total_qty = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
 			$kg = $total_qty/2;
 			return array('val1' => round($kg,2),'val2' => round($kg*2.2,2));
+		},16 => function(&$r,$dt){	// free index
+			return array('val1' => 0,'val2' => 0);
+		},17 => function(&$r,$dt){	// Vegi Pasta
+			$total_qty = vegi_pasta_trays($r,$dt);
+			return array('val1' => $total_qty,'val2' => $total_qty);
+		},18 => function(&$r,$dt){	// Samosa
+			$total_qty = samosa_count($r,$dt);
+			return array('val1' => $total_qty,'val2' => $total_qty);
+		},19 => function(&$r,$dt){	// Spring Rolls
+			$total_qty = spring_roll_count($r,$dt);
+			$kg = $total_qty/2;
+			return array('val1' => $total_qty,'val2' => $total_qty);
 		}
 	);
 	return $meat_funs[$r['cal']]($r,$dt);

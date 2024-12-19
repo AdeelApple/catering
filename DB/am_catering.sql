@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 08, 2024 at 01:08 PM
--- Server version: 10.6.19-MariaDB-cll-lve
+-- Generation Time: Dec 19, 2024 at 01:05 PM
+-- Server version: 10.6.20-MariaDB-cll-lve
 -- PHP Version: 8.1.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -57,8 +57,8 @@ INSERT INTO `food_cat` (`id`, `name`, `visible`, `food_main`, `pp`, `none`, `edi
 (400, 'dessert', 1, 100, 0, 0.50, 1, 1, 26, 40, 15, 25, 1, 14, NULL, NULL),
 (500, 'boneless curry', 1, 100, 0, 2.50, 1, 0, 21, 40, 15, 20, 1, 14, NULL, NULL),
 (600, 'bbq', 1, 100, 1, 3.00, 1, 1, 25, 40, 15, 25, 1, 14, 'cal_bbq($(this).closest(\'tr\'));', NULL),
-(900, 'appetizer', 1, 200, 0, NULL, 0, 0, 26, 40, 15, 25, 1, 14, NULL, NULL),
-(1000, 'appetizer2', 1, 200, 0, NULL, 0, 0, 26, 40, 15, 25, 1, 14, NULL, NULL),
+(900, 'appetizer', 1, 200, 0, NULL, 0, 1, 26, 40, 15, 25, 1, 14, NULL, NULL),
+(1000, 'appetizer2', 1, 200, 0, NULL, 0, 1, 26, 40, 15, 25, 1, 14, NULL, NULL),
 (1100, 'salad', 1, 200, 0, NULL, 0, 1, 41, 50, 31, 40, 20, 30, NULL, NULL),
 (1200, 'naan', 1, 100, 1, 0.50, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'cal_naan($(this).closest(\'tr\'));', 'cal_extra_naan($(this).closest(\'tr\'));'),
 (1300, 'raita', 1, 100, 1, NULL, 0, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'cal_raita($(this).closest(\'tr\'));', NULL);
@@ -155,7 +155,7 @@ INSERT INTO `food_custom_items` (`id`, `name`, `rank`, `food_custom`, `sm_price`
 (102700, 'Greek Salad', 28, 100, 10.00, 15.00, 20.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 4, 1),
 (102800, 'Tandoori Naan', 30, 100, NULL, NULL, NULL, 2.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 5, 1),
 (102900, 'Peta Naan', 31, 100, NULL, NULL, NULL, 1.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, 5, 1),
-(105000, 'Vegi Pasta', 33, 200, 40.00, NULL, 80.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
+(105000, 'Vegi Pasta', 33, 200, 40.00, 60.00, 80.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, 17, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (105100, 'Chicken', 34, 200, 45.00, NULL, 90.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (105200, 'Italian Sausage', 35, 200, 45.00, NULL, 90.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (105300, 'New York Striploin', 36, 200, 50.00, NULL, 100.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
@@ -225,7 +225,11 @@ INSERT INTO `food_ingredients` (`id`, `name`, `cal`, `rowspan`, `reportspan`, `m
 (12, 'Boneless Tikka', 12, 1, 1, NULL, NULL, 'KG', 'LB', NULL, 1),
 (13, 'Bihari Kabab', 13, 1, 1, NULL, NULL, 'KG', 'LB', NULL, 1),
 (14, 'Fish', 14, 1, 1, NULL, NULL, 'PC', 'PC', NULL, 1),
-(15, 'Zarda Rice', 15, 1, 1, NULL, NULL, 'KG', 'LB', 'KG', 1);
+(15, 'Zarda Rice', 15, 1, 1, NULL, NULL, 'KG', 'LB', 'KG', 1),
+(16, 'Boneless Chicken Karahi', 11, 1, 1, NULL, NULL, 'KG', 'LB', NULL, 1),
+(17, 'Vegi Pasta', 17, 1, 1, NULL, NULL, 'Trays', 'Trays', NULL, 1),
+(18, 'Samosa', 18, 1, 1, NULL, NULL, NULL, NULL, NULL, 1),
+(19, 'Spring Rolls', 19, 1, 1, NULL, NULL, NULL, NULL, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -409,12 +413,13 @@ INSERT INTO `food_package_items` (`id`, `name`, `rank`, `list`, `food_cat_id`, `
 (1800, 'Nihari', 18, 1, 500, 0, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (1900, 'Haleem', 19, 1, 500, 0, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (2000, 'Tikka Masala', 20, 1, 500, 0, 0, 0.00, 0.00, 4, 6, 1, NULL, NULL, 10, 11, NULL, NULL, 1),
+(2010, 'Boneless Chicken Karahi', 21, 1, 500, 0, 0, 0.00, 0.00, 4, 6, 1, NULL, NULL, 10, 16, NULL, NULL, 1),
 (2100, 'Tandoori Chicken Tikka', 21, 2, 600, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 3, 1.50, NULL, 1),
 (2200, 'Beef Kabab', 22, 2, 600, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 8, 3.00, NULL, 1),
 (2300, 'Reshmi Kabab', 23, 2, 600, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 6, 3.00, NULL, 1),
-(2400, 'Samosa', 24, 1, 900, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, 1.50, NULL, 1),
+(2400, 'Samosa', 24, 1, 900, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 18, 1.50, NULL, 1),
 (2500, 'Chaat Papri', 25, 1, 900, 0, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
-(2600, 'Spring Rolls', 26, 1, 900, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, 1.50, NULL, 1),
+(2600, 'Spring Rolls', 26, 1, 900, 1, 1, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 19, 1.50, NULL, 1),
 (2700, 'Garden Salad', 27, 4, 1100, 0, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (2800, 'Greek Salad', 28, 4, 1100, 0, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1),
 (2900, 'Fried Fish', 29, 1, 1000, 1, 0, 0.00, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 14, NULL, NULL, 1),
@@ -514,21 +519,21 @@ CREATE TABLE `manual_sweet_trays` (
 
 INSERT INTO `manual_sweet_trays` (`id`, `people`, `qty_string`) VALUES
 (1, 25, 'md_1'),
-(2, 30, 'lg_1'),
-(3, 35, 'lg_1'),
+(2, 30, '30_1'),
+(3, 35, '35_1'),
 (4, 40, '40_1'),
 (5, 45, '45_1'),
-(6, 50, '25_2'),
+(6, 50, 'md_2'),
 (7, 55, '55_1'),
 (8, 60, '30_2'),
-(9, 65, 'lg_1__25_1'),
+(9, 65, 'lg_1__md_1'),
 (10, 70, '35_2'),
 (11, 75, '75_1'),
 (12, 80, '40_2'),
 (13, 85, '85_1'),
 (14, 90, '45_2'),
 (15, 95, '95_1'),
-(16, 100, 'lg_2__25_1'),
+(16, 100, 'lg_2__md_1'),
 (17, 105, '105_1'),
 (18, 110, '110_1'),
 (19, 115, '115_1'),
@@ -540,7 +545,7 @@ INSERT INTO `manual_sweet_trays` (`id`, `people`, `qty_string`) VALUES
 (25, 145, '145_1'),
 (26, 150, '150_1'),
 (27, 155, '155_1'),
-(28, 160, 'lg_4');
+(30, 160, 'lg_4');
 
 -- --------------------------------------------------------
 
@@ -566,9 +571,9 @@ CREATE TABLE `mr_limits` (
 
 INSERT INTO `mr_limits` (`id`, `meat_lg`, `meat_md`, `meat_sm`, `rice_lg`, `rice_md`, `rice_sm`, `meat_limit`, `rice_limit`) VALUES
 (1, 2.500, 2.000, 1.250, 1.500, 1.150, 0.750, 10.00, 6.00),
-(2, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.75),
+(2, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 4.50),
 (3, 2.500, 2.000, 1.250, 1.500, 1.150, 0.750, 10.00, 6.00),
-(4, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 6.75),
+(4, 2.250, 1.750, 1.250, 1.500, 1.150, 0.750, 10.00, 4.90),
 (5, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
 (6, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
 (7, 4.000, 3.000, 2.000, NULL, NULL, NULL, 50.00, NULL),
@@ -977,7 +982,7 @@ ALTER TABLE `food_full_custom`
 -- AUTO_INCREMENT for table `food_ingredients`
 --
 ALTER TABLE `food_ingredients`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `food_main`
@@ -1019,7 +1024,7 @@ ALTER TABLE `kitchen_list`
 -- AUTO_INCREMENT for table `manual_sweet_trays`
 --
 ALTER TABLE `manual_sweet_trays`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `mr_limits`
@@ -1031,13 +1036,13 @@ ALTER TABLE `mr_limits`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16905;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17175;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=139505;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=141744;
 
 --
 -- AUTO_INCREMENT for table `purchased_items`
