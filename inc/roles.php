@@ -1,1 +1,1 @@
-<?php $types = array("manager" => " | Manages All Weekly Reports","operator" => " | Operate bookings and editing orders","chef" => " | Access Kitchen-list, BBQ, Salad-Raita, Sweets","tandoor" => " | Access Naan Orders");  ?>
+<?php $types = array("manager" => " | Manages All Weekly Reports", "operator" => " | Operate bookings and editing orders", "chef" => " | Access Kitchen-list, BBQ, Salad-Raita, Sweets", "tandoor" => " | Access Naan Orders"); ?>

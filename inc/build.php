@@ -1,313 +1,422 @@
-<?php 
+<?php
 
-	$config = json_decode(file_get_contents(dirname(__DIR__) . '/configs.json'), true);
-	$db_host = $config['DATABASE_HOST'];
-	$db_name = $config['DATABASE_NAME'];
-	$db_user = $config['DATABASE_USERNAME'];
-	$db_pass = $config['DATABASE_PASSWORD'];
+$config = json_decode(file_get_contents(dirname(__DIR__) . '/configs.json'), true);
+$db_host = $config['DATABASE_HOST'];
+$db_name = $config['DATABASE_NAME'];
+$db_user = $config['DATABASE_USERNAME'];
+$db_pass = $config['DATABASE_PASSWORD'];
 
-	$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
+$conn = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
-	// Global Variables
-	$pages=0;
-	$sb=1;
-	if(isset($_SESSION['sb'])){		$sb = $_SESSION['sb']?1:0;	}
+// Global Variables
+$pages = 0;
+$sb = 1;
+if (isset($_SESSION['sb'])) {
+	$sb = $_SESSION['sb'] ? 1 : 0;
+}
 
-	function login($username,$pass){
-		
-		if(getbit("select count(*) from users where username like '$username' and pass like '$pass' ")>0)
-			return true;
-		else
-			return false;
+function login($username, $pass)
+{
+
+	if (getbit("select count(*) from users where username like '$username' and pass like '$pass' ") > 0)
+		return true;
+	else
+		return false;
+}
+function userid($username, $pass)
+{
+	return getbit("select id from users where username like '$username' and pass like '$pass'");
+}
+function fname($uid)
+{
+	return getbit("select fullname from users where id = {$uid}");
+}
+function uname($uid)
+{
+	return getbit("select username from users where id = {$uid}");
+}
+function utype($uid)
+{
+	return getbit("select type from users where id={$uid}");
+}
+function access($type, $pg)
+{
+	return bit("select {$type} from sidebar where link like '$pg' union select {$type} from sub_sidebar where link like '$pg' ");
+}
+function order_no()
+{
+	$db = $GLOBALS['db_name'];
+	return getbit("select `auto_increment`from  information_schema.tables where table_schema = '$db' and   table_name   = 'orders';");
+}
+function q($qry)
+{
+	if ($rs = mysqli_query($GLOBALS['conn'], $qry)) {
+		return $rs;
+	} else {
+		die("<b>Die:</b>" . $qry);
 	}
-	function userid($username,$pass){
-		return getbit("select id from users where username like '$username' and pass like '$pass'");
+}
+function q2($qry)
+{
+	if ($rs = mysqli_query($GLOBALS['conn'], $qry)) {
+		return $rs;
+	} else {
+		die("fail");
 	}
-	function fname($uid){
-		return getbit("select fullname from users where id = {$uid}");
+}
+function bit($qry)
+{
+	return intval(getbit($qry)) > 0 ? true : false;
+}
+function frow($qry)
+{
+	return mysqli_fetch_array(q($qry));
+}
+function getbit($qry)
+{
+	return isset(frow($qry)[0]) ? frow($qry)[0] : null;
+}
+function incval($tbl, $clm)
+{
+	return getbit("select $clm from $tbl order by $clm desc limit 1") + 1;
+}
+function del($id, $tbl)
+{
+	q("delete from $tbl where id=$id");
+}
+function eq($inp)
+{
+	echo $inp;
+}
+function eeq($inp)
+{
+	echo $inp;
+	return q($inp);
+}
+function ar($qry)
+{
+	$rs = q($qry);
+	$arr = array();
+	while ($r = mysqli_fetch_array($rs)) {
+		$arr[] = $r[0];
 	}
-	function uname($uid){
-		return getbit("select username from users where id = {$uid}");
+	return $arr;
+}
+function qry_arr($qry)
+{
+	$rs = q($qry);
+	$arr = array();
+	while ($r = mysqli_fetch_assoc($rs)) {
+		array_push($arr, $r);
 	}
-	function utype($uid){
-		return getbit("select type from users where id={$uid}");
+	return $arr;
+}
+function get_key_value_obj($qry)
+{
+	$rs = q($qry);
+	$obj = array();
+	while ($r = mysqli_fetch_array($rs)) {
+		$obj[$r[0]] = $r[1];
 	}
-	function access($type,$pg){
-		return bit("select {$type} from sidebar where link like '$pg' union select {$type} from sub_sidebar where link like '$pg' ");
+	return $obj;
+}
+
+function rand_name()
+{
+	return date("dmY") . time() . rand_str(5);
+}
+function rand_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
+{
+	$str = '';
+	$max = mb_strlen($keyspace, '8bit') - 1;
+	for ($i = 0; $i < $length; ++$i) {
+		$str .= $keyspace[random_int(0, $max)];
 	}
-	function order_no(){
-		$db = $GLOBALS['db_name'];
-		return getbit("select `auto_increment`from  information_schema.tables where table_schema = '$db' and   table_name   = 'orders';");
-	}
-	function q($qry){	if($rs=mysqli_query($GLOBALS['conn'], $qry)){return $rs;	}else{	die("<b>Die:</b>".$qry);	}}
-	function q2($qry){	if($rs=mysqli_query($GLOBALS['conn'], $qry)){return $rs;	}else{	die("fail");	}}
-	function bit($qry){	  return intval(getbit($qry))>0?true:false;	}
-	function frow($qry){   return mysqli_fetch_array(q($qry));	}
-	function getbit($qry){	return isset(frow($qry)[0]) ? frow($qry)[0]: null;	}
-	function incval($tbl,$clm){ return getbit("select $clm from $tbl order by $clm desc limit 1")+1; }
-	function del($id,$tbl){ q("delete from $tbl where id=$id");	 }
-	function eq($inp){	echo $inp; }
-	function eeq($inp){	echo $inp;	return q($inp); }
-	function ar($qry){
-		$rs = q($qry); $arr = array();
-		while($r = mysqli_fetch_array($rs)){	$arr[] = $r[0];	}
-		return $arr;
-	}
-	function qry_arr($qry){
-		$rs = q($qry); $arr = array();
-		while($r = mysqli_fetch_assoc($rs)){	array_push($arr,$r); 	}
-		return $arr;
-	}
-	function get_key_value_obj($qry){
-		$rs = q($qry);
-		$obj = array();
-		while($r = mysqli_fetch_array($rs)){
-			$obj[$r[0]] = $r[1];
-		}
-		return $obj;
-	}
-	
-	function rand_name(){ return date("dmY").time().rand_str(5); }
-	function rand_str($length, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
-	{
-    	$str = '';
-    	$max = mb_strlen($keyspace, '8bit') - 1;
-    	for ($i = 0; $i < $length; ++$i) {
-    	    $str .= $keyspace[random_int(0, $max)];
-    	}
-    	return $str;
-	}
-	
+	return $str;
+}
 
 
 
 
-	$sec = array(1 => 'A',2 => 'B',3 => 'C',4 => 'D',5 => 'E',6 => 'F');
-	$day = array(1 => 'Monday',2 => 'Tuesday',3 => 'Wednessday',4 => 'Thursday',5 => 'Friday',6 => 'Saturday',7 => 'Sunday');
+
+$sec = array(1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E', 6 => 'F');
+$day = array(1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednessday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday');
 
 
 
-	function pr($inp) { 
-	    return mysqli_real_escape_string($GLOBALS['conn'], $inp);
-	}
+function pr($inp)
+{
+	return mysqli_real_escape_string($GLOBALS['conn'], $inp);
+}
 
-	function item_package_name($item_id){
-		return getbit("select name from food_package_items where id = $item_id");
-	}
+function item_package_name($item_id)
+{
+	return getbit("select name from food_package_items where id = $item_id");
+}
 
-function json_ranges(){
+function json_ranges()
+{
 
 	$pkg_ranges = array();
 	$rs = q("select name,lg_min,lg_max,md_min,md_max,sm_min,sm_max from food_cat where lg_min is not null");
-	while($r = mysqli_fetch_array($rs)){
+	while ($r = mysqli_fetch_array($rs)) {
 		$nm = $r['name'];
-		$pkg_ranges[$nm] = array('lg' => array('min'=>intval($r['lg_min']),'max'=>intval($r['lg_max'])),'md' => array('min'=>intval($r['md_min']),'max'=>intval($r['md_max'])),'sm' => array('min'=>intval($r['sm_min']),'max'=>intval($r['sm_max'])));
+		$pkg_ranges[$nm] = array('lg' => array('min' => intval($r['lg_min']), 'max' => intval($r['lg_max'])), 'md' => array('min' => intval($r['md_min']), 'max' => intval($r['md_max'])), 'sm' => array('min' => intval($r['sm_min']), 'max' => intval($r['sm_max'])));
 	}
 	return json_encode($pkg_ranges);
 }
 
-function zifnull($val){
-	if($val=="")
+function zifnull($val)
+{
+	if ($val == "")
 		return 0.00;
 	else
 		return $val;
 }
-function nullifunset($val){
+function nullifunset($val)
+{
 	return isset($_POST[$val]) && $_POST[$val] !== "" ? $_POST[$val] : "NULL";
 }
 
-function get_total_pp($date){
+function get_total_pp($date)
+{
 	$qry = "select sum(persons) from orders where date(delivery_time) = '{$date}'";
 	return getbit($qry);
 }
 
-function get_total_trays($date){
+function get_total_trays($date)
+{
 	$qry = "select sum(trays) from orders where date(delivery_time) = '{$date}'";
 	return getbit($qry);
 }
 
-	
-function options($qry,$sl="",$attr=0,$merged_value=""){
+
+function options($qry, $sl = "", $attr = 0, $merged_value = "")
+{
 	$rs = q($qry);
-	while($r = mysqli_fetch_array($rs)){
-		if($attr==1) $ext = "data-param='{$r[2]}'"; else $ext = "";
-		if($sl==$r[0]) $select = "selected='selected'"; else $select = "";
+	while ($r = mysqli_fetch_array($rs)) {
+		if ($attr == 1)
+			$ext = "data-param='{$r[2]}'";
+		else
+			$ext = "";
+		if ($sl == $r[0])
+			$select = "selected='selected'";
+		else
+			$select = "";
 		$value = $r[0];
-		if($merged_value!="") $value = $r[0]."|".$r[$merged_value];
+		if ($merged_value != "")
+			$value = $r[0] . "|" . $r[$merged_value];
 		echo "<option value='{$value}' {$ext} {$select}>  {$r[1]} </option>";
 	}
 }
-	
-function options_nm($rs,$nm){
-	while($r = mysqli_fetch_array($rs)){
-		$sl = ($r['name']==$nm)? "selected='selected'":"";
-		echo "<option value='".$r['id']."' $sl>".$r['name']."</option>";
-	}
-}
 
-	
-function options_id($rs,$id){
-	while($r = mysqli_fetch_array($rs)){
-		$sl = ($r['id']==$id) ? "selected='selected'":"";
-		echo "<option value='".$r['id']."' $sl>".$r['name']."</option>";
+function options_nm($rs, $nm)
+{
+	while ($r = mysqli_fetch_array($rs)) {
+		$sl = ($r['name'] == $nm) ? "selected='selected'" : "";
+		echo "<option value='" . $r['id'] . "' $sl>" . $r['name'] . "</option>";
 	}
 }
 
 
-function true_after($n,$lim){
-	if($n%$lim==0) return true; else return false;
+function options_id($rs, $id)
+{
+	while ($r = mysqli_fetch_array($rs)) {
+		$sl = ($r['id'] == $id) ? "selected='selected'" : "";
+		echo "<option value='" . $r['id'] . "' $sl>" . $r['name'] . "</option>";
+	}
 }
 
-	// Functions
 
-function open($id,$oid,$tp){ 
+function true_after($n, $lim)
+{
+	if ($n % $lim == 0)
+		return true;
+	else
+		return false;
+}
+
+// Functions
+
+function open($id, $oid, $tp)
+{
 	return bit("select count(id) from order_items where order_id=$oid and type=$tp and main=$id");
 }
-function shipping($id){
-	if($id==1) return "Delivery";
-	if($id==2) return "Pickup";
+function shipping($id)
+{
+	if ($id == 1)
+		return "Delivery";
+	if ($id == 2)
+		return "Pickup";
 }
-function pkgid_order($oid,$tp,$main){
+function pkgid_order($oid, $tp, $main)
+{
 	return getbit("select package from order_items where order_id = $oid and type=$tp and main=$main limit 1");
 }
-function pkgprice_order($oid,$tp,$main,$pkgid){
+function pkgprice_order($oid, $tp, $main, $pkgid)
+{
 	return getbit("select pkgprice from order_items where order_id = $oid and type=$tp and main=$main and package={$pkgid} limit 1");
 }
-function is_cat_pp($cat){
+function is_cat_pp($cat)
+{
 	return getbit("select pp from food_cat where name like '$cat'");
 }
-function is_item_pp($id,$tp){
-	if($tp==1) return getbit("select pp from food_package_items where id=$id");
-	if($tp==2) return getbit("select pp from food_custom_items where id=$id");
+function is_item_pp($id, $tp)
+{
+	if ($tp == 1)
+		return getbit("select pp from food_package_items where id=$id");
+	if ($tp == 2)
+		return getbit("select pp from food_custom_items where id=$id");
 }
-function item_list($id){
-	if($id==0) return 1;
+function item_list($id)
+{
+	if ($id == 0)
+		return 1;
 	else
-	return getbit("select list from food_package_items where id=$id");
+		return getbit("select list from food_package_items where id=$id");
 }
-function sel_item($oid,$tp,$main,$pkg='NULL',$cat='NULL'){
+function sel_item($oid, $tp, $main, $pkg = 'NULL', $cat = 'NULL')
+{
 	// echo "select item from order_items where order_id = $oid and type=$tp and category=$cat and package=$pkg and main=$main limit 1";
 	return getbit("select item from order_items where order_id = $oid and type=$tp and category=$cat and package=$pkg and main=$main limit 1");
- }
-function chk($v,$i=1){
-	if($v==$i) return "checked='checked'";
- }
-function editid($oid,$tp,$item){
+}
+function chk($v, $i = 1)
+{
+	if ($v == $i)
+		return "checked='checked'";
+}
+function editid($oid, $tp, $item)
+{
 	return getbit("select id from order_items where order_id = $oid and type=$tp and item=$item limit 1");
- }
-function editrow($id){	return frow("select * from order_items where id = $id");	}
-function mark_edit($oid,$tp,$item){
+}
+function editrow($id)
+{
+	return frow("select * from order_items where id = $id");
+}
+function mark_edit($oid, $tp, $item)
+{
 	return bit("select count(id) from order_items where order_id=$oid and item=$item and type=$tp");
- }
-function default_edit_row(){
-	return array('ctmprice'=> '','spice' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
- }
-function fullctm_default_arr(){
-	return array('mr_cal' => 'none','meat_type' => 'none','spice' => 0,'persons' => 0,'tray_lg' => 0,'tray_md' => 0,'tray_sm' => 0,'total' => 0.00,'d_total' => 0.00,'description' => '','qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1,'ctmprice' => 0.00);
+}
+function default_edit_row()
+{
+	return array('ctmprice' => '', 'spice' => 0, 'tray_lg' => 0, 'tray_md' => 0, 'tray_sm' => 0, 'total' => 0.00, 'd_total' => 0.00, 'description' => '', 'qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1);
+}
+function fullctm_default_arr()
+{
+	return array('mr_cal' => 'none', 'meat_type' => 'none', 'spice' => 0, 'persons' => 0, 'tray_lg' => 0, 'tray_md' => 0, 'tray_sm' => 0, 'total' => 0.00, 'd_total' => 0.00, 'description' => '', 'qty' => 0, 'lg_price' => '', 'md_price' => '', 'sm_price' => '', 'name' => '', 'pp' => 0, 'list' => 1, 'ctmprice' => 0.00);
 
- }
-function del_pkg_order($oid,$tp,$pkg,$main){
+}
+function del_pkg_order($oid, $tp, $pkg, $main)
+{
 	q("delete from order_items where order_id=$oid and type=$tp and package=$pkg and main=$main");
-	echo "delete from order_items where order_id=$oid and type=$tp and package=$pkg and main=$main"."<br>";
- }
-function pkg_exist($oid,$tp,$pkg,$main){
+	echo "delete from order_items where order_id=$oid and type=$tp and package=$pkg and main=$main" . "<br>";
+}
+function pkg_exist($oid, $tp, $pkg, $main)
+{
 	return bit("select count(id) from order_items where order_id=$oid and type=$tp and package=$pkg and main=$main");
- }
-function is_ctm_pp($it){
+}
+function is_ctm_pp($it)
+{
 	return bit("select pp from food_custom_items where id=$it");
- }
-function get_item_from_all_orders($nm,$dt){
+}
+function get_item_from_all_orders($nm, $dt)
+{
 
 	$qry = "select * from order_items where name like '{$nm}' and item != 0 and date(delivery_time) = '{$dt}'";
 	return q($qry);
 
- }
+}
 
- function get_item_from_all_orders_weekly($nm,$date_from,$date_to){
+function get_item_from_all_orders_weekly($nm, $date_from, $date_to)
+{
 	$qry = "select order_items.*, orders.persons from order_items right join orders on order_items.order_id = orders.id where order_items.name like '{$nm}' and item != 0 and date(order_items.delivery_time) between '{$date_from}' and '{$date_to}'";
 	return q($qry);
- }
+}
 
- function get_calculate_weekly_sweet_report($rs){
+function get_calculate_weekly_sweet_report($rs)
+{
 	$manual_tray_obj = get_key_value_obj("select people, qty_string from manual_sweet_trays");
 	$trays_qty_obj = array();
-	while($r = mysqli_fetch_array($rs)){
-		if($r['type']==1){
-			update_trays_qty_obj($trays_qty_obj,$r,$manual_tray_obj);
-		}elseif($r['type']==2 || $r['type']==3){
-			add_qty_to_trays_qty_obj($trays_qty_obj,'lg',$r['tray_lg']);
-			add_qty_to_trays_qty_obj($trays_qty_obj,'md',$r['tray_md']);
-			add_qty_to_trays_qty_obj($trays_qty_obj,'sm',$r['tray_sm']);
+	while ($r = mysqli_fetch_array($rs)) {
+		if ($r['type'] == 1) {
+			update_trays_qty_obj($trays_qty_obj, $r, $manual_tray_obj);
+		} elseif ($r['type'] == 2 || $r['type'] == 3) {
+			add_qty_to_trays_qty_obj($trays_qty_obj, 'lg', $r['tray_lg']);
+			add_qty_to_trays_qty_obj($trays_qty_obj, 'md', $r['tray_md']);
+			add_qty_to_trays_qty_obj($trays_qty_obj, 'sm', $r['tray_sm']);
 		}
 	}
 	ksort($trays_qty_obj);
 	return $trays_qty_obj;
- }
+}
 
- function update_trays_qty_obj(&$trays_qty_obj,$r,$manual_tray_obj){
+function update_trays_qty_obj(&$trays_qty_obj, $r, $manual_tray_obj)
+{
 	if (isset($manual_tray_obj[$r['persons']])) {
 		$qty_string = $manual_tray_obj[$r['persons']];
 		$qty_arr = explode('__', $qty_string);
 		foreach ($qty_arr as $qty) {
 			$qty = explode('_', $qty);
-			add_qty_to_trays_qty_obj($trays_qty_obj,$qty[0],$qty[1]);
+			add_qty_to_trays_qty_obj($trays_qty_obj, $qty[0], $qty[1]);
 		}
 	} else {
-		add_qty_to_trays_qty_obj($trays_qty_obj,$r['persons'],1);
+		add_qty_to_trays_qty_obj($trays_qty_obj, $r['persons'], 1);
 	}
- }
+}
 
- function add_qty_to_trays_qty_obj(&$trays_qty_obj,$key,$value){
+function add_qty_to_trays_qty_obj(&$trays_qty_obj, $key, $value)
+{
 	if (isset($trays_qty_obj[$key])) {
 		$trays_qty_obj[$key] += $value;
 	} else {
 		$trays_qty_obj[$key] = $value;
 	}
- }
-function oit_of_date($list,$dt){
+}
 
-	$clms = "{$t1}.id, {$t1}.order_id, {$t1}.item, {$t1}.category, {$t1}.package, {$t1}.main, {$t1}.type, {$t1}.persons, {$t1}.spice, {$t1}.tray_lg, {$t1}.tray_md, {$t1}.tray_sm, {$t1}.description, {$t1}.qty, {$t1}.pkgprice, {$t1}.sm_price, {$t1}.lg_price, {$t1}.pkgcmt, {$t1}.total, {$t1}.list, {$t1}.delivery_time,name,pp,meat_limit,rice_limit";
-
-	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where item!=0 and list={$list} and DATE(delivery_time) = '{$dt}' order by delivery_time";
-	return q($qry);
-
- }
-function is_pp($it){
+function is_pp($it)
+{
 	return getbit("select pp from food_package_items where name like '$it' union select pp from food_custom_items where name like '$it' limit 1");
- }
-function is_pp_id($it,$tp){
-	if($tp==1)
-	return bit("select pp from food_package_items where id=$it");
-	if($tp==2)
-	return bit("select pp from food_custom_items where id=$it");
- }
-function cus_nm($oid){
+}
+function is_pp_id($it, $tp)
+{
+	if ($tp == 1)
+		return bit("select pp from food_package_items where id=$it");
+	if ($tp == 2)
+		return bit("select pp from food_custom_items where id=$it");
+}
+function cus_nm($oid)
+{
 	return getbit("select name from orders where id=$oid");
- }
-function pkgcmt($oid,$main){
+}
+function pkgcmt($oid, $main)
+{
 	return getbit("select pkgcmt from order_items where order_id = {$oid} and main = {$main}");
- }
+}
 
 
 // Quries Functoins
 
-function update_pkg_item($item_id,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$pkgprice,$pkg_total,$delivery_time,$order_items_id,$meatrice,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+function update_pkg_item($item_id, $category, $package, $main, $persons, $spice, $tray_lg, $tray_md, $tray_sm, $comment, $total_qty, $pkgprice, $pkg_total, $delivery_time, $order_items_id, $meatrice, $rice_type, $is_meat_cal, $is_rice_cal, $tspan, $rank)
+{
 	$qry = "update order_items set item=$item_id, category=$category,  package=$package,  main=$main, persons=$persons, spice=$spice, tray_lg=$tray_lg, tray_md=$tray_md, tray_sm=$tray_sm, description='$comment', qty=$total_qty, pkgprice=$pkgprice, total=$pkg_total, delivery_time='$delivery_time' where id=$order_items_id,mr_cal = $meatrice,rice_type = $rice_type,is_meat_cal = $is_meat_cal, is_rice_cal = $is_rice_cal";
 	q($qry);
- }
-function insert_pkg_item($order_id,$item_id,$item_name,$category,$package,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$total_qty,$extra_qty,$extra_price,$pkgprice,$pkgcmt,$pkg_total,$pp,$list,$delivery_time,$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
-		$qry = "insert into order_items(order_id,item,name,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,'$item_name',$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time',$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
+}
+function insert_pkg_item($order_id, $item_id, $item_name, $category, $package, $main, $persons, $spice, $tray_lg, $tray_md, $tray_sm, $comment, $total_qty, $extra_qty, $extra_price, $pkgprice, $pkgcmt, $pkg_total, $pp, $list, $delivery_time, $mr_cal, $mr_limit_id, $ingredient_id, $rice_type, $is_meat_cal, $is_rice_cal, $tspan, $rank)
+{
+	$qry = "insert into order_items(order_id,item,name,category, package, main,persons,type,spice,tray_lg,tray_md,tray_sm,description,qty,extra_qty,extra_price,pkgprice,pkgcmt,total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,'$item_name',$category,$package,$main,$persons,1,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$total_qty,$extra_qty,$extra_price,$pkgprice,'$pkgcmt',$pkg_total,$pp,$list,'$delivery_time',$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
- }
-function insert_ctm_item($order_id,$item_id,$item_name,$main,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,$delivery_time,$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+}
+function insert_ctm_item($order_id, $item_id, $item_name, $main, $spice, $tray_lg, $tray_md, $tray_sm, $comment, $qty, $lg_price, $md_price, $sm_price, $ps_price, $total_price_ctm, $d_total_price_ctm, $ctm_pp, $ctm_list, $delivery_time, $mr_cal, $mr_limit_id, $ingredient_id, $rice_type, $is_meat_cal, $is_rice_cal, $tspan, $rank)
+{
 	$qry = "insert into order_items(order_id,item,name,main,type,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,$item_id,'$item_name',$main,2,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_ctm,$d_total_price_ctm,$ctm_pp,$ctm_list,'$delivery_time',$mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($qry);
- }
+}
 
-function insert_fullctm_item($order_id,$fullctm_name,$main,$persons,$spice,$tray_lg,$tray_md,$tray_sm,$comment,$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$fullctm_pp,$fullctm_list,$delivery_time,$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank){
+function insert_fullctm_item($order_id, $fullctm_name, $main, $persons, $spice, $tray_lg, $tray_md, $tray_sm, $comment, $qty, $lg_price, $md_price, $sm_price, $ps_price, $total_price_fullctm, $fullctm_pp, $fullctm_list, $delivery_time, $fullctm_mr_cal, $mr_limit_id, $ingredient_id, $rice_type, $meat_type, $is_meat_cal, $is_rice_cal, $tspan, $rank)
+{
 	$items3_qry = "insert into order_items(order_id,item,name,main,type,persons,spice,tray_lg,tray_md,tray_sm,description,qty,lg_price,md_price,sm_price,ctmprice,total,d_total,pp,list,delivery_time,mr_cal,mr_limit_id,ingredient_id,rice_type,meat_type,is_meat_cal,is_rice_cal,tspan,rank) values($order_id,1,'$fullctm_name',$main,3,$persons,$spice,$tray_lg,$tray_md,$tray_sm,'$comment',$qty,$lg_price,$md_price,$sm_price,$ps_price,$total_price_fullctm,$total_price_fullctm,$fullctm_pp,$fullctm_list,'$delivery_time',$fullctm_mr_cal,$mr_limit_id,$ingredient_id,$rice_type,$meat_type,$is_meat_cal,$is_rice_cal,$tspan,$rank)";
 	q($items3_qry);
- }
+}
 
 
 
@@ -317,58 +426,115 @@ function insert_fullctm_item($order_id,$fullctm_name,$main,$persons,$spice,$tray
 
 
 
-function time_interval(){
+function time_interval()
+{
 	return getbit("select value1 from settings where name like 'refresh_interval' ");
 }
 
-function order_type($tp){	if($tp==1) $tpnm='Package'; else if($tp==2 or $tp==3) $tpnm='Custom'; else $tpnm='Unknown type'; return $tpnm;	}
-function total_rec($tbl){	return getbit("select count(id) from $tbl"); }
-function customer_name($oid){	return getbit("select name from orders where id = $oid"); }
-function food_pkg_price($pkg){	return getbit("select price from food_packages where id=$pkg"); }
-function food_pkg_name($id){	return getbit("select name from food_packages where id = ".$id); }
-function spice($sp){	if($sp==1) return 'V.Mild'; if($sp==2) return 'Mild'; if($sp==3) return 'Spicy'; if($sp==0) return '';	}
-function pkg_nm($id){	return getbit("select name from food_packages where id=$id");	}
-function item_nm($id,$tp=1,$r=NULL){	
-	if($tp==1) $nm=getbit("select name from food_package_items where id=$id");	else 
-	if($tp==2) $nm=getbit("select name from food_custom_items where id=$id"); else
-	if($tp==3) $nm=$r['name'];
-	else $nm = "Unknown type";
+function order_type($tp)
+{
+	if ($tp == 1)
+		$tpnm = 'Package';
+	else if ($tp == 2 or $tp == 3)
+		$tpnm = 'Custom';
+	else
+		$tpnm = 'Unknown type';
+	return $tpnm;
+}
+function total_rec($tbl)
+{
+	return getbit("select count(id) from $tbl");
+}
+function customer_name($oid)
+{
+	return getbit("select name from orders where id = $oid");
+}
+function food_pkg_price($pkg)
+{
+	return getbit("select price from food_packages where id=$pkg");
+}
+function food_pkg_name($id)
+{
+	return getbit("select name from food_packages where id = " . $id);
+}
+function spice($sp)
+{
+	if ($sp == 1)
+		return 'V.Mild';
+	if ($sp == 2)
+		return 'Mild';
+	if ($sp == 3)
+		return 'Spicy';
+	if ($sp == 0)
+		return '';
+}
+function pkg_nm($id)
+{
+	return getbit("select name from food_packages where id=$id");
+}
+function item_nm($id, $tp = 1, $r = NULL)
+{
+	if ($tp == 1)
+		$nm = getbit("select name from food_package_items where id=$id");
+	else
+		if ($tp == 2)
+			$nm = getbit("select name from food_custom_items where id=$id");
+		else
+			if ($tp == 3)
+				$nm = $r['name'];
+			else
+				$nm = "Unknown type";
 	return $nm;
- }
-function pkgitem_nm($id,$tp,$pkg=0,$ctm_nm){	
-	if($tp==1){
-		if($pkg!=0) $id = $pkg;
-		$nm=pkg_nm($id);
-	} 
-	else if($tp==2) $nm=getbit("select name from food_custom_items where id=$id");
-	else if($tp==3) $nm=$ctm_nm;
-	else $nm = "Unknown type";
+}
+function pkgitem_nm($id, $tp, $pkg = 0, $ctm_nm)
+{
+	if ($tp == 1) {
+		if ($pkg != 0)
+			$id = $pkg;
+		$nm = pkg_nm($id);
+	} else if ($tp == 2)
+		$nm = getbit("select name from food_custom_items where id=$id");
+	else if ($tp == 3)
+		$nm = $ctm_nm;
+	else
+		$nm = "Unknown type";
 	return $nm;
- }
-function item_id($nm,$tp){	
-	if($tp==1) $id=getbit("select id from food_package_items where name like '%$nm%' ");	else 
-	if($tp==2) $id=getbit("select id from food_custom_items where name like '%$nm%' ");
-	else $id = "0";
+}
+function item_id($nm, $tp)
+{
+	if ($tp == 1)
+		$id = getbit("select id from food_package_items where name like '%$nm%' ");
+	else
+		if ($tp == 2)
+			$id = getbit("select id from food_custom_items where name like '%$nm%' ");
+		else
+			$id = "0";
 	return $id;
- }
-function food_pkg_cat($pkg){
+}
+function food_pkg_cat($pkg)
+{
 	$cat_ids = ar("select food_cat_id from food_package_cat where food_package_id=$pkg");
 	$cat_ids = implode(',', $cat_ids);
-	if($cat_ids=="")
-	echo "<tr><td colspan='12'><span style='color:red;'>No any item addedd yet</span></td></tr>";
+	if ($cat_ids == "")
+		echo "<tr><td colspan='12'><span style='color:red;'>No any item addedd yet</span></td></tr>";
 	return q("select * from food_cat where id IN($cat_ids)");
- }
-function none_val($cat){	return getbit("select none from food_cat where id={$cat}"); }
-function cat_items_options($cat,$id=""){
+}
+function none_val($cat)
+{
+	return getbit("select none from food_cat where id={$cat}");
+}
+function cat_items_options($cat, $id = "")
+{
 	$rs = q("select id,name,pp,reduce,increase,extra_price,selected,list from food_package_items where food_cat_id = $cat");
-	if($id=="") echo "<option value=''>choose</option>";
-	while($r = mysqli_fetch_array($rs)){
-		$sl = $id==$r['id']? "selected='selected'":"";
-		$pre = ($id=="")? 0: $id;
+	if ($id == "")
+		echo "<option value=''>choose</option>";
+	while ($r = mysqli_fetch_array($rs)) {
+		$sl = $id == $r['id'] ? "selected='selected'" : "";
+		$pre = ($id == "") ? 0 : $id;
 		$catid = $r['id'];
 		$list = $r['list'];
 		$catnm = $r['name'];
-		if(!is_null($r['selected']) and $id=="")
+		if (!is_null($r['selected']) and $id == "")
 			$selected = "selected='selected'";
 		else
 			$selected = $r['selected'];
@@ -380,24 +546,28 @@ function cat_items_options($cat,$id=""){
 		$extra_price = $r['extra_price'];
 		echo "<option value='{$catid}' data-pp='{$pp}' data-list='{$list}' data-reduce='{$reduce}' data-increase='{$increase}' data-extra-price='{$extra_price}' $sl {$selected} >{$catnm}</option>";
 	}
-	$sl = ($id=="0") ? "selected='selected'":"";
+	$sl = ($id == "0") ? "selected='selected'" : "";
 	$nnval = none_val($cat);
 	echo "<option value='0' data-pp='0' data-list='1' data-reduce='{$nnval}' data-increase='0.00' {$sl}>None</option>";
- }
-function bbq_items_list_by_name($dt){
+}
+function bbq_items_list_by_name($dt)
+{
 
 	$qry = "select * from order_items where item != 0 and list=2 and date(delivery_time)='{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
- }
-function bbq_pcs($r){
-	if($r['type']==1) return $r['qty'];
-	if($r['type']==2) 
-		if($r['name']=="Tandoori Chicken Tikka")
-			return $r['qty']*3;
+}
+function bbq_pcs($r)
+{
+	if ($r['type'] == 1)
+		return $r['qty'];
+	if ($r['type'] == 2)
+		if ($r['name'] == "Tandoori Chicken Tikka")
+			return $r['qty'] * 3;
 		else
 			return $r['qty'];
 }
-function salads($val){
+function salads($val)
+{
 	$nm = $val['name'];
 	$it = $val['item'];
 	$list = $val['list'];
@@ -405,23 +575,27 @@ function salads($val){
 
 	$qry = "select sum(md), sum(sm) from (select sum(tray_md) as md,sum(tray_sm) as sm from order_items where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}') as salads";
 	return frow($qry);
- }
+}
 
-function total_raita($dt){
+function total_raita($dt)
+{
 	$t1 = "order_items";
 	$qry = "select sum(qty) from {$t1} where list=3 and item != 0 and date(delivery_time)='{$dt}'";
 	$v = getbit($qry);
-	return is_null($v)? 0 : $v; 
- }
-function pot_items_of_day($list,$dt){
+	return is_null($v) ? 0 : $v;
+}
+function pot_items_of_day($list, $dt)
+{
 	$qry = "select * from order_items where item != 0 and mr_cal is not null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
-	while($r = mysqli_fetch_array($rs)){ 
-		array_push($list, array('name' => $r['name'],'item' => $r['item'],'type' => $r['type'],'pp' => $r['pp'],'list' => $r['list'],'dt' => tday_str($r['delivery_time'])));	}
+	while ($r = mysqli_fetch_array($rs)) {
+		array_push($list, array('name' => $r['name'], 'item' => $r['item'], 'type' => $r['type'], 'pp' => $r['pp'], 'list' => $r['list'], 'dt' => tday_str($r['delivery_time'])));
+	}
 	return $list;
- }
-function pot_item_of_day($val){
+}
+function pot_item_of_day($val)
+{
 	$nm = $val['name'];
 	$it = $val['item'];
 	$type = $val['type'];
@@ -431,114 +605,144 @@ function pot_item_of_day($val){
 	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and DATE(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	// die($qry);
 	return qry_arr($qry);
- }
-function non_mr_items_of_day($list,$dt){
+}
+function non_mr_items_of_day($list, $dt)
+{
 
 	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where item != 0 and mr_cal is null and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
-	while($r = mysqli_fetch_array($rs)){ 
-		array_push($list, array('name' => $r['name'],'item' => $r['item'],'type' => $r['type'],'pp' => $r['pp'],'list' => $r['list'],'dt' => tday_str($r['delivery_time'])));	}
+	while ($r = mysqli_fetch_array($rs)) {
+		array_push($list, array('name' => $r['name'], 'item' => $r['item'], 'type' => $r['type'], 'pp' => $r['pp'], 'list' => $r['list'], 'dt' => tday_str($r['delivery_time'])));
+	}
 	return $list;
- }
-function tday($tm){	return strtotime(date('Y-m-d',strtotime($tm)));	}
-function tday_str($tm){	return date('Y-m-d',strtotime($tm));	}
-function sameday($d1,$d2){	return tday($d1) == tday($d2) ? true: false;	}
-function add_hours_str($tst,$tspan){	return date('Y-m-d H:i:s',strtotime($tst." + {$tspan} hours"));	}
-function add_hours_tm($tst,$tspan){	return strtotime($tst." + {$tspan} hours ");	}
-function tm_range($r){	return strtotime($r['delivery_time']." + ".$r['tspan']." hours ");	}
+}
+function tday($tm)
+{
+	return strtotime(date('Y-m-d', strtotime($tm)));
+}
+function tday_str($tm)
+{
+	return date('Y-m-d', strtotime($tm));
+}
+function sameday($d1, $d2)
+{
+	return tday($d1) == tday($d2) ? true : false;
+}
+function add_hours_str($tst, $tspan)
+{
+	return date('Y-m-d H:i:s', strtotime($tst . " + {$tspan} hours"));
+}
+function add_hours_tm($tst, $tspan)
+{
+	return strtotime($tst . " + {$tspan} hours ");
+}
+function tm_range($r)
+{
+	return strtotime($r['delivery_time'] . " + " . $r['tspan'] . " hours ");
+}
 
-function item_in_day($val){
+function item_in_day($val)
+{
 	$nm = $val['name'];
 	$it = $val['item'];
 	$list = $val['list'];
 	$dt = $val['dt'];
 	$qry = "select * from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where name like '{$nm}' and item != 0 and list={$list} and date(delivery_time) = '{$dt}' order by TIMESTAMP(delivery_time)";
 	return q($qry);
- }
+}
 
-function prefill(&$r,&$potitems,&$pots_list,&$pot,&$pot_num){
+function prefill(&$r, &$potitems, &$pots_list, &$pot, &$pot_num)
+{
 
 	array_push($potitems, $r);
-	fillpot($potitems,$pots_list,$pot,$pot_num);
+	fillpot($potitems, $pots_list, $pot, $pot_num);
 }
-function postfill(&$r,&$potitems,&$pots_list,&$pot,&$pot_num){
+function postfill(&$r, &$potitems, &$pots_list, &$pot, &$pot_num)
+{
 
 	$npot = get_mr($r);
-	sub_pot($pot,$npot);
-	fillpot($potitems,$pots_list,$pot,$pot_num);
+	sub_pot($pot, $npot);
+	fillpot($potitems, $pots_list, $pot, $pot_num);
 	array_push($potitems, $r);
 	$pot = $npot;
 }
-function sub_pot(&$pot,&$npot){
+function sub_pot(&$pot, &$npot)
+{
 	$pot['rice'] -= $npot['rice'];
 	$pot['meat'] -= $npot['meat'];
 }
-function fillpot(&$potitems,&$pots_list,&$pot,&$pot_num){
-	array_push($pots_list, array('potitems' => $potitems, 'pot'=> $pot,'potnum' => $pot_num++));
-	$pot = array('meat'=>0.0,'rice'=>0.0);
+function fillpot(&$potitems, &$pots_list, &$pot, &$pot_num)
+{
+	array_push($pots_list, array('potitems' => $potitems, 'pot' => $pot, 'potnum' => $pot_num++));
+	$pot = array('meat' => 0.0, 'rice' => 0.0);
 	$potitems = array();
 }
-function is_potfull($r,$pot){
-	if($r['is_meat_cal']){
-		return $pot['meat']==$r['meat_limit'] ? true : false;
+function is_potfull($r, $pot)
+{
+	if ($r['is_meat_cal']) {
+		return $pot['meat'] == $r['meat_limit'] ? true : false;
 	}
-	if($r['is_rice_cal']){
-		return $pot['rice']==$r['rice_limit'] ? true : false;
+	if ($r['is_rice_cal']) {
+		return $pot['rice'] == $r['rice_limit'] ? true : false;
 	}
 }
-function fill_within_pot_time(&$r,&$potitems,&$pots_list,&$pot,&$pot_num,$nr){
-	if(is_potfull($r,$pot)){
-		prefill($r,$potitems,$pots_list,$pot,$pot_num);
-	}
-	else{
-		if(is_null($nr)){
-			prefill($r,$potitems,$pots_list,$pot,$pot_num);
-		}else
-		{
-			if(within_pot_time($nr,$r)){
+function fill_within_pot_time(&$r, &$potitems, &$pots_list, &$pot, &$pot_num, $nr)
+{
+	if (is_potfull($r, $pot)) {
+		prefill($r, $potitems, $pots_list, $pot, $pot_num);
+	} else {
+		if (is_null($nr)) {
+			prefill($r, $potitems, $pots_list, $pot, $pot_num);
+		} else {
+			if (within_pot_time($nr, $r)) {
 				array_push($potitems, $r);
-			}else{
-				prefill($r,$potitems,$pots_list,$pot,$pot_num);
+			} else {
+				prefill($r, $potitems, $pots_list, $pot, $pot_num);
 			}
 		}
 	}
 }
-function fill_outof_pot_time(&$r,&$potitems,&$pots_list,&$pot,&$pot_num){
-	postfill($r,$potitems,$pots_list,$pot,$pot_num);
+function fill_outof_pot_time(&$r, &$potitems, &$pots_list, &$pot, &$pot_num)
+{
+	postfill($r, $potitems, $pots_list, $pot, $pot_num);
 }
 
-function fill_in_potitem(&$r,&$potitems,&$pots_list,&$pot,&$pot_num,$nr){
-	if(isset($potitems[0]))
-	{
-		if(within_pot_time($r,$potitems[0]))
-			fill_within_pot_time($r,$potitems,$pots_list,$pot,$pot_num,$nr);
+function fill_in_potitem(&$r, &$potitems, &$pots_list, &$pot, &$pot_num, $nr)
+{
+	if (isset($potitems[0])) {
+		if (within_pot_time($r, $potitems[0]))
+			fill_within_pot_time($r, $potitems, $pots_list, $pot, $pot_num, $nr);
 		else
-			fill_outof_pot_time($r,$potitems,$pots_list,$pot,$pot_num);
-	}else{
-		fill_within_pot_time($r,$potitems,$pots_list,$pot,$pot_num,$nr);
-		
+			fill_outof_pot_time($r, $potitems, $pots_list, $pot, $pot_num);
+	} else {
+		fill_within_pot_time($r, $potitems, $pots_list, $pot, $pot_num, $nr);
+
 	}
 
 }
-function empty_pot_if_outof_pot_time(&$r,&$potitems,&$pots_list,&$pot,&$pot_num){
-	if(isset($potitems[0])) 
-		if(!within_pot_time($r,$potitems[0]))
-			fillpot($potitems,$pots_list,$pot,$pot_num);
+function empty_pot_if_outof_pot_time(&$r, &$potitems, &$pots_list, &$pot, &$pot_num)
+{
+	if (isset($potitems[0]))
+		if (!within_pot_time($r, $potitems[0]))
+			fillpot($potitems, $pots_list, $pot, $pot_num);
 }
-function empty_pot(&$pot){
-		$pot = array('meat'=>0.0,'rice'=>0.0);
+function empty_pot(&$pot)
+{
+	$pot = array('meat' => 0.0, 'rice' => 0.0);
 }
-function get_all_pots($list,$d){
-	$n=1; $inc=0;
+function get_all_pots($list, $d)
+{
+	$n = 1;
+	$inc = 0;
 	$all_items_list = array();
-	$pots  = array();
-	$pot_items_list = pot_items_of_day($list,$d);
-	$pots_list  = array();
+	$pots = array();
+	$pot_items_list = pot_items_of_day($list, $d);
+	$pots_list = array();
 
 	foreach ($pot_items_list as $key => $pot_item) {
-			
-		$pot = array('meat'=>0.0,'rice'=>0.0);
+
+		$pot = array('meat' => 0.0, 'rice' => 0.0);
 		$r2 = array();
 		$nr = array();
 		$potitems = array();
@@ -546,57 +750,51 @@ function get_all_pots($list,$d){
 		$pot_ind = 0;
 		$pot_num = 1;
 
-		foreach($rs as $ind => $r)
-		{
-			$nr = isset($rs[$ind+1])? $rs[$ind+1]: NULL; 
+		foreach ($rs as $ind => $r) {
+			$nr = isset($rs[$ind + 1]) ? $rs[$ind + 1] : NULL;
 			$r['split'] = 0;
 			repeat:
-			empty_pot_if_outof_pot_time($r,$potitems,$pots_list,$pot,$pot_num);
- 			$r = pot_filling($pot,$r2,$r);
+			empty_pot_if_outof_pot_time($r, $potitems, $pots_list, $pot, $pot_num);
+			$r = pot_filling($pot, $r2, $r);
 
-			if($r['split']==1)
-			{			
-				fill_in_potitem($r,$potitems,$pots_list,$pot,$pot_num,$nr);
+			if ($r['split'] == 1) {
+				fill_in_potitem($r, $potitems, $pots_list, $pot, $pot_num, $nr);
 				$r = $r2;
 				$r['split'] = 0;
 				goto repeat;
-			}else{
-				fill_in_potitem($r,$potitems,$pots_list,$pot,$pot_num,$nr);
+			} else {
+				fill_in_potitem($r, $potitems, $pots_list, $pot, $pot_num, $nr);
 			}
 		}
-		if (count($potitems)>0) {
-			array_push($pots_list, array('potitems' => $potitems, 'pot'=> $pot,'potnum' => $pot_num++));
+		if (count($potitems) > 0) {
+			array_push($pots_list, array('potitems' => $potitems, 'pot' => $pot, 'potnum' => $pot_num++));
 		}
 
 	}
 
 
 
-	$day_list = non_mr_items_of_day($list,$d);
-	foreach ($day_list as $key => $val)
-	{
+	$day_list = non_mr_items_of_day($list, $d);
+	foreach ($day_list as $key => $val) {
 		$potitems = array();
 		$rs = item_in_day($val);
 		$pot_ind = 0;
 		$pot_num = 1;
 
-		while($r = mysqli_fetch_assoc($rs))
-		{
-			if(isset($potitems[0]))
-			{
-				if(!within_pot_time($r,$potitems[0])){
-					array_push($pots_list, array('potitems' => $potitems,'potnum' => $pot_num++));
+		while ($r = mysqli_fetch_assoc($rs)) {
+			if (isset($potitems[0])) {
+				if (!within_pot_time($r, $potitems[0])) {
+					array_push($pots_list, array('potitems' => $potitems, 'potnum' => $pot_num++));
 					$potitems = array();
 				}
 			}
 			array_push($potitems, $r);
 		}
-		if (count($potitems)>0)
-		{
-			array_push($pots_list, array('potitems' => $potitems,'potnum' => $pot_num++));
+		if (count($potitems) > 0) {
+			array_push($pots_list, array('potitems' => $potitems, 'potnum' => $pot_num++));
 		}
 	}
-	if(count($pots_list)>0){
+	if (count($pots_list) > 0) {
 		$elements = array();
 
 		foreach ($pots_list as $key => $value) {
@@ -604,63 +802,70 @@ function get_all_pots($list,$d){
 			$pots_list[$key]['potname'] = $value['potitems'][0]['name'];
 			$pots_list[$key]['rank'] = $value['potitems'][0]['rank'];
 			// get pots name elements
-			if(isset($elements[$value['potitems'][0]['name']])){
+			if (isset($elements[$value['potitems'][0]['name']])) {
 				$elements[$value['potitems'][0]['name']] += 1;
-			}else{
+			} else {
 				$elements[$value['potitems'][0]['name']] = 1;
 			}
 		}
 		foreach ($pots_list as $key => $value) {
 			$pots_list[$key]['totalpots'] = $elements[$value['potname']];
 		}
-		foreach ($pots_list as $key => $val){
+		foreach ($pots_list as $key => $val) {
 			$sort_dt[$key] = strtotime($val['delivery_time']);
 			$sort_rank[$key] = $val['rank'];
 			$sort_num[$key] = $val['potnum'];
 		}
 
-		array_multisort($sort_dt, SORT_ASC,$sort_rank, SORT_ASC, $sort_num, SORT_ASC, $pots_list);
-		
+		array_multisort($sort_dt, SORT_ASC, $sort_rank, SORT_ASC, $sort_num, SORT_ASC, $pots_list);
+
 		return $pots_list;
 	}
 	return array();
 }
 
-function misc_items_of_day($list,$dt){
+function misc_items_of_day($list, $dt)
+{
 	$qry = "select * from order_items where item !=0 and list={$list} and date(delivery_time)='{$dt}' group by name order by TIMESTAMP(delivery_time)";
 	$rs = q($qry);
 	$list = array();
-	while($r = mysqli_fetch_array($rs)){ 
-		array_push($list, array('name' => $r['name'],'item' => $r['item'],'type' => $r['type'],'pp' => $r['pp'],'list' => $r['list'],'dt' => tday_str($r['delivery_time'])));	}
+	while ($r = mysqli_fetch_array($rs)) {
+		array_push($list, array('name' => $r['name'], 'item' => $r['item'], 'type' => $r['type'], 'pp' => $r['pp'], 'list' => $r['list'], 'dt' => tday_str($r['delivery_time'])));
+	}
 	return $list;
 }
-function get_naan_pots($list,$d){
-	$n=1; $inc=0;
-	$pots_list  = array();
+function get_naan_pots($list, $d)
+{
+	$n = 1;
+	$inc = 0;
+	$pots_list = array();
 
-	$day_list = misc_items_of_day($list,$d);
+	$day_list = misc_items_of_day($list, $d);
 	// die(print_r($day_list));
-	foreach ($day_list as $key => $val)
-	{
+	foreach ($day_list as $key => $val) {
 		$potitems = array();
 		$rs = item_in_day($val);
 		// die(print_r($rs));
 
-		while($r = mysqli_fetch_assoc($rs)){	array_push($potitems, $r);	}
-		if (count($potitems)>0){ array_push($pots_list, array('potitems' => $potitems));	}
+		while ($r = mysqli_fetch_assoc($rs)) {
+			array_push($potitems, $r);
+		}
+		if (count($potitems) > 0) {
+			array_push($pots_list, array('potitems' => $potitems));
+		}
 	}
 	// die(print_r($pots_list));
-	if(count($pots_list)>0){
+	if (count($pots_list) > 0) {
 
 		foreach ($pots_list as $key => $value) {
 			$pots_list[$key]['delivery_time'] = $value['potitems'][0]['delivery_time'];
 			$pots_list[$key]['potname'] = $value['potitems'][0]['name'];
 		}
-		foreach ($pots_list as $key => $val){
+		foreach ($pots_list as $key => $val) {
 			$sort_dt[$key] = strtotime($val['delivery_time']);
 		}
 		array_multisort($sort_dt, SORT_ASC, $pots_list);
-		
+
 		// die(print_r($pots_list));
 		return $pots_list;
 	}
@@ -669,151 +874,159 @@ function get_naan_pots($list,$d){
 
 
 
-function within_pot_time($r,$rt){
-	if(strtotime($r['delivery_time']) <= tm_range($rt))
+function within_pot_time($r, $rt)
+{
+	if (strtotime($r['delivery_time']) <= tm_range($rt))
 		return true;
 	else
 		return false;
 }
-function outof_pot_time($r,$tm){
-	if(strtotime($r['delivery_time']) > strtotime($tm." + ".$r['tspan']." hours "))
+function outof_pot_time($r, $tm)
+{
+	if (strtotime($r['delivery_time']) > strtotime($tm . " + " . $r['tspan'] . " hours "))
 		return true;
 	else
 		return false;
 }
-function pot_filling(&$pot,&$r2,$r){
+function pot_filling(&$pot, &$r2, $r)
+{
 
 	$mr = get_mr($r);
-	if($r['is_rice_cal']==1){
-		if(($pot['rice']+$mr['rice']) <= $r['rice_limit']){
+	if ($r['is_rice_cal'] == 1) {
+		if (($pot['rice'] + $mr['rice']) <= $r['rice_limit']) {
 
 			$pot['rice'] += $mr['rice'];
 			$pot['meat'] += $mr['meat'];
 
-		}else{
+		} else {
 
 			$r2 = $r;
 			$r['split'] = 1;
-			$r = fit_tray_with_rice($pot,$r2,$r);
+			$r = fit_tray_with_rice($pot, $r2, $r);
 
 		}
 	}
 
-	if($r['is_meat_cal']==1){
-		if(($pot['meat']+$mr['meat']) <= $r['meat_limit']){
+	if ($r['is_meat_cal'] == 1) {
+		if (($pot['meat'] + $mr['meat']) <= $r['meat_limit']) {
 
 			$pot['meat'] += $mr['meat'];
 			$pot['rice'] += $mr['rice'];
-		}else{
+		} else {
 
 			$r2 = $r;
 			$r['split'] = 1;
-			$r = fit_tray_with_meat($pot,$r2,$r);
+			$r = fit_tray_with_meat($pot, $r2, $r);
 		}
 	}
 
 	return $r;
- }
+}
 
-function fit_tray_with_rice(&$pot,&$r2,$r){
+function fit_tray_with_rice(&$pot, &$r2, $r)
+{
 
 	$space_rice = $r['rice_limit'] - $pot['rice'];
 	$pot['rice'] += $space_rice;
-	$lg_rice = tray_to_rice($r,'lg');
-	if($space_rice-$lg_rice>0){
+	$lg_rice = tray_to_rice($r, 'lg');
+	if ($space_rice - $lg_rice > 0) {
 
 		$r2['tray_lg'] -= $r['tray_lg'];
 		$space_rice -= $lg_rice;
 
-		$md_rice = tray_to_rice($r,'md');
-		if($space_rice-$md_rice>0){
+		$md_rice = tray_to_rice($r, 'md');
+		if ($space_rice - $md_rice > 0) {
 
 			$r2['tray_md'] -= $r['tray_md'];
 			$space_rice -= $md_rice;
 
 
-			$space_sm_tray = rice_to_tray($r,$space_rice,'sm');
+			$space_sm_tray = rice_to_tray($r, $space_rice, 'sm');
 			$r['tray_sm'] = $space_sm_tray;
 			$r2['tray_sm'] -= $space_sm_tray;
 
-		}else{
+		} else {
 
-			$space_md_tray = rice_to_tray($r,$space_rice,'md');
+			$space_md_tray = rice_to_tray($r, $space_rice, 'md');
 			$r['tray_md'] = $space_md_tray;
 			$r2['tray_md'] -= $space_md_tray;
 
 			$r['tray_sm'] = 0;
 		}
-	}else{
+	} else {
 
-		$space_lg_tray = rice_to_tray($r,$space_rice,'lg');
+		$space_lg_tray = rice_to_tray($r, $space_rice, 'lg');
 		$r['tray_lg'] = $space_lg_tray;
 		$r2['tray_lg'] -= $space_lg_tray;
 
 		$r['tray_md'] = 0;
 		$r['tray_sm'] = 0;
 	}
-	if($r['type']==1) $r = fit_per($pot,$r2,$r);
-	$pot['meat']  += get_mr($r)['meat'];
-	
+	if ($r['type'] == 1)
+		$r = fit_per($pot, $r2, $r);
+	$pot['meat'] += get_mr($r)['meat'];
+
 	return $r;
 
- }
-function fit_tray_with_meat(&$pot,&$r2,$r){
+}
+function fit_tray_with_meat(&$pot, &$r2, $r)
+{
 
 	$space_meat = $r['meat_limit'] - $pot['meat'];
 	$old_meat = $pot['meat'];
 	$pot['meat'] += $space_meat;
-	$lg_meat = tray_to_meat($r,'lg');
-	if($space_meat-$lg_meat>0){
+	$lg_meat = tray_to_meat($r, 'lg');
+	if ($space_meat - $lg_meat > 0) {
 		$r2['tray_lg'] -= $r['tray_lg'];
 		$space_meat -= $lg_meat;
 
-		$md_meat = tray_to_meat($r,'md');
-		if($space_meat-$md_meat>0){
+		$md_meat = tray_to_meat($r, 'md');
+		if ($space_meat - $md_meat > 0) {
 			$r2['tray_md'] -= $r['tray_md'];
 			$space_meat -= $md_meat;
 
-			$space_sm_tray = meat_to_tray($r,$space_meat,'sm');
+			$space_sm_tray = meat_to_tray($r, $space_meat, 'sm');
 			$r['tray_sm'] = $space_sm_tray;
 			$r2['tray_sm'] -= $space_sm_tray;
 
-		}else{
+		} else {
 
-			$space_md_tray = meat_to_tray($r,$space_meat,'md');
+			$space_md_tray = meat_to_tray($r, $space_meat, 'md');
 			$r['tray_md'] = $space_md_tray;
 			$r2['tray_md'] -= $space_md_tray;
 
 			$r['tray_lg'] = 0;
 		}
-		
-	}else{
 
-		$space_lg_tray = meat_to_tray($r,$space_meat,'lg');
+	} else {
+
+		$space_lg_tray = meat_to_tray($r, $space_meat, 'lg');
 		$r['tray_lg'] = $space_lg_tray;
 		$r2['tray_lg'] -= $space_lg_tray;
 
 		$r['tray_md'] = 0;
 		$r['tray_sm'] = 0;
 	}
-	if($r['type']==1) $r = fit_per($pot,$r2,$r,$old_meat);
+	if ($r['type'] == 1)
+		$r = fit_per($pot, $r2, $r, $old_meat);
 
 	return $r;
 
- }
+}
 
-function fit_per(&$pot,&$r2,$r,$old_meat=0){
+function fit_per(&$pot, &$r2, $r, $old_meat = 0)
+{
 
-	if($pot['meat']>0)
-		$space_meat = $pot['meat']-$old_meat;
+	if ($pot['meat'] > 0)
+		$space_meat = $pot['meat'] - $old_meat;
 	else
 		$space_meat = $r['meat_limit'];
 
-	if($r['is_meat_cal']){
+	if ($r['is_meat_cal']) {
 
-		$overflow_per = intval(meat_to_per($r,$space_meat));
+		$overflow_per = intval(meat_to_per($r, $space_meat));
 	}
-	if($r['is_rice_cal']){
+	if ($r['is_rice_cal']) {
 
 		$overflow_per = intval(tray_to_per($r));
 	}
@@ -822,642 +1035,925 @@ function fit_per(&$pot,&$r2,$r,$old_meat=0){
 
 	return $r;
 
- }
+}
 
-function get_mr($r){
+function get_mr($r)
+{
 	$mr_funs = array(
-		1 => function($r){ //Chicken Biryani
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
-			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
-			return array('rice' => $rice,'meat' => $meat);
-		},2 => function($r){ //Veal Biryani
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
-			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
-			return array('rice' => $rice,'meat' => $meat);
-		},3 => function($r){ //Chicken Pulao
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
-			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
-			return array('rice' => $rice,'meat' => $meat);
-		},4 => function($r){ //Veal Pulao
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1)){	$meat = $r['persons']/10;	}
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2)){	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);	}
-			$rice = (($r['tray_lg']*$r['rice_lg']) + ($r['tray_md']*$r['rice_md']) + ($r['tray_sm']*$r['rice_sm']));
-			return array('rice' => $rice,'meat' => $meat);
-		},5 => function($r){ //Chicken Korma
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
-			return array('rice' => 0.0,'meat' => $meat);
-		},6 => function($r){ //Veal Korma
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
-			return array('rice' => 0.0,'meat' => $meat);
-		},7 => function($r){ //Chicken Karahi
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
-			return array('rice' => 0.0,'meat' => $meat);
-		},8 => function($r){ //Veal Karahi
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
-			return array('rice' => 0.0,'meat' => $meat);
-		},9 => function($r){ //Zarda
-			$rice = ($r['tray_lg']*$r['rice_lg'])+($r['tray_md']*$r['rice_md'])+($r['tray_sm']*$r['rice_sm']);
-			return array('rice' => $rice,'meat' => 0.0);
-		},10 => function($r){ //Butter Chicken
-			if($r['type']==1||($r['type']==3&&$r['meat_type']==1))	$meat = $r['persons']/8;
-			if($r['type']==2||($r['type']==3&&$r['meat_type']==2))	$meat = ($r['tray_lg']*$r['meat_lg'])+($r['tray_md']*$r['meat_md'])+($r['tray_sm']*$r['meat_sm']);
-			return array('rice' => 0.0,'meat' => $meat);
+		1 => function ($r) { //Chicken Biryani
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1)) {
+				$meat = $r['persons'] / 10;
+			}
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2)) {
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			}
+			$rice = (($r['tray_lg'] * $r['rice_lg']) + ($r['tray_md'] * $r['rice_md']) + ($r['tray_sm'] * $r['rice_sm']));
+			return array('rice' => $rice, 'meat' => $meat);
+		},
+		2 => function ($r) { //Veal Biryani
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1)) {
+				$meat = $r['persons'] / 10;
+			}
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2)) {
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			}
+			$rice = (($r['tray_lg'] * $r['rice_lg']) + ($r['tray_md'] * $r['rice_md']) + ($r['tray_sm'] * $r['rice_sm']));
+			return array('rice' => $rice, 'meat' => $meat);
+		},
+		3 => function ($r) { //Chicken Pulao
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1)) {
+				$meat = $r['persons'] / 10;
+			}
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2)) {
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			}
+			$rice = (($r['tray_lg'] * $r['rice_lg']) + ($r['tray_md'] * $r['rice_md']) + ($r['tray_sm'] * $r['rice_sm']));
+			return array('rice' => $rice, 'meat' => $meat);
+		},
+		4 => function ($r) { //Veal Pulao
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1)) {
+				$meat = $r['persons'] / 10;
+			}
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2)) {
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			}
+			$rice = (($r['tray_lg'] * $r['rice_lg']) + ($r['tray_md'] * $r['rice_md']) + ($r['tray_sm'] * $r['rice_sm']));
+			return array('rice' => $rice, 'meat' => $meat);
+		},
+		5 => function ($r) { //Chicken Korma
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1))
+				$meat = $r['persons'] / 8;
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2))
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			return array('rice' => 0.0, 'meat' => $meat);
+		},
+		6 => function ($r) { //Veal Korma
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1))
+				$meat = $r['persons'] / 8;
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2))
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			return array('rice' => 0.0, 'meat' => $meat);
+		},
+		7 => function ($r) { //Chicken Karahi
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1))
+				$meat = $r['persons'] / 8;
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2))
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			return array('rice' => 0.0, 'meat' => $meat);
+		},
+		8 => function ($r) { //Veal Karahi
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1))
+				$meat = $r['persons'] / 8;
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2))
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			return array('rice' => 0.0, 'meat' => $meat);
+		},
+		9 => function ($r) { //Zarda
+			$rice = ($r['tray_lg'] * $r['rice_lg']) + ($r['tray_md'] * $r['rice_md']) + ($r['tray_sm'] * $r['rice_sm']);
+			return array('rice' => $rice, 'meat' => 0.0);
+		},
+		10 => function ($r) { //Butter Chicken
+			if ($r['type'] == 1 || ($r['type'] == 3 && $r['meat_type'] == 1))
+				$meat = $r['persons'] / 8;
+			if ($r['type'] == 2 || ($r['type'] == 3 && $r['meat_type'] == 2))
+				$meat = ($r['tray_lg'] * $r['meat_lg']) + ($r['tray_md'] * $r['meat_md']) + ($r['tray_sm'] * $r['meat_sm']);
+			return array('rice' => 0.0, 'meat' => $meat);
 		}
 	);
 	return $mr_funs[$r['mr_cal']]($r);
- }
-function tray_to_meat($r,$tray){
+}
+function tray_to_meat($r, $tray)
+{
 	$meat_funs = array(
-		1 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},2 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},3 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},4 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},5 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},6 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},7 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},8 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
-		},9 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['rice_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['rice_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['rice_sm'];
-		},10 => function($r,$tray){
-			if($tray=="lg") return $r['tray_lg']*$r['meat_lg']; else 
-			if($tray=="md") return $r['tray_md']*$r['meat_md']; else
-			if($tray=="sm") return $r['tray_sm']*$r['meat_sm'];
+		1 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		2 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		3 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		4 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		5 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		6 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		7 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		8 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
+		},
+		9 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['rice_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['rice_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['rice_sm'];
+		},
+		10 => function ($r, $tray) {
+			if ($tray == "lg")
+				return $r['tray_lg'] * $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $r['tray_md'] * $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $r['tray_sm'] * $r['meat_sm'];
 		}
 	);
-	return $meat_funs[$r['mr_cal']]($r,$tray);
- }
-function meat_to_tray($r,$meat,$tray){
+	return $meat_funs[$r['mr_cal']]($r, $tray);
+}
+function meat_to_tray($r, $meat, $tray)
+{
 	$tray_funs = array(
-		1 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},2 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},3 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},4 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},5 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},6 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},7 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},8 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
-		},10 => function($r,$meat,$tray){
-			if($tray=="lg") return $meat/$r['meat_lg']; else 
-			if($tray=="md") return $meat/$r['meat_md']; else
-			if($tray=="sm") return $meat/$r['meat_sm'];
+		1 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		2 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		3 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		4 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		5 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		6 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		7 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		8 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
+		},
+		10 => function ($r, $meat, $tray) {
+			if ($tray == "lg")
+				return $meat / $r['meat_lg'];
+			else
+				if ($tray == "md")
+					return $meat / $r['meat_md'];
+				else
+					if ($tray == "sm")
+						return $meat / $r['meat_sm'];
 		}
 	);
-	return $tray_funs[$r['mr_cal']]($r,$meat,$tray);
- }
-function rice_to_tray($r,$rice,$tray){
+	return $tray_funs[$r['mr_cal']]($r, $meat, $tray);
+}
+function rice_to_tray($r, $rice, $tray)
+{
 	$tray_funs = array(
-		1 => function($r,$rice,$tray){
-			if($tray=="lg") return ($rice/$r['rice_lg']); else
-			if($tray=="md") return ($rice/$r['rice_md']); else
-			if($tray=="sm") return ($rice/$r['rice_sm']);
-		},2 => function($r,$rice,$tray){
-			if($tray=="lg") return ($rice/$r['rice_lg']); else
-			if($tray=="md") return ($rice/$r['rice_md']); else
-			if($tray=="sm") return ($rice/$r['rice_sm']);
-		},3 => function($r,$rice,$tray){
-			if($tray=="lg") return ($rice/$r['rice_lg']); else
-			if($tray=="md") return ($rice/$r['rice_md']); else
-			if($tray=="sm") return ($rice/$r['rice_sm']);
-		},4 => function($r,$rice,$tray){
-			if($tray=="lg") return ($rice/$r['rice_lg']); else
-			if($tray=="md") return ($rice/$r['rice_md']); else
-			if($tray=="sm") return ($rice/$r['rice_sm']);
-		},9 => function($r,$rice,$tray){
-			if($tray=="lg") return ($rice/$r['rice_lg']); else
-			if($tray=="md") return ($rice/$r['rice_md']); else
-			if($tray=="sm") return ($rice/$r['rice_sm']);
+		1 => function ($r, $rice, $tray) {
+			if ($tray == "lg")
+				return ($rice / $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($rice / $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($rice / $r['rice_sm']);
+		},
+		2 => function ($r, $rice, $tray) {
+			if ($tray == "lg")
+				return ($rice / $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($rice / $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($rice / $r['rice_sm']);
+		},
+		3 => function ($r, $rice, $tray) {
+			if ($tray == "lg")
+				return ($rice / $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($rice / $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($rice / $r['rice_sm']);
+		},
+		4 => function ($r, $rice, $tray) {
+			if ($tray == "lg")
+				return ($rice / $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($rice / $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($rice / $r['rice_sm']);
+		},
+		9 => function ($r, $rice, $tray) {
+			if ($tray == "lg")
+				return ($rice / $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($rice / $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($rice / $r['rice_sm']);
 		}
 	);
-	return $tray_funs[$r['mr_cal']]($r,$rice,$tray);
- }
-function tray_to_rice($r,$tray){
+	return $tray_funs[$r['mr_cal']]($r, $rice, $tray);
+}
+function tray_to_rice($r, $tray)
+{
 	$rice_funs = array(
-		1 => function($r,$tray){
-			if($tray=="lg") return ($r['tray_lg']*$r['rice_lg']); else 
-			if($tray=="md") return ($r['tray_md']*$r['rice_md']); else
-			if($tray=="sm") return ($r['tray_sm']*$r['rice_sm']);
-		},2 => function($r,$tray){
-			if($tray=="lg") return ($r['tray_lg']*$r['rice_lg']); else 
-			if($tray=="md") return ($r['tray_md']*$r['rice_md']); else
-			if($tray=="sm") return ($r['tray_sm']*$r['rice_sm']);
-		},3 => function($r,$tray){
-			if($tray=="lg") return ($r['tray_lg']*$r['rice_lg']); else 
-			if($tray=="md") return ($r['tray_md']*$r['rice_md']); else
-			if($tray=="sm") return ($r['tray_sm']*$r['rice_sm']);
-		},4 => function($r,$tray){
-			if($tray=="lg") return ($r['tray_lg']*$r['rice_lg']); else 
-			if($tray=="md") return ($r['tray_md']*$r['rice_md']); else
-			if($tray=="sm") return ($r['tray_sm']*$r['rice_sm']);
-		},9 => function($r,$tray){
-			if($tray=="lg") return ($r['tray_lg']*$r['rice_lg']); else 
-			if($tray=="md") return ($r['tray_md']*$r['rice_md']); else
-			if($tray=="sm") return ($r['tray_sm']*$r['rice_sm']);
+		1 => function ($r, $tray) {
+			if ($tray == "lg")
+				return ($r['tray_lg'] * $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($r['tray_md'] * $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($r['tray_sm'] * $r['rice_sm']);
+		},
+		2 => function ($r, $tray) {
+			if ($tray == "lg")
+				return ($r['tray_lg'] * $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($r['tray_md'] * $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($r['tray_sm'] * $r['rice_sm']);
+		},
+		3 => function ($r, $tray) {
+			if ($tray == "lg")
+				return ($r['tray_lg'] * $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($r['tray_md'] * $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($r['tray_sm'] * $r['rice_sm']);
+		},
+		4 => function ($r, $tray) {
+			if ($tray == "lg")
+				return ($r['tray_lg'] * $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($r['tray_md'] * $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($r['tray_sm'] * $r['rice_sm']);
+		},
+		9 => function ($r, $tray) {
+			if ($tray == "lg")
+				return ($r['tray_lg'] * $r['rice_lg']);
+			else
+				if ($tray == "md")
+					return ($r['tray_md'] * $r['rice_md']);
+				else
+					if ($tray == "sm")
+						return ($r['tray_sm'] * $r['rice_sm']);
 		}
 	);
-	return $rice_funs[$r['mr_cal']]($r,$tray);
- }
-function meat_to_per($r,$meat){
+	return $rice_funs[$r['mr_cal']]($r, $tray);
+}
+function meat_to_per($r, $meat)
+{
 	$per_funs = array(
-		1 => function($meat){
-			return $meat*10;
-		},2 => function($meat){
-			return $meat*10;
-		},3 => function($meat){
-			return $meat*10;
-		},4 => function($meat){
-			return $meat*10;
-		},5 => function($meat){
-			return $meat*8;
-		},6 => function($meat){
-			return $meat*8;
-		},7 => function($meat){
-			return $meat*8;
-		},8 => function($meat){
-			return $meat*8;
+		1 => function ($meat) {
+			return $meat * 10;
+		},
+		2 => function ($meat) {
+			return $meat * 10;
+		},
+		3 => function ($meat) {
+			return $meat * 10;
+		},
+		4 => function ($meat) {
+			return $meat * 10;
+		},
+		5 => function ($meat) {
+			return $meat * 8;
+		},
+		6 => function ($meat) {
+			return $meat * 8;
+		},
+		7 => function ($meat) {
+			return $meat * 8;
+		},
+		8 => function ($meat) {
+			return $meat * 8;
 		}
 	);
 	return $per_funs[$r['mr_cal']]($meat);
- }
-function tray_to_per($r){
+}
+function tray_to_per($r)
+{
 	$food_cat = $r['category'];
 	$persons = frow("select lg_max,md_max,sm_max from food_cat where id = {$food_cat}");
-	return $persons['lg_max']*$r['tray_lg']+$persons['md_max']*$r['tray_md']+$persons['sm_max']*$r['tray_sm'];
+	return $persons['lg_max'] * $r['tray_lg'] + $persons['md_max'] * $r['tray_md'] + $persons['sm_max'] * $r['tray_sm'];
 }
 
 
-function pkg_meat(&$r,$dt,$div){
+function pkg_meat(&$r, $dt, $div)
+{
 	$qry = "select sum(persons) from order_items where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}' ";
-	return round(getbit($qry)/$div,2);
- }
-function ctm_meat(&$r,$dt){
+	return round(getbit($qry) / $div, 2);
+}
+function ctm_meat(&$r, $dt)
+{
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
 	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2);
- }
-function fullctm_meat(&$r,$dt,$div=1){
+	return round($row[0] + $row[1] + $row[2], 2);
+}
+function fullctm_meat(&$r, $dt, $div = 1)
+{
 	$qry = "select sum(persons) from order_items where meat_type=1 and ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}' ";
-	$meat_pkg = round(getbit($qry)/$div,2);
+	$meat_pkg = round(getbit($qry) / $div, 2);
 
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm),sum(qty)";
 	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where meat_type!=1 and ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2) + $meat_pkg;
- }
-function pkg_rice(&$r,$dt){
+	return round($row[0] + $row[1] + $row[2], 2) + $meat_pkg;
+}
+function pkg_rice(&$r, $dt)
+{
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
 	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2);
- }
-function ctm_rice(&$r,$dt){
+	return round($row[0] + $row[1] + $row[2], 2);
+}
+function ctm_rice(&$r, $dt)
+{
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
 	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2);
- }
-function fullctm_rice(&$r,$dt){
+	return round($row[0] + $row[1] + $row[2], 2);
+}
+function fullctm_rice(&$r, $dt)
+{
 	$clms = "sum(tray_lg*rice_lg),sum(tray_md*rice_md),sum(tray_sm*rice_sm),sum(qty)";
 	$qry = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}'";
 	$row = frow($qry);
-	return round($row[0]+$row[1]+$row[2],2);
- }
-function ctm_meat_for_all(&$r,$dt){
+	return round($row[0] + $row[1] + $row[2], 2);
+}
+function ctm_meat_for_all(&$r, $dt)
+{
 	$clms = "sum(tray_lg*meat_lg),sum(tray_md*meat_md),sum(tray_sm*meat_sm)";
 	$qry1 = "select {$clms} from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
 	$row1 = frow($qry1);
-	return round($row1[0]+$row1[1]+$row1[2],2);
- }
-function all_qty(&$r,$dt){
+	return round($row1[0] + $row1[1] + $row1[2], 2);
+}
+function all_qty(&$r, $dt)
+{
 	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
- function qty_pkg(&$r,$dt){
+	return is_null($qty) ? 0 : $qty;
+}
+function qty_pkg(&$r, $dt)
+{
 	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items LEFT JOIN mr_limits on mr_limit_id=mr_limits.id where ingredient_id = {$r['id']} and type=1 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
-  function qty_ctm(&$r,$dt){
+	return is_null($qty) ? 0 : $qty;
+}
+function qty_ctm(&$r, $dt)
+{
 	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where ingredient_id = {$r['id']} and type=2 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
-  function qty_fullctm(&$r,$dt){
+	return is_null($qty) ? 0 : $qty;
+}
+function qty_fullctm(&$r, $dt)
+{
 	$qry = "select sum(qtysum) from (select sum(qty) as qtysum from order_items where ingredient_id = {$r['id']} and type=3 and date(delivery_time)='{$dt}') as allqty";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
- function vegi_pasta_trays(&$r,$dt){
+	return is_null($qty) ? 0 : $qty;
+}
+function vegi_pasta_trays(&$r, $dt)
+{
 	$qry = "select sum((tray_lg*1)+(tray_md*0.75)+(tray_sm*0.5)) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
 	$trays = getbit($qry);
-	return is_null($trays)? 0:$trays;
- }
- function samosa_count(&$r,$dt){
+	return is_null($trays) ? 0 : $trays;
+}
+function samosa_count(&$r, $dt)
+{
 	$qry = "select sum(qty) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
- function spring_roll_count(&$r,$dt){
+	return is_null($qty) ? 0 : $qty;
+}
+function spring_roll_count(&$r, $dt)
+{
 	$qry = "select sum(qty) as total from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
 	$qty = getbit($qry);
-	return is_null($qty)? 0:$qty;
- }
-	
+	return is_null($qty) ? 0 : $qty;
+}
 
 
- // Get values
-function getIngVal(&$r,$dt){
-	$wt = array('kg' => 0.0,'lb' => 0.0,'per' => 0, 'qty' => NULL);
+
+// Get values
+function getIngVal(&$r, $dt)
+{
+	$wt = array('kg' => 0.0, 'lb' => 0.0, 'per' => 0, 'qty' => NULL);
 	// Table = food_ingredients
 	$meat_funs = array(
-		1 => function(&$r,$dt){	// Chicken+Rice => Aleas => 4 Pieces
-			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
-			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},2 => function(&$r,$dt){	// Chicken+Curry => Aleas => 4 Pieces
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
-			return array('val1' => $kg,'val2' => round($kg*3,2));
-		},3 => function(&$r,$dt){	// BBQ+Chicken
-			$pcs =  (qty_ctm($r,$dt) * 3) + (qty_fullctm($r,$dt) * 3) + qty_pkg($r,$dt);
+		1 => function (&$r, $dt) {	// Chicken+Rice => Aleas => 4 Pieces
+			$kg = pkg_meat($r, $dt, 10) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 10);
+			return array('val1' => $kg, 'val2' => round($kg * 3, 2));
+		},
+		2 => function (&$r, $dt) {	// Chicken+Curry => Aleas => 4 Pieces
+			$kg = pkg_meat($r, $dt, 8) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 8);
+			return array('val1' => $kg, 'val2' => round($kg * 3, 2));
+		},
+		3 => function (&$r, $dt) {	// BBQ+Chicken
+			$pcs = (qty_ctm($r, $dt) * 3) + (qty_fullctm($r, $dt) * 3) + qty_pkg($r, $dt);
 			$legs = round($pcs / 3, 2);
-			return array('val1' => $pcs,'val2' => $legs);
-		},4 => function(&$r,$dt){	// Veal+Rice  => Aleas => Veal
-			$kg = pkg_meat($r,$dt,10)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,10);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},5 => function(&$r,$dt){	// Veal+Curry => Aleas => Veal
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},6 => function(&$r,$dt){	// Reshmi Kabab
-			$kg = round(all_qty($r,$dt)*0.08,2);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},7 => function(&$r,$dt){	// Chicken Pasta
-			$kg = ctm_meat($r,$dt)+fullctm_meat($r,$dt);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},8 => function(&$r,$dt){	// Beef Keema
-			$kg = round(all_qty($r,$dt)*0.08,2);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},9 => function(&$r,$dt){	// Butter Chicken
-			$kg = pkg_meat($r,$dt,8)+ctm_meat($r,$dt)+fullctm_meat($r,$dt,8);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},10 => function(&$r,$dt){	// Malai Boti
-			$lb = round(all_qty($r,$dt)*0.70,2);
+			return array('val1' => $pcs, 'val2' => $legs);
+		},
+		4 => function (&$r, $dt) {	// Veal+Rice  => Aleas => Veal
+			$kg = pkg_meat($r, $dt, 10) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 10);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		5 => function (&$r, $dt) {	// Veal+Curry => Aleas => Veal
+			$kg = pkg_meat($r, $dt, 8) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 8);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		6 => function (&$r, $dt) {	// Reshmi Kabab
+			$kg = round(all_qty($r, $dt) * 0.08, 2);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		7 => function (&$r, $dt) {	// Chicken Pasta
+			$kg = ctm_meat($r, $dt) + fullctm_meat($r, $dt);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		8 => function (&$r, $dt) {	// Beef Keema
+			$kg = round(all_qty($r, $dt) * 0.08, 2);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		9 => function (&$r, $dt) {	// Butter Chicken
+			$kg = pkg_meat($r, $dt, 8) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 8);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		10 => function (&$r, $dt) {	// Malai Boti
+			$lb = round(all_qty($r, $dt) * 0.70, 2);
 			return array('val1' => 0, 'val2' => $lb);
-		},11 => function(&$r,$dt){	// Boneless Tikka Masala and Boneless Chicken Karahi
-			$kg = round((pkg_meat($r,$dt,8) + ctm_meat($r,$dt) + fullctm_meat($r,$dt,8)),2);
-			return array('val1' => $kg,'val2' => round($kg*2.2,2));
-		},12 => function(&$r,$dt){	// Boneless Tikka
-			$lb = round(all_qty($r,$dt)*0.70,2);
-			return array('val1' => 0,'val2' => $lb);
-		},13 => function(&$r,$dt){	// Bihari Kabab
-			$lb = round(all_qty($r,$dt)*0.50,2);
-			return array('val1' => 0,'val2' => $lb);
-		},14 => function(&$r,$dt){	// Fish
-			$pcs = all_qty($r,$dt);
-			return array('val1' => $pcs,'val2' => $pcs);
-		},15 => function(&$r,$dt){	// Zarda Rice
-			$total_qty = pkg_rice($r,$dt)+ctm_rice($r,$dt) + fullctm_rice($r,$dt);
-			$kg = $total_qty/2;
-			return array('val1' => round($kg,2),'val2' => round($kg*2.2,2));
-		},16 => function(&$r,$dt){	// free index
-			return array('val1' => 0,'val2' => 0);
-		},17 => function(&$r,$dt){	// Vegi Pasta
-			$total_qty = vegi_pasta_trays($r,$dt);
-			return array('val1' => $total_qty,'val2' => $total_qty);
-		},18 => function(&$r,$dt){	// Samosa
-			$total_qty = samosa_count($r,$dt);
-			return array('val1' => $total_qty,'val2' => $total_qty);
-		},19 => function(&$r,$dt){	// Spring Rolls
-			$total_qty = spring_roll_count($r,$dt);
-			$kg = $total_qty/2;
-			return array('val1' => $total_qty,'val2' => $total_qty);
+		},
+		11 => function (&$r, $dt) {	// Boneless Tikka Masala and Boneless Chicken Karahi
+			$kg = round((pkg_meat($r, $dt, 8) + ctm_meat($r, $dt) + fullctm_meat($r, $dt, 8)), 2);
+			return array('val1' => $kg, 'val2' => round($kg * 2.2, 2));
+		},
+		12 => function (&$r, $dt) {	// Boneless Tikka
+			$lb = round(all_qty($r, $dt) * 0.70, 2);
+			return array('val1' => 0, 'val2' => $lb);
+		},
+		13 => function (&$r, $dt) {	// Bihari Kabab
+			$lb = round(all_qty($r, $dt) * 0.50, 2);
+			return array('val1' => 0, 'val2' => $lb);
+		},
+		14 => function (&$r, $dt) {	// Fish
+			$pcs = all_qty($r, $dt);
+			return array('val1' => $pcs, 'val2' => $pcs);
+		},
+		15 => function (&$r, $dt) {	// Zarda Rice
+			$total_qty = pkg_rice($r, $dt) + ctm_rice($r, $dt) + fullctm_rice($r, $dt);
+			$kg = $total_qty / 2;
+			return array('val1' => round($kg, 2), 'val2' => round($kg * 2.2, 2));
+		},
+		16 => function (&$r, $dt) {	// free index
+			return array('val1' => 0, 'val2' => 0);
+		},
+		17 => function (&$r, $dt) {	// Vegi Pasta
+			$total_qty = vegi_pasta_trays($r, $dt);
+			return array('val1' => $total_qty, 'val2' => $total_qty);
+		},
+		18 => function (&$r, $dt) {	// Samosa
+			$total_qty = samosa_count($r, $dt);
+			return array('val1' => $total_qty, 'val2' => $total_qty);
+		},
+		19 => function (&$r, $dt) {	// Spring Rolls
+			$total_qty = spring_roll_count($r, $dt);
+			$kg = $total_qty / 2;
+			return array('val1' => $total_qty, 'val2' => $total_qty);
 		}
 	);
-	return $meat_funs[$r['cal']]($r,$dt);
- }
-
-	// Ingredients Daily RS
-	function ingredientRs($qry,$dt)
-	{
-		$rs = q($qry); $arr = array();
-		while($r = mysqli_fetch_assoc($rs)){
-			$res = getIngVal($r,$dt);
-			$r['val1'] = $res['val1'];
-			$r['val2'] = $res['val2'];
-			$r['total'] = 0.0;
-			array_push($arr,$r);
-		}
-
-		foreach ($arr as $key => $val) {
-			$limit = $val['rowspan'];
-			$arr[$key]['total'] = $val['val2'];
-			if ($limit>1)
-				for ($i=1; $i < $limit; $i++)
-					$arr[$key]['total'] += $arr[$key+$i]['val2'];
-		}
-		return $arr;
-	}
-
-	// Ingredients Weekly RS
-	function ingredientWeeklyRs($qry,$dt)
-	{
-		$rs = q($qry); $arr = array();$arr2 = array();
-		while($r = mysqli_fetch_assoc($rs)){
-			$value_with_unit = get_display_unit_for_value($r['display_report_unit']);
-			$r['qty'] = weeklyIngVals($r,$dt,$value_with_unit);
-			$r['wtotal'] = arrTotal($r['qty']);
-			$r['purchased'] = getPurchasedItems($r['id'],$dt);
-			$r['remaining'] = 0;
-			$r['total'] = 0;
-			array_push($arr,$r);
-		}
-
-		foreach ($arr as $key => $val) {
-			if($val['reportspan']==0) continue;
-			$limit = $val['reportspan'];
-
-			if ($limit>1) {
-				for ($i=1; $i < $limit; $i++){
-					$arr[$key]['wtotal'] += $arr[$key+$i]['wtotal'];
-					$arr[$key]['qty'] = mergeSum($arr[$key]['qty'],$arr[$key+$i]['qty']);
-				}
-				if(!is_null($arr[$key]['merge_name'])) $arr[$key]['name'] = $arr[$key]['merge_name'];
-			}
-			$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
-			array_push($arr2,$arr[$key]);
-		}
-		return $arr2;
-	}
-
-function get_display_unit_for_value($unit){
-	if($unit == 'KG')
-		return 'val1';
-	return 'val2';
+	return $meat_funs[$r['cal']]($r, $dt);
 }
 
-function get_unit_for_report($r){
-	if($r['display_report_unit'] == 'KG')
-		return $r['unit1'];
-	return $r['unit2'];
-}
-
-function weeklyIngVals($r,$dt,$val="val2"){
-	$monday = firstDayOfWeek($dt);
+// Ingredients Daily RS
+function ingredientRs($qry, $dt)
+{
+	$rs = q($qry);
 	$arr = array();
-	for ($i=0; $i < 7; $i++) { 
-		array_push($arr, getIngVal($r,incDay($monday,$i))[$val]);
+	while ($r = mysqli_fetch_assoc($rs)) {
+		$res = getIngVal($r, $dt);
+		$r['val1'] = $res['val1'];
+		$r['val2'] = $res['val2'];
+		$r['total'] = 0.0;
+		array_push($arr, $r);
+	}
+
+	foreach ($arr as $key => $val) {
+		$limit = $val['rowspan'];
+		$arr[$key]['total'] = $val['val2'];
+		if ($limit > 1)
+			for ($i = 1; $i < $limit; $i++)
+				$arr[$key]['total'] += $arr[$key + $i]['val2'];
 	}
 	return $arr;
 }
 
-function getPurchasedItems($id,$dt){
+// Ingredients Weekly RS
+function ingredientWeeklyRs($qry, $dt)
+{
+	$rs = q($qry);
+	$arr = array();
+	$arr2 = array();
+	while ($r = mysqli_fetch_assoc($rs)) {
+		$value_with_unit = get_display_unit_for_value($r['display_report_unit']);
+		$r['qty'] = weeklyIngVals($r, $dt, $value_with_unit);
+		$r['wtotal'] = arrTotal($r['qty']);
+		$r['purchased'] = getPurchasedItems($r['id'], $dt);
+		$r['remaining'] = 0;
+		$r['total'] = 0;
+		array_push($arr, $r);
+	}
+
+	foreach ($arr as $key => $val) {
+		if ($val['reportspan'] == 0)
+			continue;
+		$limit = $val['reportspan'];
+
+		if ($limit > 1) {
+			for ($i = 1; $i < $limit; $i++) {
+				$arr[$key]['wtotal'] += $arr[$key + $i]['wtotal'];
+				$arr[$key]['qty'] = mergeSum($arr[$key]['qty'], $arr[$key + $i]['qty']);
+			}
+			if (!is_null($arr[$key]['merge_name']))
+				$arr[$key]['name'] = $arr[$key]['merge_name'];
+		}
+		$arr[$key]['remaining'] = $arr[$key]['wtotal'] - $arr[$key]['purchased'];
+		array_push($arr2, $arr[$key]);
+	}
+	return $arr2;
+}
+
+function get_display_unit_for_value($unit)
+{
+	if ($unit == 'KG')
+		return 'val1';
+	return 'val2';
+}
+
+function get_unit_for_report($r)
+{
+	if ($r['display_report_unit'] == 'KG')
+		return $r['unit1'];
+	return $r['unit2'];
+}
+
+function weeklyIngVals($r, $dt, $val = "val2")
+{
+	$monday = firstDayOfWeek($dt);
+	$arr = array();
+	for ($i = 0; $i < 7; $i++) {
+		array_push($arr, getIngVal($r, incDay($monday, $i))[$val]);
+	}
+	return $arr;
+}
+
+function getPurchasedItems($id, $dt)
+{
 	$dt = firstDayOfWeek($dt);
 	return getbit("select value from purchased_items where ingredient_id = {$id} and DATE(date) = '$dt' ") ?? 0;
 }
 
 
-function p($qry,$limit=26){
-	if(isset($_POST['page'])){
+function p($qry, $limit = 26)
+{
+	if (isset($_POST['page'])) {
 		$pgno = (int) $_POST['page'];
-	}else{	$pgno = 1;	}
+	} else {
+		$pgno = 1;
+	}
 	$rows = mysqli_num_rows(q($qry));
-	$GLOBALS['pages'] = ceil($rows/$limit);
-	$offset = ($pgno-1) * $limit;
-	$qry.=" limit $offset,$limit";
-	return	q($qry);
- }
-function norecord($rs,$num){
-	if(mysqli_num_rows($rs)<1){
+	$GLOBALS['pages'] = ceil($rows / $limit);
+	$offset = ($pgno - 1) * $limit;
+	$qry .= " limit $offset,$limit";
+	return q($qry);
+}
+function norecord($rs, $num)
+{
+	if (mysqli_num_rows($rs) < 1) {
 		echo "<tr><td colspan='$num'>";
 		echo "<span class='text-danger font-weight-bold'>No record found!</span>";
 		echo "</td></tr>";
 	}
- }
-function norecord_arr($rs,$num){
-	if(count($rs)<1){
+}
+function norecord_arr($rs, $num)
+{
+	if (count($rs) < 1) {
 		echo "<tr><td colspan='$num'>";
 		echo "<span class='text-danger font-weight-bold'>No record found!</span>";
 		echo "</td></tr>";
 	}
- }
-function tbl_pagination($num){
+}
+function tbl_pagination($num)
+{
 	echo "<tr class='d-print-none'><td colspan='$num'>";
 	include 'inc/pagination.php';
 	echo "</td></tr>";
- }
+}
 
 //  remove this function
-function flt_qry($qry,$ex="",$limit=15){
-	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
+function flt_qry($qry, $ex = "", $limit = 15)
+{
+	$GLOBALS['sr'] = isset($_POST['page']) ? (int) ($_POST['page'] - 1) * $_POST['limit'] : 1;
 	$clause = array();
-		if(isset($_POST['search'])){
-			$srch = $_POST['search'];
-			$q = " name like '%$srch%'";		
-			if(is_numeric($srch)) $q .= " or id=$srch";		
-			$clause[] = $q;
-		}
-		if(isset($_POST['searchid'])){
-			$clause[] = " id = ".$_POST['searchid'];			
-		}
-		if(isset($_POST['delivery_time'])){
-			$clause[] = " DATE(delivery_time) = '".$_POST['delivery_time']."'";			
-		}
-		if(isset($_POST['pickup_time'])){
-			$clause[] = " pickup_time like '%".$_POST['pickup_time']."%'";			
-		}
-		if(isset($_POST['phone'])){
-			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
-		}
-		if(isset($_POST['limit'])){
-			$limit = $_POST['limit'];			
-		}
-		if(count($clause)>0)
-		{
-			$cls = implode(" and ", $clause);
-			$qry .= " where ".$cls;
-		}
-		return p($qry." ".$ex,$limit);
- }
-
-function get_filter_query($qry,$ex="",$paginated=false, $limit=15){
-	$GLOBALS['sr'] = isset($_POST['page'])? (int) ($_POST['page']-1)*$_POST['limit']:1;
-	$clause = array();
-		if(isset($_POST['search'])){
-			$srch = $_POST['search'];
-			$q = " name like '%$srch%'";		
-			if(is_numeric($srch)) $q .= " or id=$srch";		
-			$clause[] = $q;
-		}
-		if(isset($_POST['searchid'])){
-			$clause[] = " id = ".$_POST['searchid'];			
-		}
-		if(isset($_POST['delivery_time'])){
-			$clause[] = " DATE(delivery_time) = '".$_POST['delivery_time']."'";			
-		}
-		if(isset($_POST['pickup_time'])){
-			$clause[] = " pickup_time like '%".$_POST['pickup_time']."%'";			
-		}
-		if(isset($_POST['phone'])){
-			$clause[] = " phone1 like '%".$_POST['phone']."%' or phone2 like '%".$_POST['phone']."%'";	
-		}
-		if(isset($_POST['limit'])){
-			$limit = $_POST['limit'];			
-		}
-		if(count($clause)>0)
-		{
-			$cls = implode(" and ", $clause);
-			$qry .= " where ".$cls;
-		}
-		
-		$qry = $qry." ".$ex;
-
-		if(!$paginated){
-			return $qry;
-		}
-
-		$pgno = isset($_POST['page']) ? (int) $_POST['page'] : 1;
-		$rows = mysqli_num_rows(q($qry));
-		$GLOBALS['pages'] = ceil($rows / $limit);
-		$offset = ($pgno - 1) * $limit;
-		$qry .= " limit $offset, $limit";
-		return $qry;
+	if (isset($_POST['search'])) {
+		$srch = $_POST['search'];
+		$q = " name like '%$srch%'";
+		if (is_numeric($srch))
+			$q .= " or id=$srch";
+		$clause[] = $q;
+	}
+	if (isset($_POST['searchid'])) {
+		$clause[] = " id = " . $_POST['searchid'];
+	}
+	if (isset($_POST['delivery_time'])) {
+		$clause[] = " DATE(delivery_time) = '" . $_POST['delivery_time'] . "'";
+	}
+	if (isset($_POST['pickup_time'])) {
+		$clause[] = " pickup_time like '%" . $_POST['pickup_time'] . "%'";
+	}
+	if (isset($_POST['phone'])) {
+		$clause[] = " phone1 like '%" . $_POST['phone'] . "%' or phone2 like '%" . $_POST['phone'] . "%'";
+	}
+	if (isset($_POST['limit'])) {
+		$limit = $_POST['limit'];
+	}
+	if (count($clause) > 0) {
+		$cls = implode(" and ", $clause);
+		$qry .= " where " . $cls;
+	}
+	return p($qry . " " . $ex, $limit);
 }
 
-function qbuild($qry){
+function get_filter_query($qry, $ex = "", $paginated = false, $limit = 15)
+{
+	$GLOBALS['sr'] = isset($_POST['page']) ? (int) ($_POST['page'] - 1) * $_POST['limit'] : 1;
 	$clause = array();
-	if(isset($_POST['search'])){
-		$clause[] = " name like '%".$_POST['search']."%'";			
+	if (isset($_POST['search'])) {
+		$srch = $_POST['search'];
+		$q = " name like '%$srch%'";
+		if (is_numeric($srch))
+			$q .= " or id=$srch";
+		$clause[] = $q;
 	}
-	if(isset($_POST['delivery_time'])){
-		$clause[] = " DATE(delivery_time) = '".$_POST['delivery_time']."'";			
+	if (isset($_POST['searchid'])) {
+		$clause[] = " id = " . $_POST['searchid'];
 	}
-	if(isset($_POST['searchid'])){
-		$clause[] = " id = ".$_POST['searchid'];			
+	if (isset($_POST['delivery_time'])) {
+		$clause[] = " DATE(delivery_time) = '" . $_POST['delivery_time'] . "'";
 	}
-	if(count($clause)>0)
-	{
+	if (isset($_POST['pickup_time'])) {
+		$clause[] = " pickup_time like '%" . $_POST['pickup_time'] . "%'";
+	}
+	if (isset($_POST['phone'])) {
+		$clause[] = " phone1 like '%" . $_POST['phone'] . "%' or phone2 like '%" . $_POST['phone'] . "%'";
+	}
+	if (isset($_POST['limit'])) {
+		$limit = $_POST['limit'];
+	}
+	if (count($clause) > 0) {
 		$cls = implode(" and ", $clause);
-		$qry .= " where ".$cls;
+		$qry .= " where " . $cls;
+	}
+
+	$qry = $qry . " " . $ex;
+
+	if (!$paginated) {
+		return $qry;
+	}
+
+	$pgno = isset($_POST['page']) ? (int) $_POST['page'] : 1;
+	$rows = mysqli_num_rows(q($qry));
+	$GLOBALS['pages'] = ceil($rows / $limit);
+	$offset = ($pgno - 1) * $limit;
+	$qry .= " limit $offset, $limit";
+	return $qry;
+}
+
+function qbuild($qry)
+{
+	$clause = array();
+	if (isset($_POST['search'])) {
+		$clause[] = " name like '%" . $_POST['search'] . "%'";
+	}
+	if (isset($_POST['delivery_time'])) {
+		$clause[] = " DATE(delivery_time) = '" . $_POST['delivery_time'] . "'";
+	}
+	if (isset($_POST['searchid'])) {
+		$clause[] = " id = " . $_POST['searchid'];
+	}
+	if (count($clause) > 0) {
+		$cls = implode(" and ", $clause);
+		$qry .= " where " . $cls;
 	}
 	return $qry;
- }
-function fsum($clm,$tbl,$ex=""){
+}
+function fsum($clm, $tbl, $ex = "")
+{
 	$qry = "select ROUND(SUM($clm),2) from $tbl ";
 	$qry = qbuild($qry);
-	return getbit($qry." ".$ex);
- }
-function qsum($clm,$tbl,$ex=""){
+	return getbit($qry . " " . $ex);
+}
+function qsum($clm, $tbl, $ex = "")
+{
 	$qry = "select ROUND(SUM($clm),2) from $tbl ";
-	return getbit($qry.$ex);
- }
-function fnum($tbl,$ex=""){
+	return getbit($qry . $ex);
+}
+function fnum($tbl, $ex = "")
+{
 	$qry = "select count(id) from $tbl ";
 	$qry = qbuild($qry);
-	return getbit($qry." ".$ex);
- }
+	return getbit($qry . " " . $ex);
+}
 
-function firstDayOfWeek($date){
-	$weekday = date("l",strtotime($date));
-	while($weekday!="Monday"){
-		$date = date("Y-m-d",strtotime($date."-1 day"));
-		$weekday = date("l",strtotime($date));
+function firstDayOfWeek($date)
+{
+	$weekday = date("l", strtotime($date));
+	while ($weekday != "Monday") {
+		$date = date("Y-m-d", strtotime($date . "-1 day"));
+		$weekday = date("l", strtotime($date));
 	}
 	return $date;
 }
-function lastDayOfWeek($date){
-	$weekday = date("l",strtotime($date));
-	while($weekday!="Sunday"){
-		$date = date("Y-m-d",strtotime($date."+1 day"));
-		$weekday = date("l",strtotime($date));
+function lastDayOfWeek($date)
+{
+	$weekday = date("l", strtotime($date));
+	while ($weekday != "Sunday") {
+		$date = date("Y-m-d", strtotime($date . "+1 day"));
+		$weekday = date("l", strtotime($date));
 	}
 	return $date;
 }
-function showWeek($date){
-	return "Monday(".firstDayOfWeek($date).") - Sunday(".lastDayOfWeek($date).")";
+function showWeek($date)
+{
+	return "Monday(" . firstDayOfWeek($date) . ") - Sunday(" . lastDayOfWeek($date) . ")";
 }
-function show_prebooking_date_title($date){
+function show_prebooking_date_title($date)
+{
 	$start = date("F Y", strtotime($date));
 	$end = date("F Y", strtotime($date . " +5 months"));
 	return $start . " - " . $end;
 }
-function incDay($date,$i=1){
-	return date("Y-m-d",strtotime($date."+".$i." day"));
+function incDay($date, $i = 1)
+{
+	return date("Y-m-d", strtotime($date . "+" . $i . " day"));
 }
-function arrTotal($arr){
+function arrTotal($arr)
+{
 	$sum = 0;
-	foreach ($arr as $key => $val) $sum += $val;
+	foreach ($arr as $key => $val)
+		$sum += $val;
 	return $sum;
 }
-function mergeSum($arr,$arr2){
-	foreach ($arr as $key => $val) $arr[$key] += $arr2[$key];
+function mergeSum($arr, $arr2)
+{
+	foreach ($arr as $key => $val)
+		$arr[$key] += $arr2[$key];
 	return $arr;
 }
 
-function nullIfNone($val){
-	if($val!='none')
+function nullIfNone($val)
+{
+	if ($val != 'none')
 		return $val;
 	else
 		return 'NULL';
 }
 
-function nullIfZ($val){
-	if($val=='' or $val==0)
+function nullIfZ($val)
+{
+	if ($val == '' or $val == 0)
 		return 'NULL';
 	else
 		return $val;
