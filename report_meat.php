@@ -9,13 +9,14 @@
 				<div class="col-md-4">
 					<div class="input-group input-group-sm d-print-none">
 						<div class="input-group-prepend">
-						    <span class="input-group-text">Date</span>
+							<span class="input-group-text">Date</span>
 						</div>
 						<input type="date" id="date" onchange="ingredients()" class="form-control filter">
 					</div>
 				</div>
 				<div class="col-md-2 d-print-none">
-					<button onclick="window.print()" class="float-right btn btn-sm btn-success"><i class="fa fa-print"></i></button>
+					<button onclick="window.print()" class="float-right btn btn-sm btn-success"><i
+							class="fa fa-print"></i></button>
 					<div class="input-group input-group-sm float-right mx-1" style="width: 60px;">
 						<select id="font" class="form-control" onchange="change_font_size(this)">
 							<option value="8">8</option>
@@ -28,8 +29,8 @@
 					</div>
 				</div>
 			</div>
-			<div id="tbl" data-fun="5010" >
-				
+			<div id="tbl" data-fun="5010">
+
 			</div>
 		</div>
 	</div>
