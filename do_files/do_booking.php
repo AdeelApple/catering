@@ -213,6 +213,8 @@ include '../inc/build.php';
 						$is_meat_cal = "NULL";
 						$is_rice_cal = "NULL";
 						$meat_type = "NULL";
+						$ingredient_id = "NULL";
+						$mr_limits = "NULL";
 
 					}
 

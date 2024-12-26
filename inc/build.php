@@ -1556,13 +1556,13 @@ function vegi_pasta_trays(&$r, $dt)
 }
 function samosa_count(&$r, $dt)
 {
-	$qry = "select sum(qty) from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qry = "select sum(qty) from order_items where name='Samosa' and date(delivery_time)='{$dt}'";
 	$qty = getbit($qry);
 	return is_null($qty) ? 0 : $qty;
 }
 function spring_roll_count(&$r, $dt)
 {
-	$qry = "select sum(qty) as total from order_items where ingredient_id = {$r['id']} and date(delivery_time)='{$dt}'";
+	$qry = "select sum(qty) as total from order_items where name='Spring Rolls' and date(delivery_time)='{$dt}'";
 	$qty = getbit($qry);
 	return is_null($qty) ? 0 : $qty;
 }
