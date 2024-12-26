@@ -165,6 +165,8 @@ INSERT INTO `food_custom_items` (`id`, `name`, `rank`, `food_custom`, `sm_price`
 (105700, 'Vegetarian Lasagna', 40, 200, 45.00, NULL, 90.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (105800, 'Beef Lasagna', 41, 200, 50.00, NULL, 100.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (105900, 'Chicken Parmesan', 42, 200, 80.00, NULL, 120.00, NULL, 4, NULL, NULL, NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1);
+(106000, 'Samosa', 43, 100, NULL, NULL, NULL, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 18, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
+(106100, 'Spring Rolls', 44, 100, NULL, NULL, NULL, 0.00, 4, NULL, NULL, NULL, NULL, NULL, 19, 1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1);
 
 -- --------------------------------------------------------
 
